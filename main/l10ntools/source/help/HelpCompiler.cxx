@@ -75,6 +75,10 @@ xmlDocPtr HelpCompiler::getSourceDocument(const fs::path &filePath)
 			static std::string fsroot('\'' + src.toUTF8() + '\'');
 			static std::string esclang('\'' + lang + '\'');
 
+			// Build-time only: this compiler walks trusted in-tree help XML
+			// and XSLT. External entity loading stays enabled here so local
+			// stylesheets/DTDs still resolve. It is not a document-import
+			// path; untrusted XML must not go through HelpCompiler.
 			xmlSubstituteEntitiesDefault(1);
 			xmlLoadExtDtdDefaultValue = 1;
 			cur = xsltParseStylesheetFile((const xmlChar *)resEmbStylesheet.native_file_string().c_str());

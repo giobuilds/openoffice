@@ -26,6 +26,7 @@
 #include "gtest/gtest.h"
 
 #include <rtl/ref.hxx>
+#include <rtl/string.hxx>
 #include <osl/file.hxx>
 #include <osl/process.h>
 #include <comphelper/seqstream.hxx>
@@ -37,6 +38,10 @@
 #include <com/sun/star/xml/sax/FastToken.hpp>
 #include <com/sun/star/xml/sax/XSAXSerializable.hpp>
 #include <com/sun/star/xml/sax/XFastSAXSerializable.hpp>
+#include <com/sun/star/xml/sax/SAXParseException.hpp>
+#include <com/sun/star/xml/dom/XElement.hpp>
+#include <com/sun/star/xml/dom/XNode.hpp>
+#include <com/sun/star/xml/dom/XNodeList.hpp>
 
 #include <cstdlib>
 
@@ -258,6 +263,71 @@ TEST_F(BasicTest, fatalInputTest)
             mxFatalInStream.get())).is() ) << "Broken input file resulted in XDocument";
     ASSERT_TRUE( !mxErrHandler->mnWarnCount && !mxErrHandler->mnErrCount && mxErrHandler->mnFatalCount )
         << "No fatal parse errors in unclean input file";
+};
+
+static rtl::OUString collectNodeText( const uno::Reference< xml::dom::XNode >& xNode )
+{
+    rtl::OUString aText;
+    if ( !xNode.is() )
+        return aText;
+    aText += xNode->getNodeValue();
+    uno::Reference< xml::dom::XNodeList > xKids = xNode->getChildNodes();
+    if ( xKids.is() )
+    {
+        const sal_Int32 nLen = xKids->getLength();
+        for ( sal_Int32 i = 0; i < nLen; ++i )
+            aText += collectNodeText( xKids->item( i ) );
+    }
+    return aText;
+}
+
+TEST_F(BasicTest, externalEntityNotFetched)
+{
+    const char pCanary[] = "XXE_CANARY_OPENOFFICE_SHOULD_NOT_APPEAR";
+    rtl::OUString aTempUrl;
+    ASSERT_TRUE( osl::FileBase::createTempFile( 0, 0, &aTempUrl )
+        == osl::FileBase::E_None );
+
+    {
+        osl::File aFile( aTempUrl );
+        ASSERT_TRUE( aFile.open( osl_File_OpenFlag_Write ) == osl::FileBase::E_None );
+        sal_uInt64 nWritten = 0;
+        ASSERT_TRUE( aFile.write( pCanary, sizeof( pCanary ) - 1, nWritten )
+            == osl::FileBase::E_None );
+        aFile.close();
+    }
+
+    rtl::OUString aXml = rtl::OUString::createFromAscii(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<!DOCTYPE foo [\n"
+            "  <!ENTITY xxe SYSTEM \"" )
+        + aTempUrl
+        + rtl::OUString::createFromAscii( "\">\n]>\n<foo>&xxe;</foo>\n" );
+    rtl::OString aUtf8 = rtl::OUStringToOString( aXml, RTL_TEXTENCODING_UTF8 );
+    rtl::Reference< SequenceInputStream > xIn(
+        new SequenceInputStream( ByteSequence(
+            (sal_Int8*)aUtf8.getStr(), aUtf8.getLength() ) ) );
+
+    bool bSawCanary = false;
+    try
+    {
+        uno::Reference< xml::dom::XDocument > xDoc = mxDomBuilder->parse(
+            uno::Reference< io::XInputStream >( xIn.get() ) );
+        if ( xDoc.is() && xDoc->getDocumentElement().is() )
+        {
+            rtl::OUString aText = collectNodeText(
+                uno::Reference< xml::dom::XNode >(
+                    xDoc->getDocumentElement(), uno::UNO_QUERY ) );
+            bSawCanary = aText.indexOfAsciiL( pCanary, sizeof( pCanary ) - 1 ) >= 0;
+        }
+    }
+    catch ( const xml::sax::SAXParseException& )
+    {
+        // Failing closed is acceptable.
+    }
+
+    osl::File::remove( aTempUrl );
+    ASSERT_TRUE( !bSawCanary ) << "XXE: default resolver fetched a file: entity";
 };
 
 
