@@ -13,9 +13,13 @@
 #    <value> can contain references to other variables in the form $(<other-variable>)
 #
 # Some variables have special names:
-#    MD5 defines the MD5 check-sum of a library
-#    URL1 to URL9 define alternative download sites. The first one that provides the library
-#    with matching MD5 wins.
+#    MD5 defines the MD5 check-sum of a library. It is also the on-disk
+#    filename prefix ($(MD5)-$(name)) so makefile TARFILE_MD5 values stay valid.
+#    SHA256, when present, is verified in addition to MD5. A download that only
+#    matches MD5 is rejected. Not every historical pin has SHA256 yet; those
+#    still verify MD5 only. New or retargeted pins must include SHA256.
+#    URL1 to URL9 define alternative download sites (HTTPS only). The first one
+#    that provides the library with matching checksums wins.
 #    name is the name under which the library tar-ball is stored. It overrides the name of the
 #    downloaded file.
 
@@ -33,6 +37,7 @@ OOO_EXTRAS=https://sourceforge.net/projects/oooextras.mirror/files/
 
 if ( true )
     MD5 = 0168229624cfac409e766913506961a8
+    SHA256 = 983941d31ee8d366085cadf28db75eb1f5cb03ba1e5853b98f12f7f51c63b776
     name = ucpp-1.3.2.tar.gz
     URL1 = https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/ucpp/ucpp-1.3.2.tar.gz
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
@@ -57,6 +62,7 @@ if (SYSTEM_MDDS != YES)
 
 if (SYSTEM_LIBTEXTCAT != YES)
     MD5 = 128cfc86ed5953e57fe0f5ae98b62c2e
+    SHA256 = 5677badffc48a8d332e345ea4fe225e3577f53fc95deeec8306000b256829655
     name = libtextcat-2.2.tar.gz
     URL1 = https://software.wise-guys.nl/download/libtextcat-2.2.tar.gz
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
@@ -69,41 +75,48 @@ if (SOLAR_JAVA == TRUE)
 
 if ( true )
     MD5 = 1756c4fa6c616ae15973c104cd8cb256
+    SHA256 = 6e6c53064ef6f40891ad72c06fab9f3c8fdcda80e03c9d0b21244cb1d4bf030b
     name = Adobe-Core35_AFMs-314.tar.gz
     URL1 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (SOLAR_JAVA==TRUE && SYSTEM_LUCENE!=YES)
     MD5 = 17960f35b2239654ba608cf1f3e256b3
+    SHA256 = 2a8bd7c6f0632bc406bcec0091d286b3efd4743c2d45fd88b0d0d564281780cd
     name = lucene-2.9.4-src.tar.gz
     URL1 = https://archive.apache.org/dist/lucene/java/2.9.4/lucene-2.9.4-src.tar.gz
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (ENABLE_NSS_MODULE!=NO && SYSTEM_NSS!=YES)
     MD5 = 1f24ab1d39f4a51faf22244c94a6203f
+    SHA256 = 390a5085651828b8fe12aa978b200f59b9155eedbb91a4be89bf7cf39eefdd4a
     name = xmlsec1-1.2.14.tar.gz
-    URL1 = http://xmlsoft.org/sources/xmlsec/releases/$(name)
+    URL1 = https://www.aleksey.com/xmlsec/download/older-releases/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (SYSTEM_REDLAND != YES)
     MD5 = a39f6c07ddb20d7dd2ff1f95fa21e2cd
+    SHA256 = ada7f0ba54787b33485d090d3d2680533520cd4426d2f7fb4782dd4a6a1480ed
     name = raptor2-2.0.15.tar.gz
-    URL1 = http://download.librdf.org/source/raptor2-2.0.15.tar.gz
+    URL1 = https://download.librdf.org/source/raptor2-2.0.15.tar.gz
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (SYSTEM_REDLAND != YES)
     MD5 = e5be03eda13ef68aabab6e42aa67715e
+    SHA256 = de1847f7b59021c16bdc72abb4d8e2d9187cd6124d69156f3326dd34ee043681
     name = redland-1.0.17.tar.gz
-    URL1 = http://download.librdf.org/source/redland-1.0.17.tar.gz
+    URL1 = https://download.librdf.org/source/redland-1.0.17.tar.gz
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (SYSTEM_REDLAND != YES)
     MD5 = 1f5def51ca0026cd192958ef07228b52
+    SHA256 = 6924c9ac6570bd241a9669f83b467c728a322470bf34f4b2da4f69492ccfd97c
     name = rasqal-0.9.33.tar.gz
-    URL1 = http://download.librdf.org/source/rasqal-0.9.33.tar.gz
+    URL1 = https://download.librdf.org/source/rasqal-0.9.33.tar.gz
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (GUI!=UNX || SYSTEM_ZLIB!=YES)
     MD5 = a1e6c958597af3c67d162995a342138a
+    SHA256 = bb329a0a0cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16
     name = zlib-1.3.2.tar.gz
     URL1 = https://www.zlib.net/fossils/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
@@ -152,6 +165,7 @@ if (SOLAR_JAVA==TRUE)
 
 if (SYSTEM_OPENSSL!=YES)
     MD5 = fabdcf86f3f54e27689253f85b738959
+    SHA256 = c80a01dfc70ece4dc21168932c37739042d404d46ccc81a5986dd75314ecda6f
     name = openssl-3.0.20.tar.gz
     URL1 = https://github.com/openssl/openssl/releases/download/openssl-3.0.20/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
@@ -163,17 +177,16 @@ if (SYSTEM_OPENSSL!=YES && GUI==WNT)
     URL1 = https://strawberryperl.com/download/5.32.1.1/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
+# xmlsoft.org has no working HTTPS for these .tar.gz pins; extras is HTTPS.
 if (SYSTEM_LIBXML != YES)
     MD5 = 10942a1dc23137a8aa07f0639cbfece5
     name = libxml2-2.9.10.tar.gz
-    URL1 = http://xmlsoft.org/sources/$(name)
-    URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
+    URL1 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (SYSTEM_LIBXSLT != YES)
     MD5 = db8765c8d076f1b6caafd9f2542a304a
     name = libxslt-1.1.34.tar.gz
-    URL1 = http://xmlsoft.org/sources/$(name)
-    URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
+    URL1 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (SOLAR_JAVA == TRUE)
     MD5 = 63574e3ada44f473892a61a2da433a59
@@ -183,12 +196,14 @@ if (SOLAR_JAVA == TRUE)
 
 if (ENABLE_MEDIAWIKI == YES)
     MD5 = a7983f859eafb2677d7ff386a023bc40
+    SHA256 = 75823776fb51a9c526af904f1503a7afaaab900fba83eda64f8a41073724c870
     name = xsltml_2.1.2.zip
     URL1 = https://sourceforge.net/projects/xsltml/files/xsltml/v.2.1.2/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (SYSTEM_PYTHON != YES)
     MD5 = 57f84cbd92d478ceff55217d88a07ded
+    SHA256 = f4de1b10bd6c70cbb9fa1cd71fc5038b832747a74ee59d599c69ce4846defb50
     name = Python-3.11.15.tgz
     URL1 = https://www.python.org/ftp/python/3.11.15/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
@@ -214,6 +229,7 @@ if (SYSTEM_EXPAT != YES)
 
 if (SYSTEM_CURL != YES)
     MD5 = 92f7a11836678b725e2cb59fef10c273
+    SHA256 = f91249c87f68ea00cf27c44fdfa5a78423e41e71b7d408e5901a9896d905c495
     name = curl-8.7.1.tar.gz
     URL1 = https://curl.haxx.se/download/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
@@ -226,6 +242,7 @@ if (WITH_CATA_FONTS == YES)
 
 if (WITH_CATA_FONTS==YES)
     MD5 = 3c90ac73fd13bd79684d9dc073840328
+    SHA256 = 672c3487883ec1ef83d9254240d4327b014212abc823d06d15816095867315e1
     name = croscorefonts-1.31.0.tar.bz2
     URL1 = https://gsdview.appspot.com/chromeos-localmirror/distfiles/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
@@ -238,6 +255,7 @@ if (WITH_CATA_FONTS==YES)
 
 if ( true )
     MD5 = fdb27bfe2dbe2e7b57ae194d9bf36bab
+    SHA256 = e6bcbfc521d23899511799c912ce21fbc003d55c3d56408e3c8dabf20fea8256
     name = SampleICC-1.3.2.tar.gz
     # This seems to be the original host, but the MD5 sum does not match.
     # URL1 = https://sourceforge.net/projects/sampleicc/files/sampleicc/SampleICC%201.3.2/SampleICC-1.3.2.zip
