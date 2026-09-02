@@ -31,6 +31,7 @@
 #include <ZipPackageFolderEnumeration.hxx>
 #include <com/sun/star/packages/zip/ZipConstants.hpp>
 #include <com/sun/star/embed/StorageFormats.hpp>
+#include <com/sun/star/xml/crypto/CipherID.hpp>
 #include <vos/diagnose.hxx>
 #include <osl/time.h>
 #include <rtl/digest.h>
@@ -462,7 +463,9 @@ bool ZipPackageFolder::saveChild( const ::rtl::OUString &rShortName, const Conte
                     uno::Sequence < sal_Int8 > aSalt( 16 ), aVector( rInfo.pStream->GetBlockSize() );
                     rtl_random_getBytes ( rRandomPool, aSalt.getArray(), 16 );
                     rtl_random_getBytes ( rRandomPool, aVector.getArray(), aVector.getLength() );
-                    sal_Int32 nIterationCount = 1024;
+                    sal_Int32 nIterationCount = n_ConstBlowfishIterationCount;
+                    if ( rInfo.pStream->GetEncryptionAlgorithm() == xml::crypto::CipherID::AES_CBC_W3C_PADDING )
+                        nIterationCount = n_ConstAESIterationCount;
 
                     if ( !rInfo.pStream->HasOwnKey() )
                         rInfo.pStream->setKey ( rEncryptionKey );

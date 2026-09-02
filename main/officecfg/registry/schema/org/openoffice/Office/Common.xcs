@@ -2226,15 +2226,15 @@
 				</prop>
 				<prop oor:name="UseSHA1InODF12" oor:type="xs:boolean">
 					<info>
-						<desc>Specifies whether SHA1 algorithm instead of SHA256 should be used in ODF12 for StartKey and Checksum generation during encryption.</desc>
+						<desc>Specifies whether SHA1 algorithm instead of SHA256 should be used in ODF12 for StartKey and Checksum generation during encryption. Default false: new ODF 1.2 files use SHA-256. Set true for Apache OpenOffice 4.1.x / older LibreOffice interop.</desc>
 					</info>
-					<value>true</value>
+					<value>false</value>
 				</prop>
 				<prop oor:name="UseBlowfishInODF12" oor:type="xs:boolean">
 					<info>
-						<desc>Specifies whether Blowfish algorithm instead of AES should be used in ODF12 for encryption.</desc>
+						<desc>Specifies whether Blowfish algorithm instead of AES should be used in ODF12 for encryption. Default false: new ODF 1.2 files use AES-256. Set true for Apache OpenOffice 4.1.x / older LibreOffice interop. Existing Blowfish files still decrypt.</desc>
 					</info>
-					<value>true</value>
+					<value>false</value>
 				</prop>
 			</group>
 		</group>
