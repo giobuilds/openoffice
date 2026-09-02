@@ -29,6 +29,7 @@
 
 #include <libxml/xmlerror.h>
 #include <libxml/tree.h>
+#include <libxml/parser.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -39,11 +40,6 @@
 #include <cppuhelper/implbase1.hxx>
 
 #include <com/sun/star/xml/sax/SAXParseException.hpp>
-#include <com/sun/star/ucb/XCommandEnvironment.hpp>
-#include <com/sun/star/task/XInteractionHandler.hpp>
-
-#include <ucbhelper/content.hxx>
-#include <ucbhelper/commandenvironment.hxx>
 
 #include <node.hxx>
 #include <document.hxx>
@@ -52,9 +48,6 @@
 using ::rtl::OUStringBuffer;
 using ::rtl::OString;
 using ::com::sun::star::xml::sax::InputSource;
-using namespace ucbhelper;
-using namespace ::com::sun::star::ucb;
-using ::com::sun::star::task::XInteractionHandler;
 
 
 namespace DOM
@@ -65,22 +58,13 @@ namespace DOM
 	public:
 	    virtual InputSource SAL_CALL resolveEntity( const OUString& sPublicId, const OUString& sSystemId )
 		{
+			// Do not fetch file:/http:/ftp: (or any other) URLs. Untrusted
+			// documents can otherwise read local files or hit the network (XXE).
+			// Callers that need entity resolution must setEntityResolver().
 			InputSource is;
 			is.sPublicId = sPublicId;
 			is.sSystemId = sSystemId;
 			is.sEncoding = OUString();
-
-			try {
-				Reference< XCommandEnvironment > aEnvironment(
-					new CommandEnvironment(Reference< XInteractionHandler >(),
-										   Reference< XProgressHandler >() ));
-				Content aContent(sSystemId, aEnvironment);
-
-				is.aInputStream = aContent.openStream();
-			} catch (com::sun::star::uno::Exception) {
-				OSL_ENSURE(sal_False, "exception in default entity resolver");
-				is.aInputStream = Reference< XInputStream >();
-			}
 			return is;
 		}
 
@@ -249,8 +233,15 @@ namespace DOM
 		if (publicId != 0)
 			pubid = OUString((sal_Char*)publicId, strlen((char*)publicId), RTL_TEXTENCODING_UTF8);
 
+		if (!resolver.is())
+			return NULL;
+
 		// resolve the entity
 		InputSource src = resolver->resolveEntity(pubid, sysid);
+		// Empty stream: default resolver (and any resolver that refuses the
+		// URL) must not produce an IO object, or libxml2 will still read it.
+		if (!src.aInputStream.is())
+			return NULL;
 
 		// create IO context on heap because this call will no longer be on the stack
 		// when IO is actually performed through the callbacks. The close function must
@@ -338,7 +329,7 @@ namespace DOM
 		c.close = false;
 		c.freeOnClose = false;
         xmlDocPtr const pDoc = xmlCtxtReadIO(pContext.get(),
-                xmlIO_read_func, xmlIO_close_func, &c, 0, 0, 0);
+                xmlIO_read_func, xmlIO_close_func, &c, 0, 0, XML_PARSE_NONET);
 
 		if (pDoc == 0) {
             throwEx(pContext.get());
@@ -361,7 +352,7 @@ namespace DOM
 		// xmlSetExternalEntityLoader(external_entity_loader);
 		OString oUri = OUStringToOString(sUri, RTL_TEXTENCODING_UTF8);
 		char *uri = (char*) oUri.getStr();
-        xmlDocPtr pDoc = xmlCtxtReadFile(pContext.get(), uri, 0, 0);
+        xmlDocPtr pDoc = xmlCtxtReadFile(pContext.get(), uri, 0, XML_PARSE_NONET);
 		if (pDoc == 0) {
             throwEx(pContext.get());
         }

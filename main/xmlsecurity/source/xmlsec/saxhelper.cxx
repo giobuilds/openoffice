@@ -148,11 +148,11 @@ SAXHelper::SAXHelper( )
 	xmlInitParser() ;
 	LIBXML_TEST_VERSION ;
 
-	/*
-	 * compile error:
-	 * xmlLoadExtDtdDefaultValue = XML_DETECT_IDS | XML_COMPLETE_ATTRS ;
-	 */
-	xmlSubstituteEntitiesDefault( 1 ) ;
+	// Do not substitute external entities or load external DTDs.
+	// xmlSubstituteEntitiesDefault() is process-wide; 1 would enable
+	// XXE for every later libxml2 parse in this process.
+	xmlLoadExtDtdDefaultValue = 0;
+	xmlSubstituteEntitiesDefault( 0 ) ;
 
 #ifndef XMLSEC_NO_XSLT
 	xmlIndentTreeOutput = 1 ;
