@@ -969,7 +969,10 @@ ProfileItem gid_Brand_Profileitem_Version_Extensionupdateurl
     Section = "Version";
     Order = 18;
     Key = "ExtensionUpdateURL";
-    Value = "http://updateexte.services.openoffice.org/ExtensionUpdateService/check.Update";
+    // HTTP on updateexte.services.openoffice.org 301s here. Direct HTTPS to
+    // updateexte.services.openoffice.org presents a SourceForge cert
+    // (CN=secureprojects.sourceforge.net) and fails hostname verify.
+    Value = "https://extensions.openoffice.org/ExtensionUpdateService/check.Update";
 End
 
 #ifdef JSC

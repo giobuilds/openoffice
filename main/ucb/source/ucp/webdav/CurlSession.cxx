@@ -109,16 +109,11 @@ CurlSession::CurlSession(
     curl_easy_setopt( m_pCurl, CURLOPT_SSL_CTX_FUNCTION, Curl_SSLContextCallback );
     curl_easy_setopt( m_pCurl, CURLOPT_SSL_CTX_DATA, this );
 
-    // If a certificate's common name / alt name doesn't match the hostname we are
-    // connecting to, Curl will refuse to connect. Disable this, as we do that check
-    // ourselves, and give the user the option of connecting anyway.
-    //
-    // Note also, how "man CURLOPT_SSL_VERIFYHOST" tells us that setting 0 here
-    // disables SNI, which is bad news, some servers require SNI. However reading Curl
-    // 8.6.0's Curl_ssl_peer_init() in file lib/vtls/vtls.c shows that SNI is sent
-    // regardless, as long as we are connecting to a domain name, NOT an IP address.
-    // Tests confirm this. For OpenSSL anyway - other Curl crypto providers are stricter...
-    curl_easy_setopt( m_pCurl, CURLOPT_SSL_VERIFYHOST, 0 );
+    // Curl checks CN/SAN against the hostname (2 == match required). A
+    // name-mismatched certificate must not connect, even if the user once
+    // approved a chain. Our SSL_CTX callback still verifies the chain and
+    // may prompt only when the hostname already matches.
+    curl_easy_setopt( m_pCurl, CURLOPT_SSL_VERIFYHOST, 2L );
 
     if ( m_aLogger.getLogLevel() == LogLevel::FINEST )
     {
@@ -467,42 +462,7 @@ int CurlSession::verifyCertificateChain (
         }
     }
 
-    // When the certificate container already contains a (trusted)
-    // entry for the server then we do not have to authenticate any
-    // certificate.
-    const security::CertificateContainerStatus eStatus (
-        m_xCertificateContainer->hasCertificate(
-            getHostName(), sServerCertificateSubject ) );
-    if (eStatus != security::CertificateContainerStatus_NOCERT)
-    {
-        m_aLogger.log( LogLevel::FINER, "Cached certificate found with status=$1$",
-                eStatus == security::CertificateContainerStatus_TRUSTED ? "trusted" : "untrusted" );
-        return eStatus == security::CertificateContainerStatus_TRUSTED
-               ? X509_V_OK
-               : X509_V_ERR_CERT_UNTRUSTED;
-    }
-
-    // The shortcut failed, so try to verify the whole chain. This is
-    // done outside the isDomainMatch() block because the result is
-    // used by the interaction handler.
-    std::vector< uno::Reference< security::XCertificate > > aChain;
-    for (nIndex=0; nIndex < asn1DerCertificates.size(); ++nIndex)
-    {
-        uno::Reference< security::XCertificate > xCertificate(
-            m_xSecurityEnv->createCertificateFromRaw( asn1DerCertificates[ nIndex ] ) );
-        if ( ! xCertificate.is())
-        {
-            m_aLogger.log( LogLevel::WARNING, "Failed to create XCertificate $1$", nIndex );
-            return X509_V_ERR_UNSPECIFIED;
-        }
-        aChain.push_back(xCertificate);
-    }
-    const sal_Int64 nVerificationResult (m_xSecurityEnv->verifyCertificate(
-            xServerCertificate,
-            ::comphelper::containerToSequence(aChain)));
-
-    // When the certificate matches the host name then we can use the
-    // result of the verification.
+    // Hostname must match CN/SAN before any trust cache or user prompt.
     bool bHostnameMatchesCertHostnames = false;
     {
         uno::Sequence< uno::Reference< security::XCertificateExtension > > extensions = xServerCertificate->getExtensions();
@@ -538,38 +498,72 @@ int CurlSession::verifyCertificateChain (
     }
     m_aLogger.log( LogLevel::FINE, "URL hostname $1$ certificate hostname",
         bHostnameMatchesCertHostnames ? "matches" : "DOESN'T MATCH" );
-    if ( bHostnameMatchesCertHostnames )
+    if ( !bHostnameMatchesCertHostnames )
     {
-        if (nVerificationResult == 0)
-        {
-            m_aLogger.log( LogLevel::FINE, "Certificate (chain) is valid" );
-            m_xCertificateContainer->addCertificate(getHostName(), sServerCertificateSubject, sal_True);
-            return X509_V_OK;
-        }
-        else if ((nVerificationResult & security::CertificateValidity::CHAIN_INCOMPLETE) != 0)
-        {
-            // We do not have enough information for verification,
-            // neither automatically (as we just discovered) nor
-            // manually (so there is no point in showing any dialog.)
-            m_aLogger.log( LogLevel::WARNING, "Certificate (chain) is incomplete" );
-            return X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT;
-        }
-        else if ((nVerificationResult & security::CertificateValidity::REVOKED) != 0)
-        {
-            // Certificate (chain) is invalid.
-            m_aLogger.log( LogLevel::WARNING, "Certificate (chain) is revoked" );
-            m_xCertificateContainer->addCertificate(getHostName(), sServerCertificateSubject,  sal_False);
-            return X509_V_ERR_CERT_REVOKED;
-        }
-        else
-        {
-            // For all other we have to ask the user.
-            m_aLogger.log( LogLevel::FINE, "Prompting user to validate the certificate" );
-        }
+        // Do not prompt to override a name mismatch, and do not cache trust.
+        m_aLogger.log( LogLevel::WARNING, "Certificate hostname does not match URL hostname, rejecting" );
+        return X509_V_ERR_HOSTNAME_MISMATCH;
     }
 
-    // We have not been able to automatically verify (or falsify) the
-    // certificate chain. To resolve this we have to ask the user.
+    // When the certificate container already contains a (trusted)
+    // entry for the server then we do not have to authenticate any
+    // certificate. Hostname already matched.
+    const security::CertificateContainerStatus eStatus (
+        m_xCertificateContainer->hasCertificate(
+            getHostName(), sServerCertificateSubject ) );
+    if (eStatus != security::CertificateContainerStatus_NOCERT)
+    {
+        m_aLogger.log( LogLevel::FINER, "Cached certificate found with status=$1$",
+                eStatus == security::CertificateContainerStatus_TRUSTED ? "trusted" : "untrusted" );
+        return eStatus == security::CertificateContainerStatus_TRUSTED
+               ? X509_V_OK
+               : X509_V_ERR_CERT_UNTRUSTED;
+    }
+
+    std::vector< uno::Reference< security::XCertificate > > aChain;
+    for (nIndex=0; nIndex < asn1DerCertificates.size(); ++nIndex)
+    {
+        uno::Reference< security::XCertificate > xCertificate(
+            m_xSecurityEnv->createCertificateFromRaw( asn1DerCertificates[ nIndex ] ) );
+        if ( ! xCertificate.is())
+        {
+            m_aLogger.log( LogLevel::WARNING, "Failed to create XCertificate $1$", nIndex );
+            return X509_V_ERR_UNSPECIFIED;
+        }
+        aChain.push_back(xCertificate);
+    }
+    const sal_Int64 nVerificationResult (m_xSecurityEnv->verifyCertificate(
+            xServerCertificate,
+            ::comphelper::containerToSequence(aChain)));
+
+    if (nVerificationResult == 0)
+    {
+        m_aLogger.log( LogLevel::FINE, "Certificate (chain) is valid" );
+        m_xCertificateContainer->addCertificate(getHostName(), sServerCertificateSubject, sal_True);
+        return X509_V_OK;
+    }
+    else if ((nVerificationResult & security::CertificateValidity::CHAIN_INCOMPLETE) != 0)
+    {
+        // We do not have enough information for verification,
+        // neither automatically (as we just discovered) nor
+        // manually (so there is no point in showing any dialog.)
+        m_aLogger.log( LogLevel::WARNING, "Certificate (chain) is incomplete" );
+        return X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT;
+    }
+    else if ((nVerificationResult & security::CertificateValidity::REVOKED) != 0)
+    {
+        // Certificate (chain) is invalid.
+        m_aLogger.log( LogLevel::WARNING, "Certificate (chain) is revoked" );
+        m_xCertificateContainer->addCertificate(getHostName(), sServerCertificateSubject,  sal_False);
+        return X509_V_ERR_CERT_REVOKED;
+    }
+    else
+    {
+        // Hostname matches; chain is not automatically trusted. Ask the user.
+        m_aLogger.log( LogLevel::FINE, "Prompting user to validate the certificate" );
+    }
+
+    // Hostname matched but the chain needs a decision. Ask the user.
     const uno::Reference< ucb::XCommandEnvironment > xEnv( getRequestEnvironment().m_xEnv );
     if ( xEnv.is() )
     {
