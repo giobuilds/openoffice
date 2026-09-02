@@ -45,14 +45,12 @@
 #include <com/sun/star/ucb/XSimpleFileAccess.hpp>
 #include <com/sun/star/container/XNameAccess.hpp>
 #include <com/sun/star/container/XNameContainer.hpp>
-#include <com/sun/star/system/SystemShellExecute.hpp>
-#include <com/sun/star/system/SystemShellExecuteFlags.hpp>
+
 
 #include <rtl/logfile.hxx>
 #include <cppuhelper/interfacecontainer.h>
 #include <comphelper/mimeconfighelper.hxx>
 #include <comphelper/storagehelper.hxx>
-#include <comphelper/processfactory.hxx>
 
 #include <targetstatecontrol.hxx>
 
@@ -858,20 +856,11 @@ void SAL_CALL OleEmbeddedObject::doVerb( sal_Int32 nVerbID )
 
             if ( !m_pOwnView || !m_pOwnView->Open() )
             {
-                //Make a RO copy and see if the OS can find something to at
-                //least display the content for us
-                if (!m_aTempDumpURL.getLength())
-                    m_aTempDumpURL = lcl_ExtractObject(m_xFactory, m_xObjectStream);
-
-                if (m_aTempDumpURL.getLength())
-                {
-                    uno::Reference< ::com::sun::star::system::XSystemShellExecute > xSystemShellExecute(
-                        ::com::sun::star::system::SystemShellExecute::create(
-                            ::comphelper::getProcessComponentContext() ) );
-                    xSystemShellExecute->execute(m_aTempDumpURL, ::rtl::OUString(), ::com::sun::star::system::SystemShellExecuteFlags::DEFAULTS);
-                }
-                else
-                    throw embed::UnreachableStateException();
+                // Do not dump the OLE stream to a tempfile and ask the OS to
+                // open it. That launches an arbitrary handler for untrusted
+                // document content. Internal viewer still works when Open()
+                // succeeds above.
+                throw embed::UnreachableStateException();
             }
 		}
 		else

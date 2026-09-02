@@ -61,6 +61,8 @@
 
 #include <sot/formats.hxx>
 #include <sfx2/linkmgr.hxx>
+#include <sfx2/app.hxx>
+#include <vcl/window.hxx>
 #include <svtools/transfer.hxx>
 #include <cppuhelper/implbase5.hxx>
 
@@ -1053,6 +1055,17 @@ void SdrOle2Obj::CheckFileLink_Impl()
 					sfx2::LinkManager* pLinkManager = pModel->GetLinkManager();
 					if ( pLinkManager )
 					{
+						// Same policy as IFrame / DDE / graphics (CVE-2025-64402).
+						if ( pLinkManager->urlIsVendor( aLinkURL ) )
+							return;
+						if ( !pLinkManager->urlIsSafe( aLinkURL ) )
+						{
+							Window* pParent = NULL;
+							if ( SFX_APP() )
+								pParent = SFX_APP()->GetTopWindow();
+							if ( !pLinkManager->GetUserAllowsLinkUpdate( pParent ) )
+								return;
+						}
 						mpImpl->mpObjectLink = new SdrEmbedObjectLink( this );
 						mpImpl->maLinkURL = aLinkURL;
 						pLinkManager->InsertFileLink( *mpImpl->mpObjectLink, OBJECT_CLIENT_OLE, aLinkURL, NULL, NULL );

@@ -45,6 +45,8 @@
 //_________________________________________________________________________________________________________________
 
 #include <vcl/svapp.hxx>
+#include <tools/urlobj.hxx>
+#include <unotools/extendedsecurityoptions.hxx>
 
 //_________________________________________________________________________________________________________________
 //	namespace
@@ -58,6 +60,45 @@ namespace framework{
 
 #define PROTOCOL_VALUE      "systemexecute:"
 #define PROTOCOL_LENGTH     14
+
+namespace
+{
+// Hand a URL to the OS only when hyperlink security allows it.
+// Default (OPEN_WITHSECURITYCHECK) permits http/https/ftp/mailto only.
+// file: is allowed solely in OPEN_ALWAYS and only for the configured
+// "secure" extensions. Scripting / vendor schemes never go to the OS.
+sal_Bool lcl_isAllowedSystemURL( const ::rtl::OUString& sURL )
+{
+    SvtExtendedSecurityOptions aOpt;
+    SvtExtendedSecurityOptions::OpenHyperlinkMode eMode = aOpt.GetOpenHyperlinkMode();
+    if ( eMode == SvtExtendedSecurityOptions::OPEN_NEVER )
+        return sal_False;
+
+    if ( sURL.matchIgnoreAsciiCaseAsciiL( "vnd.sun.star.", 13, 0 ) ||
+         sURL.matchIgnoreAsciiCaseAsciiL( "private:", 8, 0 ) ||
+         sURL.matchIgnoreAsciiCaseAsciiL( "slot:", 5, 0 ) ||
+         sURL.matchIgnoreAsciiCaseAsciiL( "macro:", 6, 0 ) ||
+         sURL.matchIgnoreAsciiCaseAsciiL( ".uno:", 5, 0 ) )
+        return sal_False;
+
+    INetURLObject aURL( sURL );
+    INetProtocol eProt = aURL.GetProtocol();
+    switch ( eProt )
+    {
+        case INET_PROT_HTTP:
+        case INET_PROT_HTTPS:
+        case INET_PROT_FTP:
+        case INET_PROT_MAILTO:
+            return sal_True;
+        case INET_PROT_FILE:
+            if ( eMode != SvtExtendedSecurityOptions::OPEN_ALWAYS )
+                return sal_False;
+            return aOpt.IsSecureHyperlink( sURL );
+        default:
+            return sal_False;
+    }
+}
+}
 
 //_________________________________________________________________________________________________________________
 //	non exported definitions
@@ -175,8 +216,6 @@ void SAL_CALL SystemExec::dispatchWithNotification( const css::util::URL&       
     aReadLock.unlock();
     // <- SAFE
 
-    // TODO check security settings ...
-
     try
     {
         css::uno::Reference< css::util::XStringSubstitution > xPathSubst(
@@ -185,6 +224,12 @@ void SAL_CALL SystemExec::dispatchWithNotification( const css::util::URL&       
             css::uno::UNO_QUERY_THROW);
 
         ::rtl::OUString sSystemURL = xPathSubst->substituteVariables(sSystemURLWithVariables, sal_True); // sal_True force an exception if unknown variables exists !
+
+        if ( !lcl_isAllowedSystemURL( sSystemURL ) )
+        {
+            impl_notifyResultListener(xListener, css::frame::DispatchResultState::FAILURE);
+            return;
+        }
 
         css::uno::Reference< css::system::XSystemShellExecute > xShell(
             css::system::SystemShellExecute::create(xContext));
