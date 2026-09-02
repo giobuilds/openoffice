@@ -52,8 +52,13 @@
     replace the definition of global variables and variables earlier in the same
     block.
     Some variables have special names:
-    - MD5 is the expected MD5 checksum of the library tarball.
-    - SHA1 is the expected SHA1 checksum of the library tarball.
+    - MD5 is the expected MD5 checksum of the library tarball. It is also used
+      as the filename prefix ($(MD5)-$(name)) so existing makefile TARFILE_MD5
+      values keep working.
+    - SHA1 is the expected SHA1 checksum of the library tarball (used as the
+      filename prefix only when MD5 is absent).
+    - SHA256 is the expected SHA-256 checksum. When present it is verified in
+      addition to MD5/SHA1. A MITM that only collides MD5 is rejected.
     - URL1 to URL9 specify from where to download the tarball. The URLs are tried in order.
       The first successful download (download completed and checksum match) stops the iteration.
 
@@ -179,10 +184,11 @@ sub ProcessLastBlock ()
     {
         my $name = GetValue('name');
         my $checksum = GetChecksum();
+        my $sha256 = GetSha256();
 
-        if ( ! IsPresent($name, $checksum))
+        if ( ! IsPresent($name, $checksum, $sha256))
         {
-            AddDownloadRequest($name, $checksum);
+            AddDownloadRequest($name, $checksum, $sha256);
         }
     }
 }
@@ -190,29 +196,46 @@ sub ProcessLastBlock ()
 
 
 
-=head3 AddDownloadRequest($name, $checksum)
+=head3 AddDownloadRequest($name, $checksum, $sha256)
 
     Add a request for downloading the library $name to @Missing.
     Collect all available URL[1-9] variables as source URLs.
 
 =cut
-sub AddDownloadRequest ($$)
+sub AddDownloadRequest ($$$)
 {
-    my ($name, $checksum) = @_;
+    my ($name, $checksum, $sha256) = @_;
 
     print "adding download request for $name\n";
 
     my $urls = [];
     my $url = GetValue('URL');
-    push @$urls, SubstituteVariables($url) if (defined $url);
+    if (defined $url)
+    {
+        $url = SubstituteVariables($url);
+        if ($url =~ m{^http://}i)
+        {
+            print "skipping non-HTTPS URL $url\n";
+        }
+        else
+        {
+            push @$urls, $url;
+        }
+    }
     for (my $i=1; $i<10; ++$i)
     {
         $url = GetValue('URL'.$i);
         next if ! defined $url;
-        push @$urls, SubstituteVariables($url);
+        $url = SubstituteVariables($url);
+        if ($url =~ m{^http://}i)
+        {
+            print "skipping non-HTTPS URL $url\n";
+            next;
+        }
+        push @$urls, $url;
     }
 
-    push @Missing, [$name, $checksum, $urls];
+    push @Missing, [$name, $checksum, $urls, $sha256];
 }
 
 
@@ -220,10 +243,8 @@ sub AddDownloadRequest ($$)
 
 =head3 GetChecksum()
 
-    When either MD5 or SHA1 are variables in the current scope then return
-    a reference to a hash with two entries:
-        'type' is either 'MD5' or 'SHA1', the type or algorithm of the checksum,
-        'value' is the actual checksum
+    Return the checksum used as the on-disk filename prefix.
+    Prefer MD5 (makefile TARFILE_MD5), then SHA1, then SHA256.
     Otherwise undef is returned.
 
 =cut
@@ -238,10 +259,28 @@ sub GetChecksum()
     {
         return { 'type' => 'SHA1', 'value' => $checksum };
     }
+    elsif (defined ($checksum=GetValue("SHA256")) && $checksum ne "")
+    {
+        return { 'type' => 'SHA256', 'value' => $checksum };
+    }
     else
     {
         return undef;
     }
+}
+
+
+=head3 GetSha256()
+
+    Return the SHA-256 hex digest from the current block, or undef if absent.
+    When present this is verified in addition to the filename-prefix checksum.
+
+=cut
+sub GetSha256()
+{
+    my $checksum = GetValue("SHA256");
+    return undef unless defined $checksum && $checksum ne "";
+    return lc($checksum);
 }
 
 
@@ -387,17 +426,18 @@ sub EvaluateTerm ($)
 
 
 
-=head IsPresent($name, $given_checksum)
+=head IsPresent($name, $given_checksum, $sha256)
 
     Check if an external library tar ball with the basename $name already
     exists in the target directory TARFILE_LOCATION. The basename is
-    prefixed with the MD5 or SHA1 checksum.
-    If the file exists then its checksum is compared to the given one.
+    prefixed with the MD5, SHA1, or SHA256 checksum used as the filename.
+    If the file exists then its prefix checksum is compared, and SHA-256
+    is compared as well when a SHA256= line is present.
 
 =cut
-sub IsPresent ($$)
+sub IsPresent ($$$)
 {
-    my ($name, $given_checksum) = @_;
+    my ($name, $given_checksum, $sha256) = @_;
 
     my $filename = File::Spec->catfile($ENV{'TARFILE_LOCATION'}, $given_checksum->{'value'}."-".$name);
     return 0 unless -f $filename;
@@ -423,9 +463,16 @@ sub IsPresent ($$)
         $sha1->addfile($in);
         $checksum = $sha1->hexdigest();
     }
+    elsif ($given_checksum->{'type'} eq "SHA256")
+    {
+        my $sha = Digest::SHA->new("256");
+        open my $in, $filename;
+        $sha->addfile($in);
+        $checksum = $sha->hexdigest();
+    }
     else
     {
-        die "unsupported checksum type (not MD5 or SHA1)";
+        die "unsupported checksum type (not MD5, SHA1, or SHA256)";
     }
 
     if ($given_checksum->{'value'} ne $checksum)
@@ -435,11 +482,25 @@ sub IsPresent ($$)
         unlink($filename);
         return 0;
     }
-    else
+
+    if (defined $sha256 && $given_checksum->{'type'} ne "SHA256")
     {
-        printf("%s exists, %s checksum is OK\n", $name, $given_checksum->{'type'});
+        my $sha = Digest::SHA->new("256");
+        open my $in, $filename;
+        $sha->addfile($in);
+        my $got = $sha->hexdigest();
+        if (lc($got) ne $sha256)
+        {
+            print "$name exists, MD5/SHA1 matches but SHA-256 does not => deleting\n";
+            unlink($filename);
+            return 0;
+        }
+        printf("%s exists, %s and SHA-256 checksums are OK\n", $name, $given_checksum->{'type'});
         return 1;
     }
+
+    printf("%s exists, %s checksum is OK\n", $name, $given_checksum->{'type'});
+    return 1;
 }
 
 
@@ -474,7 +535,7 @@ sub Download ()
     my $all_downloaded = 1;
     for my $item (@Missing)
     {
-        my ($name, $checksum, $urls) = @$item;
+        my ($name, $checksum, $urls, $sha256) = @$item;
 
         my $downloaded = 0;
         foreach my $url (@$urls)
@@ -484,7 +545,8 @@ sub Download ()
                     ? $checksum->{'value'}."-".$name
                     : $name,
                 $url,
-                $checksum);
+                $checksum,
+                $sha256);
             last if $downloaded
         }
         $all_downloaded &&= $downloaded;
@@ -495,17 +557,19 @@ sub Download ()
 
 
 
-=head3 DownloadFile($name,$URL,$checksum)
+=head3 DownloadFile($name,$URL,$checksum,$sha256)
 
     Download a single external library tarball. Its origin is given by $URL.
     Its destination is $(TARFILE_LOCATION)/$checksum-$name.
+    When $sha256 is defined it is verified in addition to $checksum.
 
 =cut
-sub DownloadFile ($$$)
+sub DownloadFile
 {
     my $name = shift;
     my $URL = shift;
     my $checksum = shift;
+    my $sha256 = shift;
 
     my $filename = File::Spec->catfile($ENV{'TARFILE_LOCATION'}, $name);
 
@@ -522,6 +586,10 @@ sub DownloadFile ($$$)
     {
         # Use SHA1 only when explicitly requested (by the presence of a "SHA1=..." line.)
         $digest = Digest::SHA->new("1");
+    }
+    elsif (defined $checksum && $checksum->{'type'} eq "SHA256")
+    {
+        $digest = Digest::SHA->new("256");
     }
     elsif ( ! defined $checksum || $checksum->{'type'} eq "MD5")
     {
@@ -574,6 +642,20 @@ sub DownloadFile ($$$)
                        $file_checksum,
                        $checksum->{'value'});
                 return 0;
+            }
+            if (defined $sha256 && $checksum->{'type'} ne "SHA256")
+            {
+                my $sha = Digest::SHA->new("256");
+                $sha->add($content);
+                my $got = $sha->hexdigest();
+                if (lc($got) ne $sha256)
+                {
+                    unlink($temporary_filename);
+                    printf("    SHA-256 checksum does not match (%s instead of %s)\n",
+                           $got, $sha256);
+                    return 0;
+                }
+                printf("SHA-256 checksum is OK\n");
             }
         }
         else
