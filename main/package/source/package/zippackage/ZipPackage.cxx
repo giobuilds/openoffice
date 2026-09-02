@@ -169,11 +169,14 @@ class DummyInputStream : public ::cppu::WeakImplHelper1< XInputStream >
 
 //===========================================================================
 
+// New packages default to SHA-256 / AES-256. Blowfish / SHA-1 remain
+// available via EncryptionAlgorithms (ODF 1.0/1.1 and the 4.1.x interop
+// checkbox). Decrypt still uses the algorithms stored in the manifest.
 ZipPackage::ZipPackage ( const uno::Reference < XMultiServiceFactory > &xNewFactory )
 : m_aMutexHolder( new SotMutexHolder )
-, m_nStartKeyGenerationID( xml::crypto::DigestID::SHA1 )
-, m_nChecksumDigestID( xml::crypto::DigestID::SHA1_1K )
-, m_nCommonEncryptionID( xml::crypto::CipherID::BLOWFISH_CFB_8 )
+, m_nStartKeyGenerationID( xml::crypto::DigestID::SHA256 )
+, m_nChecksumDigestID( xml::crypto::DigestID::SHA256_1K )
+, m_nCommonEncryptionID( xml::crypto::CipherID::AES_CBC_W3C_PADDING )
 , m_bHasEncryptedEntries ( sal_False )
 , m_bHasNonEncryptedEntries ( sal_False )
 , m_bInconsistent ( sal_False )

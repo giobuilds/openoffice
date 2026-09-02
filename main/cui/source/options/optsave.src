@@ -159,7 +159,7 @@ TabPage RID_SFXPAGE_SAVE
 		HelpID = "cui:CheckBox:RID_SFXPAGE_SAVE:BTN_ODFENCRYPTION" ;
 		Pos = MAP_APPFONT ( 12, 120 ) ;
 		Size = MAP_APPFONT ( 248, 10 ) ;
-		Text [ en-US ] = "Enable AES-256 encryption (ODF 1.2)" ;
+		Text [ en-US ] = "AES-256 encryption (ODF 1.2; uncheck for 4.1.x)" ;
 	};
 	CheckBox BTN_NOPRETTYPRINTING
 	{

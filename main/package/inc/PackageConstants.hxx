@@ -34,6 +34,11 @@ const sal_Int32 n_ConstMaxMemoryStreamSize = 20480;
 const sal_Int32 n_ConstDigestLength = 1024;
 const sal_Int32 n_ConstDigestDecrypt = 1056; // 1024 + 32
 
+// PBKDF2 rounds written into the ODF manifest for new encrypted streams.
+// Decrypt reads the stored count, so existing 1024-round Blowfish files stay readable.
+const sal_Int32 n_ConstBlowfishIterationCount = 1024;
+const sal_Int32 n_ConstAESIterationCount = 100000;
+
 // the constants related to the manifest.xml entries
 #define PKG_MNFST_MEDIATYPE   0
 #define PKG_MNFST_VERSION     1
