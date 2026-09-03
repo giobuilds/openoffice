@@ -93,23 +93,18 @@ build_dir() {
     fi
 }
 
-# makedepend lives in soltools. Building sal/util from inside that
-# directory does not pull module-level deps, so build them first.
+# makedepend lives in soltools. Module-level deps are not pulled when
+# starting inside a subdirectory, so build them first.
 build_dir soltools
 build_dir xml2cmp
-# STL wrappers (std::hash_set etc.) that sal still includes.
 build_dir stlport
-build_dir sal/util
 build_dir ../ext_libraries/gtest
+# Whole sal module: library plus APP1TEST gtests.
+build_dir sal
 
 # gbuild modules: default goal is allandcheck (compile + run GoogleTest).
 build_dir o3tl
 build_dir salhelper
-
-# A few sal dmake gtests (APP1TEST=enabled) that do not need a running office.
-build_dir sal/qa/rtl/digest
-build_dir sal/qa/rtl/crc32
-build_dir sal/qa/ByteSequence
 
 ccache -s || true
 echo "linux-sal-gtest: ok"
