@@ -99,6 +99,7 @@ echo "===== verify ${LIBDIR} ====="
 ls -l "${LIBDIR}"/libxml2.so* || true
 test -e "${LIBDIR}/libxml2.so.16"
 test -e "${LIBDIR}/libxml2.so"
+export LD_LIBRARY_PATH="${LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 "${BINDIR}/xmllint" --version
 
 ccache -s || true
