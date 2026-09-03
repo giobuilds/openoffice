@@ -86,6 +86,11 @@ build_dir() {
     local dir="$1"
     echo "===== build ${dir} ====="
     ( cd "$dir" && perl "${SOLARENV}/bin/build.pl" -P"${MAXPROCESS}" )
+    # dmake modules write into unxlngx6.pro/; deliver copies into solver/.
+    if test -f "${dir}/prj/d.lst"; then
+        echo "===== deliver ${dir} ====="
+        ( cd "$dir" && perl "${SOLARENV}/bin/deliver.pl" )
+    fi
 }
 
 # makedepend lives in soltools. Building sal/util from inside that
