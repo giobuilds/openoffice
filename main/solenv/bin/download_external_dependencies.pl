@@ -603,6 +603,7 @@ sub DownloadFile
 
     # Download the extension.
     my $success = 0;
+    my $content;
 
     my $agent = LWP::UserAgent->new();
     $agent->env_proxy;
@@ -611,7 +612,7 @@ sub DownloadFile
     $success = $response->is_success;
     if ($success)
     {
-        my $content = $response->content;
+        $content = $response->content;
         open $out, ">$temporary_filename";
         binmode($out);
         print $out $content;
