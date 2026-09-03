@@ -77,7 +77,14 @@ CFLAGSENABLESYMBOLS=-g # was temporarily commented out, reenabled before Beta
 .ENDIF
 
 # flags for the C++ Compiler
-CFLAGSCC= -pipe $(ARCH_FLAGS)
+# Linux hardening: stack canaries on every compile. Fortify is
+# attached to CFLAGSOPT only (glibc requires -O). RELRO is on LINKFLAGS.
+# PIE (-fPIE -pie) is not enabled: CFLAGSOBJ* objects also feed static
+# libraries that are linked into .so plugins, and -fPIE is not valid there.
+# Shared objects already use -fpic (PICSWITCH).
+# -fstack-protector-strong needs GCC 4.9 / Clang 3.5; the C++11 dialect
+# floor below remains GCC 4.8.5.
+CFLAGSCC= -pipe $(ARCH_FLAGS) -fstack-protector-strong
 # Flags for enabling exception handling
 .IF "$(COM)"=="CLANG"
 CFLAGSEXCEPTIONS=-fexceptions
@@ -93,7 +100,7 @@ CFLAGS_NO_EXCEPTIONS=-fno-exceptions
 # dynamic exception specifications); those remain valid until C++17 and are kept
 # non-fatal via -Wno-error= below.  The compiler floor is GCC 4.8.5 (CentOS 7),
 # which fully supports gnu++11.
-CFLAGSCXX= -pipe $(ARCH_FLAGS) -std=gnu++11
+CFLAGSCXX= -pipe $(ARCH_FLAGS) -std=gnu++11 -fstack-protector-strong
 .IF "$(HAVE_GCC_VISIBILITY_FEATURE)" == "TRUE"
 CFLAGSCXX += -fvisibility-inlines-hidden
 .ENDIF # "$(HAVE_GCC_VISIBILITY_FEATURE)" == "TRUE"
@@ -117,12 +124,13 @@ CFLAGSDEBUG=-g
 CFLAGSDBGUTIL=
 # Compiler flags for enabling optimizations
 .IF "$(PRODUCT)"!=""
-CFLAGSOPT=$(CDEFAULTOPT) -fno-strict-aliasing		# optimizing for products
+CFLAGSOPT=$(CDEFAULTOPT) -fno-strict-aliasing -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2		# optimizing for products
 .ELSE 	# "$(PRODUCT)"!=""
 CFLAGSOPT=   							# no optimizing for non products
 .ENDIF	# "$(PRODUCT)"!=""
 # Compiler flags for disabling optimizations
-CFLAGSNOOPT=-O0
+# Undefine Fortify: some no-opt objects are still compiled in product builds.
+CFLAGSNOOPT=-O0 -U_FORTIFY_SOURCE
 # Compiler flags for describing the output path
 CFLAGSOUTOBJ=-o
 
@@ -169,7 +177,7 @@ LINKFLAGSRUNPATH_OXT=
 LINKFLAGSRUNPATH_BOXT=-Wl,-rpath,\''$$ORIGIN'\'
 #LINKFLAGSRUNPATH_BOXT=-Wl,-rpath,\''$$ORIGIN/../../../basis-link/program'\'
 LINKFLAGSRUNPATH_NONE=
-LINKFLAGS=-Wl,-z,combreloc $(LINKFLAGSDEFS) $(LINKFLAGS_SYSBASE)
+LINKFLAGS=-Wl,-z,combreloc -Wl,-z,relro,-z,now $(LINKFLAGSDEFS) $(LINKFLAGS_SYSBASE) -fstack-protector-strong
 .IF "$(HAVE_LD_BSYMBOLIC_FUNCTIONS)"  == "TRUE"
 LINKFLAGS += -Wl,-Bsymbolic-functions -Wl,--dynamic-list-cpp-new -Wl,--dynamic-list-cpp-typeinfo
 .ENDIF

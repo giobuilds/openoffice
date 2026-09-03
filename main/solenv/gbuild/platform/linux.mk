@@ -63,6 +63,12 @@ ifeq ($(CPUNAME),INTEL)
 gb_CPUDEFS += -DX86
 endif
 
+# Linux hardening. Stack canaries on every compile; Fortify is
+# on gb_COMPILEROPTFLAGS only (glibc requires -O). RELRO is on LDFLAGS.
+# PIE (-fPIE -pie) is not enabled: these objects are linked into .so plugins
+# as well as executables, and -fPIE is not valid for shared modules. -fPIC
+# (already set) gives ASLR for plugins. Executable -pie would need a
+# separate object set that is never linked into a library.
 gb_CFLAGS := \
 	-Wall \
 	-Wendif-labels \
@@ -72,6 +78,7 @@ gb_CFLAGS := \
 	-fmessage-length=0 \
 	-fno-common \
 	-fno-strict-aliasing \
+	-fstack-protector-strong \
 	-fvisibility=hidden \
 	-pipe \
 
@@ -86,6 +93,7 @@ gb_CXXFLAGS := \
 	-fmessage-length=0 \
 	-fno-common \
 	-fno-strict-aliasing \
+	-fstack-protector-strong \
 	-fuse-cxa-atexit \
 	-fvisibility-inlines-hidden \
 	-fvisibility=hidden \
@@ -119,6 +127,8 @@ gb_LinkTarget_LDFLAGS += \
 	-Wl,-rpath-link,$(SYSBASE)/lib:$(SYSBASE)/usr/lib \
 	-Wl,-z,combreloc \
 	-Wl,-z,defs \
+	-Wl,-z,relro,-z,now \
+	-fstack-protector-strong \
 	$(subst -L../lib , ,$(SOLARLIB)) \
 
 ifeq ($(HAVE_LD_HASH_STYLE),TRUE)
@@ -163,11 +173,12 @@ ifeq ($(gb_DEBUGLEVEL),2)
 gb_COMPILEROPTFLAGS := -O0
 gb_COMPILEROPT1FLAGS := -O0
 else
-gb_COMPILEROPTFLAGS := -Os
-gb_COMPILEROPT1FLAGS := -O1
+gb_COMPILEROPTFLAGS := -Os -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+gb_COMPILEROPT1FLAGS := -O1 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 endif
 
-gb_COMPILERNOOPTFLAGS := -O0
+# Undefine Fortify so no-opt objects (filter-out of OPTFLAGS) stay -O0-safe.
+gb_COMPILERNOOPTFLAGS := -O0 -U_FORTIFY_SOURCE
 
 # Helper class
 
