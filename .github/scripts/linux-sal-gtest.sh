@@ -53,6 +53,7 @@ autoconf
     --disable-category-b \
     --disable-coinmp \
     --disable-ldap \
+    --disable-online-update \
     --enable-unit-tests \
     --with-system-boost \
     --with-system-python \
