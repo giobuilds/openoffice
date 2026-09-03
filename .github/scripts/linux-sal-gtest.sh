@@ -88,8 +88,12 @@ build_dir() {
     ( cd "$dir" && perl "${SOLARENV}/bin/build.pl" -P"${MAXPROCESS}" )
 }
 
-# sal/util is the library. Module deps pull xml2cmp, soltools, gtest, boost.
+# makedepend lives in soltools. Building sal/util from inside that
+# directory does not pull module-level deps, so build them first.
+build_dir soltools
+build_dir xml2cmp
 build_dir sal/util
+build_dir ../ext_libraries/gtest
 
 # gbuild modules: default goal is allandcheck (compile + run GoogleTest).
 build_dir o3tl
