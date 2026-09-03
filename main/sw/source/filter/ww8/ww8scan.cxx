@@ -2653,12 +2653,29 @@ bool IsExpandableSprm(sal_uInt16 nSpId)
     return 0x646B == nSpId;
 }
 
+void WW8PLCFx_Fc_FKP::WW8Fkp::FillEntry(Entry &rEntry, unsigned nDataOffset,
+    sal_uInt16 nLen)
+{
+    if (nDataOffset >= 512)
+    {
+        rEntry.mnLen = 0;
+        rEntry.mpData = 0;
+        return;
+    }
+    const unsigned nAvail = 512 - nDataOffset;
+    if (nLen > nAvail)
+        nLen = static_cast<sal_uInt16>(nAvail);
+    rEntry.mnLen = nLen;
+    rEntry.mpData = nLen ? maRawData + nDataOffset : 0;
+}
+
 WW8PLCFx_Fc_FKP::WW8Fkp::WW8Fkp(ww::WordVersion eVersion, SvStream* pSt,
     SvStream* pDataSt, long _nFilePos, long nItemSiz, ePLCFT ePl,
     WW8_FC nStartFc)
     : nItemSize(nItemSiz), nFilePos(_nFilePos),  mnIdx(0), ePLCF(ePl),
     maSprmParser(eVersion)
 {
+    memset(maRawData, 0, 512);
     long nOldPos = pSt->Tell();
 
     pSt->Seek(nFilePos);
@@ -2666,12 +2683,22 @@ WW8PLCFx_Fc_FKP::WW8Fkp::WW8Fkp(ww::WordVersion eVersion, SvStream* pSt,
     mnIMax = maRawData[511];
 
     sal_uInt8 *pStart = maRawData;
-    // Pointer to Offset-Location in maRawData
-    sal_uInt8* pOfs = maRawData + (mnIMax + 1) * 4;
+    const unsigned nItemSz = nItemSize > 0 ? static_cast<unsigned>(nItemSize) : 1;
+    const unsigned nRawDataStart = (static_cast<unsigned>(mnIMax) + 1) * 4;
 
     for (mnIdx = 0; mnIdx < mnIMax; ++mnIdx)
     {
-        unsigned int nOfs = (*(pOfs + mnIdx * nItemSize)) * 2;
+        const unsigned nRawDataOffset = nRawDataStart +
+            static_cast<unsigned>(mnIdx) * nItemSz;
+        // crun that does not fit the 512-byte FKP: BX would land on/after the
+        // count byte at offset 511. (mnIMax >= 127 makes (mnIMax+1)*4 >= 512.)
+        if (nRawDataOffset >= 511)
+        {
+            mnIMax = mnIdx;
+            break;
+        }
+
+        unsigned int nOfs = static_cast<unsigned int>(maRawData[nRawDataOffset]) * 2;
         Entry aEntry(Get_Long(pStart));
 
         if (nOfs)
@@ -2680,7 +2707,7 @@ WW8PLCFx_Fc_FKP::WW8Fkp::WW8Fkp(ww::WordVersion eVersion, SvStream* pSt,
             {
                 case CHP:
                     aEntry.mnLen  = maRawData[nOfs];
-                    aEntry.mpData = maRawData + nOfs + 1;
+                    FillEntry(aEntry, nOfs + 1, aEntry.mnLen);
 
                     if (aEntry.mnLen && eVersion == ww::eWW2)
                     {
@@ -2703,8 +2730,13 @@ WW8PLCFx_Fc_FKP::WW8Fkp::WW8Fkp(ww::WordVersion eVersion, SvStream* pSt,
                         aEntry.mnLen = maRawData[nOfs];
                         if (IsEightPlus(eVersion) && !aEntry.mnLen)
                         {
-                            aEntry.mnLen = maRawData[nOfs+1];
-                            nDelta++;
+                            if (nOfs + 1 >= 512)
+                                aEntry.mnLen = 0;
+                            else
+                            {
+                                aEntry.mnLen = maRawData[nOfs+1];
+                                nDelta++;
+                            }
                         }
 
                         aEntry.mnLen *= 2;
@@ -2712,18 +2744,26 @@ WW8PLCFx_Fc_FKP::WW8Fkp::WW8Fkp(ww::WordVersion eVersion, SvStream* pSt,
                         //stylecode, std/istd
                         if (eVersion == ww::eWW2)
                         {
-                            aEntry.mnIStd = *(maRawData+nOfs+1+nDelta);
-                            aEntry.mnLen--;  //style code
-                            aEntry.mnLen-=6; //PHE
-                            //skipi stc, len byte + 6 byte PHE
-                            aEntry.mpData = maRawData + nOfs + 8;
+                            if (aEntry.mnLen >= 7)
+                            {
+                                aEntry.mnIStd = *(maRawData+nOfs+1+nDelta);
+                                aEntry.mnLen--;  //style code
+                                aEntry.mnLen-=6; //PHE
+                                FillEntry(aEntry, nOfs + 8, aEntry.mnLen);
+                            }
+                            else
+                                aEntry.mnLen = 0;
                         }
                         else
                         {
-                            aEntry.mnIStd = SVBT16ToShort(maRawData+nOfs+1+nDelta);
-                            aEntry.mnLen-=2; //istd
-                            //skip istd, len byte + optional extra len byte
-                            aEntry.mpData = maRawData + nOfs + 3 + nDelta;
+                            if (aEntry.mnLen >= 2 && nOfs + 2 + nDelta < 512)
+                            {
+                                aEntry.mnIStd = SVBT16ToShort(maRawData+nOfs+1+nDelta);
+                                aEntry.mnLen-=2; //istd
+                                FillEntry(aEntry, nOfs + 3 + nDelta, aEntry.mnLen);
+                            }
+                            else
+                                aEntry.mnLen = 0;
                         }
 
                         sal_uInt16 nSpId = aEntry.mnLen ? maSprmParser.GetSprmId(aEntry.mpData) : 0;
@@ -2734,7 +2774,9 @@ WW8PLCFx_Fc_FKP::WW8Fkp::WW8Fkp(ww::WordVersion eVersion, SvStream* pSt,
                          of the new data
                         */
                         bool bExpand = IsExpandableSprm(nSpId);
-                        if (IsReplaceAllSprm(nSpId) || bExpand)
+                        // huge-papx sprm payload is a 4-byte FC at mpData+2
+                        if ((IsReplaceAllSprm(nSpId) || bExpand) &&
+                            aEntry.mpData && aEntry.mnLen >= 6)
                         {
                             sal_uInt16 nOrigLen = bExpand ? aEntry.mnLen : 0;
                             sal_uInt8 *pOrigData = bExpand ? aEntry.mpData : 0;

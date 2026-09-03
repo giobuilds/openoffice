@@ -37,7 +37,13 @@ void CGM::ImplDoClass7()
 		case 0x01 : ComOut( CGM_LEVEL1, "Message" ) break;
 		case 0x02 :
 		{
+			if ( mnElementSize < 12 )
+			{
+				mbStatus = sal_False;
+				break;
+			}
 			sal_uInt8*  pAppData = mpSource + 12;
+			sal_uInt8*  pElemEnd = mpSource + mnElementSize;
 			sal_uInt16* pTemp = (sal_uInt16*)mpSource;
 			sal_uInt16 nOpcode = pTemp[ 4 ];
 
@@ -111,6 +117,11 @@ void CGM::ImplDoClass7()
 					case 0x2CA : ComOut( CGM_LEVEL1, "AppData - SHWAPP" ) break;
 					case 0x320 : ComOut( CGM_LEVEL1, "AppData - TEXT" )
 					{
+						if ( pAppData + 8 > pElemEnd )
+						{
+							mbStatus = sal_False;
+							break;
+						}
 						TextEntry* pTextEntry = new TextEntry;
 						pTextEntry->nTypeOfText = *((sal_uInt16*)( pAppData ) );
 						pTextEntry->nRowOrLineNum = *((sal_uInt16*)( pAppData + 2 ) );
@@ -120,15 +131,34 @@ void CGM::ImplDoClass7()
 						pTextEntry->nLineType = ( nAttributes >> 8 ) & 0xf;
 						nAttributes >>= 12;
 						pTextEntry->nAttributes = nAttributes;
+						pTextEntry->pText = 0;
+						pTextEntry->pAttribute = 0;
 						pAppData += 8;
-						sal_uInt32 nLen = strlen( (char*)( pAppData ) ) + 1;
+						// remaining mnElementSize; missing NUL is a hard fail
+						sal_uInt8* pNul = pAppData;
+						while ( pNul < pElemEnd && *pNul )
+							++pNul;
+						if ( pNul >= pElemEnd )
+						{
+							delete pTextEntry;
+							mbStatus = sal_False;
+							break;
+						}
+						sal_uInt32 nLen = static_cast<sal_uInt32>( pNul - pAppData ) + 1;
 						pTextEntry->pText = new char[ nLen ];
 						memcpy( pTextEntry->pText, pAppData, nLen );
 						pAppData += nLen;
 
 						TextAttribute* pTextOld = 0;
+						const unsigned nAttrSize = sizeof( TextAttribute ) - 4;
+						sal_Bool bAttrOk = sal_True;
 						for ( sal_uInt16 i = 0; i < nAttributes; i++ )
 						{
+							if ( pAppData + nAttrSize > pElemEnd )
+							{
+								bAttrOk = sal_False;
+								break;
+							}
 							TextAttribute* pTextAttr = new TextAttribute;
 
 							*pTextAttr = *(TextAttribute*)( pAppData );
@@ -139,8 +169,21 @@ void CGM::ImplDoClass7()
 							else
 								pTextOld->pNextAttribute = pTextAttr;
 
-							pAppData += sizeof( TextAttribute ) - 4;
+							pAppData += nAttrSize;
 							pTextOld = pTextAttr;
+						}
+						if ( !bAttrOk )
+						{
+							delete pTextEntry->pText;
+							for ( TextAttribute* pTAttr = pTextEntry->pAttribute; pTAttr != NULL; )
+							{
+								TextAttribute* pTemp = pTAttr;
+								pTAttr = pTAttr->pNextAttribute;
+								delete pTemp;
+							}
+							delete pTextEntry;
+							mbStatus = sal_False;
+							break;
 						}
 						mpChart->InsertTextEntry( pTextEntry );
 					}
