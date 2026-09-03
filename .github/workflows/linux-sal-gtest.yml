@@ -55,9 +55,15 @@ jobs:
             gperf \
             libarchive-zip-perl \
             libboost-dev \
+            libcurl4-openssl-dev \
             libdigest-sha-perl \
+            libexpat1-dev \
             libfontconfig1-dev \
             libfreetype6-dev \
+            libjpeg-dev \
+            libpng-dev \
+            libxml2-dev \
+            libxslt1-dev \
             liblwp-protocol-https-perl \
             libpam0g-dev \
             libssl-dev \

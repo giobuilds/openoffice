@@ -54,9 +54,19 @@ autoconf
     --disable-coinmp \
     --disable-ldap \
     --disable-online-update \
+    --without-fonts \
     --enable-unit-tests \
     --with-system-boost \
     --with-system-python \
+    --with-system-libxml \
+    --with-system-libxslt \
+    --with-system-expat \
+    --with-system-zlib \
+    --with-system-openssl \
+    --with-system-curl \
+    --with-system-jpeg \
+    --with-system-libpng \
+    --with-system-headers \
     --with-dmake-url=https://github.com/jimjag/dmake/archive/v4.13.1/dmake-4.13.1.tar.gz
 
 ./bootstrap
