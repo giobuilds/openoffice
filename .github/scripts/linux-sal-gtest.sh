@@ -97,6 +97,8 @@ build_dir() {
 # directory does not pull module-level deps, so build them first.
 build_dir soltools
 build_dir xml2cmp
+# STL wrappers (std::hash_set etc.) that sal still includes.
+build_dir stlport
 build_dir sal/util
 build_dir ../ext_libraries/gtest
 
