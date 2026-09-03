@@ -66,7 +66,6 @@ autoconf
     --with-system-curl \
     --with-system-jpeg \
     --with-system-libpng \
-    --with-system-headers \
     --with-dmake-url=https://github.com/jimjag/dmake/archive/v4.13.1/dmake-4.13.1.tar.gz
 
 ./bootstrap
