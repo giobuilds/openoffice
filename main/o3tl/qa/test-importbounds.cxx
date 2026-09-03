@@ -103,9 +103,13 @@ TEST(ImportBounds, Ww8FkpRejectsCrunThatDoesNotFitPage)
     EXPECT_TRUE(ww8FkpBxOffsetOk(101, 0, 1));
     EXPECT_TRUE(ww8FkpBxOffsetOk(101, 100, 1));
 
-    // PAP BX is 13 bytes; fewer runs fit.
+    // PAP BX is 13 bytes; fewer runs fit. nIdx=0 of crun=40 still
+    // starts at (40+1)*4 = 164. Overflow is at the last run:
+    // (40+1)*4 + 39*13 = 671 >= 511.
     EXPECT_TRUE(ww8FkpBxOffsetOk(20, 0, 13));
-    EXPECT_FALSE(ww8FkpBxOffsetOk(40, 0, 13));
+    EXPECT_TRUE(ww8FkpBxOffsetOk(20, 19, 13));
+    EXPECT_TRUE(ww8FkpBxOffsetOk(40, 0, 13));
+    EXPECT_FALSE(ww8FkpBxOffsetOk(40, 39, 13));
 }
 
 TEST(ImportBounds, Ww8FkpClipsOffsetAndLengthToPage)

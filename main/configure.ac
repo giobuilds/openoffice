@@ -7840,6 +7840,7 @@ fi
 AC_SUBST(ANT_LIB)
 fi
 
+if test "$SOLAR_JAVA" != ""; then
 ant_minver=1.9.1
 # update for more extensions...
 if test "$ENABLE_MEDIAWIKI" = "YES"; then
@@ -7908,6 +7909,7 @@ EOF
   fi
 fi
 rm -f conftest* core core.* *.core
+fi
 
 OOO_JUNIT_JAR=
 JUNIT_NEEDS_HAMCREST=
