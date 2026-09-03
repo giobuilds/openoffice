@@ -505,6 +505,10 @@ public:
         sal_uInt8 mnIMax;         // Anzahl der Eintraege
 
         wwSprmParser maSprmParser;
+
+        // Clip sprm payload to the 512-byte FKP page. nDataOffset/nLen are
+        // file bytes; a corrupt crun must not index past maRawData[511].
+        void FillEntry(Entry &rEntry, unsigned nDataOffset, sal_uInt16 nLen);
     public:
         WW8Fkp (ww::WordVersion eVersion, SvStream* pFKPStrm,
             SvStream* pDataStrm, long _nFilePos, long nItemSiz, ePLCFT ePl,

@@ -1219,6 +1219,15 @@ sal_Bool TIFFReader::ReadTIFF(SvStream & rTIFF, Graphic & rGraphic )
 			}
 			if ( !nBitsPerSample || ( nBitsPerSample > 32 ) )
 				bStatus = sal_False;
+			if ( !nImageWidth || !nImageLength )
+				bStatus = sal_False;
+			// SAL_MAX_INT32/32 matches LibreOffice's tiff dimension cap
+			if ( nImageWidth > static_cast<sal_uLong>(SAL_MAX_INT32 / 32) ||
+				 nImageLength > static_cast<sal_uLong>(SAL_MAX_INT32 / 32) )
+				bStatus = sal_False;
+			// 64M pixels: same order of magnitude as the libtiff utility default / 2
+			if ( bStatus && nImageLength > ( 64UL * 1024UL * 1024UL ) / nImageWidth )
+				bStatus = sal_False;
 			if ( bStatus )
 			{
 				if ( nMaxSampleValue == 0 )
@@ -1249,9 +1258,20 @@ sal_Bool TIFFReader::ReadTIFF(SvStream & rTIFF, Graphic & rGraphic )
 					if ( ( nFillOrder == 2 ) && ( nCompression != 5 ) )		// im LZW Mode werden die bits schon invertiert
 						bByteSwap = sal_True;
 
-					nStripsPerPlane = ( nImageLength - 1 ) / nRowsPerStrip + 1;
-					nBytesPerRow = ( nImageWidth * nSamplesPerPixel / nPlanes * nBitsPerSample + 7 ) >> 3;
+					if ( !nPlanes || !nRowsPerStrip )
+						bStatus = sal_False;
+					else
+					{
+						nStripsPerPlane = ( nImageLength - 1 ) / nRowsPerStrip + 1;
+						sal_uInt64 nRowSize = ( static_cast<sal_uInt64>( nImageWidth )
+							* nSamplesPerPixel / nPlanes * nBitsPerSample + 7 ) >> 3;
+						if ( nRowSize == 0 || nRowSize > static_cast<sal_uInt64>( SAL_MAX_INT32 ) / 4 )
+							bStatus = sal_False;
+						else
+							nBytesPerRow = static_cast<sal_uLong>( nRowSize );
+					}
 
+					if ( bStatus )
 					for ( sal_uLong j = 0; j < 4; j++ )
 					{
 						try
