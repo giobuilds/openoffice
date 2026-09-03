@@ -38,15 +38,14 @@ all:
 
 # --- Files --------------------------------------------------------
 
-LIBXML2VERSION=2.9.10
+LIBXML2VERSION=2.15.3
 
 TARFILE_NAME=$(PRJNAME)-$(LIBXML2VERSION)
-TARFILE_MD5=10942a1dc23137a8aa07f0639cbfece5
+TARFILE_MD5=b7b0123654f86ebf630a5cbedaafdece
 
-PATCH_FILES=libxml2-configure.patch \
-	0e1a49c8907645d2e155f0d89d4d9895ac5112b5.patch \
-	50f06b3efb638efb0abd95dc62dca05ae67882c2.patch \
-	7ffcd44d7e6c46704f8af0321d9314cd26e0e18a.patch
+# xml2-config.in: rewrite prefix/cflags/libs for the solver tree.
+# The three 2.9.10 git-hash backports (0e1a49c, 50f06b3, 7ffcd44) are upstream.
+PATCH_FILES=libxml2-configure.patch
 
 # libxml2-global-symbols: #i112480#: Solaris ld won't export non-listed symbols
 #            libxml2-global-symbols.patch
@@ -65,15 +64,18 @@ xml2_LIBS+=$(MINGW_SHARED_LIBSTDCPP)
 .ENDIF
 CONFIGURE_DIR=
 CONFIGURE_ACTION=.$/configure
-CONFIGURE_FLAGS=--enable-ipv6=no --without-python --without-lzma --without-iconv --enable-static=no --without-debug --build=i586-pc-mingw32 --host=i586-pc-mingw32 lt_cv_cc_dll_switch="-shared" CC="$(xml2_CC)" LDFLAGS="-no-undefined -Wl,--enable-runtime-pseudo-reloc-v2 -L$(ILIB:s/;/ -L/)" LIBS="$(xml2_LIBS)" OBJDUMP=objdump
+CONFIGURE_FLAGS=--without-python --without-iconv --enable-static=no --without-debug --build=i586-pc-mingw32 --host=i586-pc-mingw32 lt_cv_cc_dll_switch="-shared" CC="$(xml2_CC)" LDFLAGS="-no-undefined -Wl,--enable-runtime-pseudo-reloc-v2 -L$(ILIB:s/;/ -L/)" LIBS="$(xml2_LIBS)" OBJDUMP=objdump
 BUILD_ACTION=$(GNUMAKE)
 BUILD_DIR=$(CONFIGURE_DIR)
 .ELSE
-CONFIGURE_DIR=win32
-CONFIGURE_ACTION=cscript configure.js
-CONFIGURE_FLAGS=iconv=no sax1=yes lzma=no
+# 2.15 removed win32/configure.js. MSVC uses CMake (NMake). Needs CMake 3.18+.
+CONFIGURE_DIR=
+CONFIGURE_ACTION=cmake
+CONFIGURE_FLAGS=-G "NMake Makefiles" -DLIBXML2_WITH_PYTHON=OFF -DLIBXML2_WITH_ICONV=OFF -DLIBXML2_WITH_SAX1=ON -DLIBXML2_WITH_TESTS=OFF -DLIBXML2_WITH_ZLIB=OFF -DLIBXML2_WITH_PROGRAMS=ON
 .IF "$(debug)"!=""
-CONFIGURE_FLAGS+=debug=yes
+CONFIGURE_FLAGS+=-DCMAKE_BUILD_TYPE=Debug
+.ELSE
+CONFIGURE_FLAGS+=-DCMAKE_BUILD_TYPE=Release
 .ENDIF
 BUILD_ACTION=nmake
 BUILD_DIR=$(CONFIGURE_DIR)
@@ -87,25 +89,24 @@ xml2_CFLAGS+=$(ARCH_FLAGS) $(C_RESTRICTIONFLAGS)
 xml2_LDFLAGS+=-L$(SYSBASE)$/usr$/lib
 .ENDIF			# "$(SYSBASE)"!=""
 
-# --without-iconv: no OpenOffice code calls iconv, and libxml2-configure.patch
-# has always meant to turn it off -- it patches the generated xmlversion.h,
-# which configure then regenerates, so it never took effect here. The Windows
-# build has passed iconv=no all along. Dropping it keeps UTF-8/UTF-16/ASCII/
-# Latin-1 and turns on libxml2's built-in ISO-8859-x tables; only encodings
-# like Shift_JIS, Big5 and KOI8-R go.
+# --without-iconv: no OpenOffice code calls iconv. The Windows build has
+# passed iconv=no all along. Dropping it keeps UTF-8/UTF-16/ASCII/Latin-1
+# and turns on libxml2's built-in ISO-8859-x tables; only encodings like
+# Shift_JIS, Big5 and KOI8-R go. --enable-ipv6 and --without-lzma are gone
+# in 2.15 (HTTP/LZMA modules were removed).
 CONFIGURE_DIR=
 .IF "$(OS)"=="OS2"
 CONFIGURE_ACTION=sh .$/configure
-CONFIGURE_FLAGS=--enable-ipv6=no --without-python --without-zlib --without-lzma --without-iconv --enable-static=yes --with-sax1=yes ADDCFLAGS="$(xml2_CFLAGS)" CFLAGS="$(EXTRA_CFLAGS)" LDFLAGS="$(xml2_LDFLAGS) $(EXTRA_LINKFLAGS)"
+CONFIGURE_FLAGS=--without-python --without-zlib --without-iconv --enable-static=yes --with-sax1=yes ADDCFLAGS="$(xml2_CFLAGS)" CFLAGS="$(EXTRA_CFLAGS)" LDFLAGS="$(xml2_LDFLAGS) $(EXTRA_LINKFLAGS)"
 .ELIF "$(OS)"=="MACOSX"
 # Community builds bundle a static libxml2 rather than a dylib -- see
 # main/xmlsecurity/util/makefile.mk and main/forms/util/makefile.mk for
 # the consumer side of this.
 CONFIGURE_ACTION=.$/configure
-CONFIGURE_FLAGS=--enable-ipv6=no --without-python --without-zlib --without-lzma --without-iconv --enable-static=yes --enable-shared=no --with-sax1=yes ADDCFLAGS="$(xml2_CFLAGS) $(EXTRA_CFLAGS)" LDFLAGS="$(xml2_LDFLAGS) $(EXTRA_LINKFLAGS)"
+CONFIGURE_FLAGS=--without-python --without-zlib --without-iconv --enable-static=yes --enable-shared=no --with-sax1=yes ADDCFLAGS="$(xml2_CFLAGS) $(EXTRA_CFLAGS)" LDFLAGS="$(xml2_LDFLAGS) $(EXTRA_LINKFLAGS)"
 .ELSE
 CONFIGURE_ACTION=.$/configure
-CONFIGURE_FLAGS=--enable-ipv6=no --without-python --without-zlib --without-lzma --without-iconv --enable-static=no --with-sax1=yes ADDCFLAGS="$(xml2_CFLAGS) $(EXTRA_CFLAGS)" LDFLAGS="$(xml2_LDFLAGS) $(EXTRA_LINKFLAGS)"
+CONFIGURE_FLAGS=--without-python --without-zlib --without-iconv --enable-static=no --with-sax1=yes ADDCFLAGS="$(xml2_CFLAGS) $(EXTRA_CFLAGS)" LDFLAGS="$(xml2_LDFLAGS) $(EXTRA_LINKFLAGS)"
 .ENDIF
 BUILD_ACTION=$(GNUMAKE)
 BUILD_FLAGS+= -j$(EXTMAXPROCESS)
@@ -127,9 +128,10 @@ OUT2BIN+=.libs$/libxml2*.dll
 OUT2BIN+=.libs$/xmllint.exe
 OUT2BIN+=xml2-config
 .ELSE
-OUT2LIB+=win32$/bin.msvc$/*.lib
-OUT2BIN+=win32$/bin.msvc$/*.dll
-OUT2BIN+=win32$/bin.msvc$/xmllint.exe
+OUT2LIB+=libxml2*.lib
+OUT2BIN+=libxml2*.dll
+OUT2BIN+=xmllint.exe
+OUT2BIN+=xml2-config
 .ENDIF
 .ELSE
 OUT2LIB+=.libs$/libxml2.so*
