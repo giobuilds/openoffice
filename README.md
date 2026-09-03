@@ -36,6 +36,11 @@ Currently supported platforms include:
 
 OpenOffice is used by millions of users worldwide and with more than 398 million downloads it is one of the most successful open source projects.
 
+# Security
+
+See [SECURITY.md](SECURITY.md) for how to report vulnerabilities in this
+repository. Do not file public issues with exploit proofs of concept.
+
 # Getting the latest sources via Git
 
 You can always checkout the latest source via Git using the following command:
