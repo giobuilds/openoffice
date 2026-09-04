@@ -1,0 +1,16 @@
+UCRT-generation CRT DLLs staged by `oowintool --msvc-copy-dlls`.
+
+configure copies them here from
+`<VS>/VC/Redist/MSVC/<ver>/<arch>/Microsoft.VC14*.CRT/`
+when `--with-cl-home` names a VS2015+ toolset directory.
+
+Expected files (not checked in):
+
+    vcruntime140.dll
+    msvcp140.dll
+    vcruntime140_1.dll   (x64, if the redist ships it)
+    msvcp140_1.dll / msvcp140_2.dll / concrt140.dll  (if present)
+
+These are the runtime the UCRT-generation binaries import.  The VC90
+copies under ../msvcp90/ are not.  The UCRT itself is an operating-system
+component on Windows 10 and is not staged here.

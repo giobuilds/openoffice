@@ -67,7 +67,10 @@ sub print_syntax()
     print "   -u   - unix form (default)\n";
     print " commands:\n";
     print "   --msvc-ver              - dump version of MSVC eg. 6.0\n";
-    print "   --msvc-copy-dlls <dest> - copy msvc[pr]??.dlls into <dest>/msvcp??/\n";
+    print "   --msvc-copy-dlls <dest> [x86|x64]\n";
+    print "                         - copy CRT DLLs into <dest>/msvcp??/\n";
+    print "                           UCRT toolsets: vcruntime140.dll, msvcp140.dll\n";
+    print "                           into <dest>140/. VC9 fallback: msvcr90.dll\n";
     print "   --msvc-productdir       - dump productdir\n";
     print "   --msvs-productdir       - dump productdir\n";
     print "   --dotnetsdk-dir         - dump .Net SDK path\n";
@@ -342,11 +345,55 @@ sub msvc_find_version($)
     return undef;
 }
 
-sub msvc_copy_dlls($)
+# VS2015+ redistributable next to --with-cl-home:
+#   <VS>/VC/Tools/MSVC/<ver>     <- CL_HOME
+#   <VS>/VC/Redist/MSVC/<ver>/<arch>/Microsoft.VC14*.CRT/vcruntime140.dll
+sub copy_ucrt_dlls($$)
+{
+    my ($destbase, $arch) = @_;
+    my $cl = $ENV{CL_HOME};
+    return 0 unless defined $cl && $cl ne '';
+    $cl = cygpath ($cl, 'w', 'u');
+    $cl =~ s|/*\s*$||;
+    return 0 unless -d $cl;
+
+    my $vc = $cl;
+    $vc =~ s{/Tools/MSVC/[^/]+$}{};
+    my $redist_root = "$vc/Redist/MSVC";
+    return 0 unless -d $redist_root;
+
+    my @hits = glob ("$redist_root/*/$arch/Microsoft.VC14*.CRT/vcruntime140.dll");
+    return 0 unless @hits;
+    @hits = sort @hits;
+    my $src = $hits[-1];
+    $src =~ s{/vcruntime140\.dll$}{};
+    -d $src || return 0;
+
+    my $dest = $destbase . "140";
+    mkdir $dest unless -d $dest;
+    -d $dest || die "no directory $dest";
+
+    print STDERR "UCRT CRT from $src -> $dest ($arch)\n";
+    copy_dll ($src, "vcruntime140.dll", $dest);
+    copy_dll ($src, "msvcp140.dll", $dest);
+    foreach my $extra ("vcruntime140_1.dll", "msvcp140_1.dll", "msvcp140_2.dll", "concrt140.dll") {
+        copy_dll ($src, $extra, $dest) if -f "$src/$extra";
+    }
+    return 1;
+}
+
+sub msvc_copy_dlls($;$)
 {
     my $dest = shift;
-    my $ver = msvc_find_version('dll_path');
-    defined $ver || return;
+    my $arch = shift;
+    $arch = 'x86' unless defined $arch && $arch ne '';
+
+    if (copy_ucrt_dlls ($dest, $arch)) {
+        return 1;
+    }
+
+    my $ver = eval { msvc_find_version('dll_path') };
+    defined $ver || return 0;
     my $srcdir = (cygpath ($ver->{'product_dir'}, 'w', 'u') . '/' .
 		  $ver->{'dll_path'});
 
@@ -359,6 +406,7 @@ sub msvc_copy_dlls($)
                   $dest . $ver->{'dll_suffix'});
         copy_dll ($srcdir, "Microsoft.VC90.CRT.manifest", $dest . $ver->{'dll_suffix'});
     }
+    return 1;
 }
 
 if (!@ARGV) {
@@ -388,7 +436,11 @@ while (@commands) {
     } elsif ($opt eq '--msvc-copy-dlls') {
 	my $dest = shift @commands;
 	defined $dest || die "copy-dlls requires a destination directory";
-	msvc_copy_dlls( $dest );
+	my $arch = 'x86';
+	if (@commands && $commands[0] =~ /^(x86|x64)$/) {
+	    $arch = shift @commands;
+	}
+	msvc_copy_dlls( $dest, $arch ) || die "oowintool: no CRT redistributable found";
     } elsif ($opt eq '--msvs-productdir') {
 	print_msvs_productdir();
     } elsif ($opt eq '--msvc-productdir') {

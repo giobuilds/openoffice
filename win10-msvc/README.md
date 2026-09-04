@@ -271,32 +271,28 @@ of old import libraries on `LIB`. That is safe by ordering rather than by luck:
 Windows 10 copies of `kernel32.lib` and friends win, and v7.0 supplies only what
 the earlier directories do not have — which is `mscoree.lib`.
 
-## Known gap: the staged CRT is still VC90
+## CRT staging (UCRT-generation toolset)
 
-`bootstrap` calls `oowintool --msvc-copy-dlls`, which finds a compiler through
-the pre-Windows-8 registry keys it knows about, and on a machine that still has
-VS2008 installed that is VS2008. So `main/external/msvcp90/` receives
-`msvcr90.dll`, `msvcp90.dll`, `msvcm90.dll` and `Microsoft.VC90.CRT.manifest`,
-`main/external/prj/d.lst` delivers them, and the installer ships them --
-while everything else is now built against the UCRT.
+`configure` calls `oowintool --msvc-copy-dlls ./external/msvcp <arch>` with
+`CL_HOME` set to `--with-cl-home`. For a VS2015+ toolset that copies
+`vcruntime140.dll` and `msvcp140.dll` from
+`VC/Redist/MSVC/<ver>/<arch>/Microsoft.VC14*.CRT/` into
+`main/external/msvcp140/`. `external/prj/d.lst` delivers them next to
+soffice.exe. The UCRT itself is an OS component on Windows 10; it is not
+staged.
 
-This does **not** stop a build: the files exist, they are copied, nothing
-references them at link time. What it produces is an installation carrying
-three dead VC90 DLLs and missing the runtime it actually needs
-(`vcruntime140.dll`, `msvcp140.dll`, and the UCRT). On a developer machine
-that runs anyway, because installing Visual Studio installs the redistributable
-system-wide; on a clean machine it would not.
+The VC90 hunt (pre-Windows-8 registry keys → `msvcr90.dll`) remains as a
+fallback for a COMEX 12 / VS2008 build. A modern toolset no longer stages
+those DLLs as the runtime.
 
-The modern equivalent is `VC/Redist/MSVC/<toolset>/<arch>/Microsoft.VC142.CRT`,
-and note it is *not* a like-for-like swap: the UCRT is an operating-system
-component on Windows 10 rather than an application-private SxS assembly, so the
-manifest half of the old arrangement has no counterpart rather than a renamed
-one.
+The installer also packages `vcredist_x86.exe` / `vcredist_x64.exe` from
+`external/vcredist/` (VC v14 permalinks in that directory's README) when
+those files are present. App-local `vcruntime140.dll` is what a clean
+machine needs if the redistributable installer is not run.
 
-`win10-64-minimal` drew its scope line in exactly the same place -- "this
-branch targets compiling; the CRT/SxS story is the phase after" -- so this is
-inherited, not newly introduced. It is recorded here because it is invisible
-until someone installs the result on a machine without Visual Studio.
+Still needs a machine without Visual Studio to confirm Writer starts from
+the MSI. Python extension modules (`_ssl`, `_ctypes`, `_bz2`, `_lzma`,
+`_sqlite3`) are a separate follow-up.
 
 Related, same cause, harmless: `bootstrap` prints
 `Can't find MS Visual Studio / VC++ at ./oowintool line 228`. That is
