@@ -41,8 +41,9 @@ ccache -s || true
 
 autoconf
 
-# xmlsec needs NSS. Use distro NSS (>= 3.91, required by xmlsec 1.3.10+)
-# and distro libxml2 so this job does not also compile those modules.
+# xmlsec needs NSS. --disable-category-b forces enable_nss_module=no
+# (configure.ac), so this job enables category B and uses distro NSS
+# (>= 3.91, required by xmlsec 1.3.10+) plus distro libxml2.
 ./configure \
     --without-java \
     --without-junit \
@@ -51,8 +52,7 @@ autoconf
     --disable-gtk \
     --disable-gconf \
     --disable-cups \
-    --disable-category-b \
-    --disable-coinmp \
+    --enable-category-b \
     --disable-ldap \
     --disable-online-update \
     --without-fonts \
@@ -60,6 +60,8 @@ autoconf
     --with-system-boost \
     --with-system-python \
     --with-system-nss \
+    --with-system-hunspell \
+    --with-system-hyphen \
     --with-system-libxml \
     --with-system-libxslt \
     --with-system-expat \

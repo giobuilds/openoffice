@@ -59,6 +59,8 @@ jobs:
             libexpat1-dev \
             libfontconfig1-dev \
             libfreetype6-dev \
+            libhunspell-dev \
+            libhyphen-dev \
             libjpeg-dev \
             libnspr4-dev \
             libnss3-dev \
