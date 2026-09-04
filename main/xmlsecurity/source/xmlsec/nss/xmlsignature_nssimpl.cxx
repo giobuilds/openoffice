@@ -46,12 +46,9 @@
 #include "errorcallback.hxx"
 
 #include <sal/types.h>
-//For reasons that escape me, this is what xmlsec does when size_t is not 4
-#if SAL_TYPES_SIZEOFPOINTER != 4
-#    define XMLSEC_NO_SIZE_T
-#endif
 #include "xmlsec/xmlsec.h"
 #include "xmlsec/xmldsig.h"
+#include "xmlsec/keyinfo.h"
 #include "xmlsec/crypto.h"
 
 using namespace ::com::sun::star::uno ;
@@ -158,6 +155,11 @@ SAL_CALL XMLSignature_NssImpl :: generate(
 		return aTemplate;
 	}
 
+	// 1.3.x extracts the key even with DONT_VERIFY_CERTS (replaces
+	// xmlsec1-noverify.patch). LAX_KEY_SEARCH restores 1.2.14 KeyInfo lookup.
+	pDsigCtx->keyInfoReadCtx.flags |= XMLSEC_KEYINFO_FLAGS_X509DATA_DONT_VERIFY_CERTS
+		| XMLSEC_KEYINFO_FLAGS_LAX_KEY_SEARCH;
+
 	//Sign the template
 	if( xmlSecDSigCtxSign( pDsigCtx , pNode ) == 0 )
 	{
@@ -263,6 +265,9 @@ SAL_CALL XMLSignature_NssImpl :: validate(
 			clearErrorRecorder();
 			return aTemplate;
 		}
+
+		pDsigCtx->keyInfoReadCtx.flags |= XMLSEC_KEYINFO_FLAGS_X509DATA_DONT_VERIFY_CERTS
+			| XMLSEC_KEYINFO_FLAGS_LAX_KEY_SEARCH;
 
 		//Verify signature
 		int rs = xmlSecDSigCtxVerify( pDsigCtx , pNode );

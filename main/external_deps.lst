@@ -86,11 +86,14 @@ if (SOLAR_JAVA==TRUE && SYSTEM_LUCENE!=YES)
     URL1 = https://archive.apache.org/dist/lucene/java/2.9.4/lucene-2.9.4-src.tar.gz
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
-if (ENABLE_NSS_MODULE!=NO && SYSTEM_NSS!=YES)
-    MD5 = 1f24ab1d39f4a51faf22244c94a6203f
-    SHA256 = 390a5085651828b8fe12aa978b200f59b9155eedbb91a4be89bf7cf39eefdd4a
-    name = xmlsec1-1.2.14.tar.gz
-    URL1 = https://www.aleksey.com/xmlsec/download/older-releases/$(name)
+# xmlsec is its own pin (not the NSS tarball). Fetch whenever the NSS
+# crypto module is on, including --with-system-nss (xmlsec 1.3.x needs
+# NSS >= 3.91 at configure via pkg-config; distro NSS satisfies that).
+if (ENABLE_NSS_MODULE!=NO)
+    MD5 = d5f31478d4d7bd782424a02239edb48d
+    SHA256 = 24045199af12d93fe5fdbbbf7e386e823e4842071e9432e2b90ac108b889a923
+    name = xmlsec1-1.3.12.tar.gz
+    URL1 = https://www.aleksey.com/xmlsec/download/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (SYSTEM_REDLAND != YES)
