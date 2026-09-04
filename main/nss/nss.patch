@@ -52,24 +52,24 @@ diff -ur misc/nss-3.128/nss/cmd/platlibs.mk misc/build/nss-3.128/nss/cmd/platlib
 diff -ur misc/nss-3.128/nss/cmd/shlibsign/Makefile misc/build/nss-3.128/nss/cmd/shlibsign/Makefile
 --- misc/nss-3.128/nss/cmd/shlibsign/Makefile
 +++ misc/build/nss-3.128/nss/cmd/shlibsign/Makefile
-@@ -59,10 +59,15 @@
+@@ -59,11 +59,11 @@
  CHECKLIBS =
  CHECKLOC =
  else
 -CHECKLIBS = $(DIST)/lib/$(DLL_PREFIX)softokn3.$(DLL_SUFFIX)
 -CHECKLIBS += $(wildcard $(DIST)/lib/$(DLL_PREFIX)freebl*3.$(DLL_SUFFIX))
-+# Signing causes loading of some system library which in turn loads
-+# libsqlite3. Then it loads libsqulite3 from nss, which does not have the proper
-+# version. Therefore signing fails.
-+# We cannot build with the system sqlite3, because it is too old (SDK
-+# 10.4). Otherwise one could set NSS_USE_SYSTEM_SQLITE=1 and use the system lib.
-+#CHECKLIBS = $(DIST)/lib/$(DLL_PREFIX)softokn3.$(DLL_SUFFIX)
-+#CHECKLIBS += $(wildcard $(DIST)/lib/$(DLL_PREFIX)freebl*3.$(DLL_SUFFIX))
- ifndef NSS_DISABLE_DBM
+-ifndef NSS_DISABLE_DBM
 -CHECKLIBS += $(DIST)/lib/$(DLL_PREFIX)nssdbm3.$(DLL_SUFFIX)
-+#CHECKLIBS += $(DIST)/lib/$(DLL_PREFIX)nssdbm3.$(DLL_SUFFIX)
- endif
- CHECKLOC = $(CHECKLIBS:.$(DLL_SUFFIX)=.chk)
+-endif
+-CHECKLOC = $(CHECKLIBS:.$(DLL_SUFFIX)=.chk)
++# Skip FIPS .chk signing (sqlite clash on old macOS SDK). CHECKLOC must
++# be a truly empty assignment: nss 3.128 does `ifdef CHECKLOC` then
++# `$(MAKE) $(CHECKLOC)`. A substitution that expands to empty is still
++# ifdef-true, so make recurses (mozilla 1642153).
++CHECKLIBS =
++CHECKLOC =
+ 
+ MD_LIB_RELEASE_FILES = $(CHECKLOC)
  
 diff -ur misc/nss-3.128/nss/coreconf/Darwin.mk misc/build/nss-3.128/nss/coreconf/Darwin.mk
 --- misc/nss-3.128/nss/coreconf/Darwin.mk
