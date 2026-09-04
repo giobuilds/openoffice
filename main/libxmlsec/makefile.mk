@@ -38,46 +38,17 @@ EXTERNAL_WARNINGS_NOT_ERRORS := TRUE
 
 # --- Files --------------------------------------------------------
 
-XMLSEC1VERSION=1.2.14
+XMLSEC1VERSION=1.3.12
 
 TARFILE_NAME=$(PRJNAME)-$(XMLSEC1VERSION)
-TARFILE_MD5=1f24ab1d39f4a51faf22244c94a6203f
+TARFILE_MD5=d5f31478d4d7bd782424a02239edb48d
 
-#xmlsec1-configure.patch: Set up the build. Straightforward configuration
-#xmlsec1-configure-libxml-libxslt.patch: empty "$with_libxml" prepends /bin :-(
-#xmlsec1-olderlibxml2.patch: Allow build against older libxml2, for macosx
-#xmlsec1-nssdisablecallbacks.patch: Disable use of smime3 so don't need to package it
-#xmlsec1-customkeymanage.patch: Could we do this alternatively outside xmlsec
-#xmlsec1-nssmangleciphers.patch: Dubious, do we still need this ?
-#xmlsec1-noverify.patch: As per readme.txt.
-#xmlsec1-mingw32.patch: Mingw32 support.
-#xmlsec1-mingw-customkeymanage-addmscrypto.patch builds the custom keymanager on mingw
-PATCH_FILES=\
-   xmlsec1-configure.patch \
-   xmlsec1-configure-libxml-libxslt.patch \
-   xmlsec1-olderlibxml2.patch \
-   xmlsec1-nssdisablecallbacks.patch \
-   xmlsec1-customkeymanage.patch \
-   xmlsec1-nssmangleciphers.patch \
-   xmlsec1-noverify.patch \
-   xmlsec1-mingw32.patch \
-   xmlsec1-mingw-keymgr-mscrypto.patch \
-   xmlsec1-nowin98.patch \
-   xmlsec1-ucrt-snprintf.patch
-
-.IF "$(GUI)"=="OS2"
-PATCH_FILES+=xmlsec1-os2.patch
-.ENDIF
-
-ADDITIONAL_FILES= \
-    include$/xmlsec$/mscrypto$/akmngr.h \
-    src$/mscrypto$/akmngr.c \
-    include$/xmlsec$/nss$/akmngr.h \
-    include$/xmlsec$/nss$/ciphers.h \
-    include$/xmlsec$/nss$/tokens.h \
-    src$/nss$/akmngr.c \
-    src$/nss$/keywrapers.c \
-    src$/nss$/tokens.c
+# 1.2.14 patches do not apply to 1.3.12 (paths and APIs). Stock 1.3.12:
+# --disable-apps replaces xmlsec1-configure.patch (skip xmlsec1 binary).
+# xmlsec1-noverify.patch is replaced by XMLSEC_KEYINFO_FLAGS_X509DATA_DONT_VERIFY_CERTS
+# in xmlsecurity (1.3.x extracts the key even when that flag is set).
+# Custom AppliedKeysMngr (akmngr) is a follow-up; it is 1.2.14-only source.
+PATCH_FILES=none
 
 .IF "$(GUI)"=="WNT"
 CRYPTOLIB=mscrypto
@@ -100,7 +71,7 @@ xmlsec_LIBS+=$(MINGW_SHARED_LIBSTDCPP)
 .ENDIF
 CONFIGURE_DIR=
 CONFIGURE_ACTION=.$/configure
-CONFIGURE_FLAGS=--with-libxslt=no --with-openssl=no --with-gnutls=no --enable-mscrypto --disable-crypto-dl --build=i586-pc-mingw32 --host=i586-pc-mingw32 CC="$(xmlsec_CC)" LDFLAGS="-no-undefined -L$(ILIB:s/;/ -L/)" LIBS="$(xmlsec_LIBS)" LIBXML2LIB=$(LIBXML2LIB) ZLIB3RDLIB=$(ZLIB3RDLIB) OBJDUMP="$(WRAPCMD) objdump"
+CONFIGURE_FLAGS=--with-libxslt=no --with-openssl=no --with-gnutls=no --disable-apps --enable-mscrypto --disable-crypto-dl --build=i586-pc-mingw32 --host=i586-pc-mingw32 CC="$(xmlsec_CC)" LDFLAGS="-no-undefined -L$(ILIB:s/;/ -L/)" LIBS="$(xmlsec_LIBS)" LIBXML2LIB=$(LIBXML2LIB) ZLIB3RDLIB=$(ZLIB3RDLIB) OBJDUMP="$(WRAPCMD) objdump"
 
 .IF "$(SYSTEM_NSS)" != "YES"
 CONFIGURE_FLAGS+=--enable-pkgconfig=no
@@ -159,7 +130,7 @@ LDFLAGS:=$(xmlsec_LDFLAGS)
 .ENDIF
 CONFIGURE_DIR=
 CONFIGURE_ACTION=.$/configure ADDCFLAGS="$(xmlsec_CFLAGS)" CPPFLAGS="$(xmlsec_CPPFLAGS)"
-CONFIGURE_FLAGS=--with-pic --disable-shared --disable-crypto-dl --with-libxslt=no --with-openssl=no --with-gnutls=no LIBXML2LIB="$(LIBXML2LIB)"
+CONFIGURE_FLAGS=--with-pic --disable-shared --disable-crypto-dl --disable-apps --with-libxslt=no --with-openssl=no --with-gnutls=no LIBXML2LIB="$(LIBXML2LIB)"
 # Pin xmlsec's libxml2 lookup to the prefix configure settled on.
 #
 # Without --with-libxml the AOO patches leave xmlsec resolving a bare
@@ -188,6 +159,15 @@ CONFIGURE_FLAGS+=--with-libxml=$(LIBXML_PREFIX)
 # $with_nss/lib.
 .IF "$(SYSTEM_NSS)" != "YES"
 CONFIGURE_FLAGS+=--enable-pkgconfig=no
+# 1.3.x will not pkg-config bundled NSS. Headers land where xmlsecurity
+# already looks: solver inc/mozilla/{nss,nspr} (nss/prj/d.lst), not
+# inc/external/mozilla. 1.3.12 then version-checks via <nss.h>/<prinit.h>.
+NSS_CFLAGS=-I$(SOLARVERSION)$/$(INPATH)$/inc$(UPDMINOREXT)$/mozilla$/nss -I$(SOLARVERSION)$/$(INPATH)$/inc$(UPDMINOREXT)$/mozilla$/nspr
+NSPR_CFLAGS=$(NSS_CFLAGS)
+NSS_LIBS=-L$(SOLARVERSION)$/$(INPATH)$/lib$(UPDMINOREXT) -lnss3 -lsmime3 -lnssutil3 -lnspr4 -lplds4 -lplc4
+NSPR_LIBS=-L$(SOLARVERSION)$/$(INPATH)$/lib$(UPDMINOREXT) -lnspr4 -lplds4 -lplc4
+.EXPORT : NSS_CFLAGS NSS_LIBS NSPR_CFLAGS NSPR_LIBS
+CONFIGURE_FLAGS+=NSS_CFLAGS="$(NSS_CFLAGS)" NSS_LIBS="$(NSS_LIBS)" NSPR_CFLAGS="$(NSPR_CFLAGS)" NSPR_LIBS="$(NSPR_LIBS)"
 .ENDIF
 BUILD_ACTION=$(GNUMAKE) -j$(EXTMAXPROCESS)
 BUILD_DIR=$(CONFIGURE_DIR)

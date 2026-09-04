@@ -27,10 +27,6 @@
 #include <xmlsecurity/biginteger.hxx>
 
 #include <sal/types.h>
-//For reasons that escape me, this is what xmlsec does when size_t is not 4
-#if SAL_TYPES_SIZEOFPOINTER != 4
-#    define XMLSEC_NO_SIZE_T
-#endif
 #include <xmlsec/xmlsec.h>
 #include <xmlsec/bn.h>
 #include <com/sun/star/uno/Sequence.hxx>

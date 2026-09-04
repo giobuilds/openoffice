@@ -1,3 +1,8 @@
+xmlsec 1.3.x honors XMLSEC_KEYINFO_FLAGS_X509DATA_DONT_VERIFY_CERTS while still
+extracting the signature key (xmlsec #78). AOO sets that flag in
+xmlsignature_nssimpl.cxx and xmlsignature_mscryptimpl.cxx. The old
+xmlsec1-noverify.patch is gone.
+
 The XML Security library has been modified, so that there is NO verification of
 the certificate during sign or verification operation. On Windows this was done
 in the function xmlSecMSCryptoX509StoreVerify (file src/mscrypto/x509vfy.c) and

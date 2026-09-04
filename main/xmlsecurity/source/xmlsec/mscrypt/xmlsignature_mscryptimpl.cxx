@@ -45,6 +45,7 @@
 
 #include "xmlsec/xmlsec.h"
 #include "xmlsec/xmldsig.h"
+#include "xmlsec/keyinfo.h"
 #include "xmlsec/crypto.h"
 
 using namespace ::com::sun::star::uno ;
@@ -138,6 +139,9 @@ SAL_CALL XMLSignature_MSCryptImpl :: generate(
 		clearErrorRecorder();
 		return aTemplate;
 	}
+
+	pDsigCtx->keyInfoReadCtx.flags |= XMLSEC_KEYINFO_FLAGS_X509DATA_DONT_VERIFY_CERTS
+		| XMLSEC_KEYINFO_FLAGS_LAX_KEY_SEARCH;
 
 	//Sign the template
 	if( xmlSecDSigCtxSign( pDsigCtx , pNode ) == 0 )
@@ -243,6 +247,9 @@ SAL_CALL XMLSignature_MSCryptImpl :: validate(
 		clearErrorRecorder();
 		return aTemplate;
 	}
+
+	pDsigCtx->keyInfoReadCtx.flags |= XMLSEC_KEYINFO_FLAGS_X509DATA_DONT_VERIFY_CERTS
+		| XMLSEC_KEYINFO_FLAGS_LAX_KEY_SEARCH;
 
 	//Verify signature
     //The documentation says that the signature is only valid if the return value is 0 (that is, not < 0)
