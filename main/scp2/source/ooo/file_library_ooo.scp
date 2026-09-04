@@ -687,6 +687,32 @@ File gid_File_Lib_Gdiplus
 End
 #endif
 
+#ifdef WNT
+// App-local VC v14 CRT.  UCRT-generation binaries import these; the VC90
+// copies under msvcp90/ are not the runtime.  The UCRT itself is an OS
+// component on Windows 10 and is not shipped here.
+File gid_File_Lib_Vcruntime140
+    BIN_FILE_BODY;
+    Styles = (PACKED);
+    Dir = SCP2_OOO_BIN_DIR;
+    Name = "vcruntime140.dll";
+End
+File gid_File_Lib_Msvcp140
+    BIN_FILE_BODY;
+    Styles = (PACKED);
+    Dir = SCP2_OOO_BIN_DIR;
+    Name = "msvcp140.dll";
+End
+#ifdef BUILD_WIN64
+File gid_File_Lib_Vcruntime140_1
+    BIN_FILE_BODY;
+    Styles = (PACKED);
+    Dir = SCP2_OOO_BIN_DIR;
+    Name = "vcruntime140_1.dll";
+End
+#endif
+#endif
+
 #ifdef OS2
 SPECIAL_COMPONENT_LIB_FILE( gid_File_Lib_Hatchwindowfactory, hatchwin )
 STD_LIB_FILE( gid_File_Lib_Helplinker, helplink)

@@ -6547,11 +6547,27 @@ to download it from https://www.microsoft.com/download/en/search.aspx?q=redistri
 fi
 
 dnl ===================================================================
-dnl Windows builds - use oowintool to copy CRT dlls and manifest
+dnl Windows builds - use oowintool to copy CRT dlls
 dnl ===================================================================
+dnl  A UCRT-generation toolset (COMEX 14) imports vcruntime140.dll / msvcp140.dll.
+dnl  oowintool used to hunt VS2008 registry keys and stage msvcr90.dll, which
+dnl  the installer then shipped as the runtime while the binaries needed v14.
+dnl  Pass CL_HOME so it can find VC/Redist/MSVC/<ver>/<arch>/Microsoft.VC14*.CRT.
 if test "$_os" = "WINNT" -a "$WITH_MINGWIN" != "yes"; then
-       if $OOWINTOOL --msvc-copy-dlls ./external/msvcp ; then
-          :
+       CRT_ARCH=x86
+       if test "$BUILD_WIN64" = "TRUE"; then
+              CRT_ARCH=x64
+       fi
+       AC_MSG_CHECKING([for Visual C++ redistributable DLLs])
+       if CL_HOME="$with_cl_home" $OOWINTOOL --msvc-copy-dlls ./external/msvcp "$CRT_ARCH"; then
+          if test -n "$MSVC_MODERN"; then
+             if test ! -f ./external/msvcp140/vcruntime140.dll -o ! -f ./external/msvcp140/msvcp140.dll; then
+                AC_MSG_ERROR([oowintool did not copy vcruntime140.dll / msvcp140.dll into external/msvcp140/. Point --with-cl-home at VC/Tools/MSVC/<ver> so VC/Redist/MSVC is next to it.])
+             fi
+             AC_MSG_RESULT([vcruntime140.dll, msvcp140.dll ($CRT_ARCH)])
+          else
+             AC_MSG_RESULT([VC9 CRT])
+          fi
        else
           AC_MSG_ERROR([oowintool failed to copy CRT])
        fi
