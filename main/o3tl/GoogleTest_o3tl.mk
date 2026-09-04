@@ -30,6 +30,7 @@ $(eval $(call gb_GoogleTest_add_exception_objects,o3tl_test, \
 	o3tl/qa/test-heap_ptr \
 	o3tl/qa/test-range \
 	o3tl/qa/test-importbounds \
+	o3tl/qa/test-csvnumber \
 ))
 
 $(eval $(call gb_GoogleTest_set_include,o3tl_test,\

@@ -37,6 +37,7 @@
 #include <comphelper/sequence.hxx>
 #include <svl/zforlist.hxx>
 #include <rtl/math.hxx>
+#include <rtl/ustrbuf.hxx>
 #include <stdio.h>		//sprintf
 #include <comphelper/extract.hxx>
 #include <comphelper/numbers.hxx>
@@ -597,6 +598,46 @@ sal_Int64 OFlatTable::getSomething( const Sequence< sal_Int8 > & rId )
 				? reinterpret_cast< sal_Int64 >( this )
 				: OFlatTable_BASE::getSomething(rId);
 }
+
+// After 7b2bc0e6, CSV cells are 32-bit OUString. String::AllocBuffer takes
+// xub_StrLen (16-bit); passing aStr.getLength() truncated the allocation
+// while the copy loop still walked the full length (CVE-2025-64406 leftover).
+static ::rtl::OUString lcl_NormalizeCsvNumber(
+		const ::rtl::OUString& rStr,
+		sal_Unicode cDecimalDelimiter,
+		sal_Unicode cThousandDelimiter,
+		bool bInteger )
+{
+	if ( bInteger )
+	{
+		if ( !cThousandDelimiter )
+			return rStr;
+		::rtl::OUStringBuffer aBuf( rStr.getLength() );
+		for ( sal_Int32 j = 0; j < rStr.getLength(); ++j )
+		{
+			const sal_Unicode cChar = rStr[j];
+			if ( cChar != cThousandDelimiter )
+				aBuf.append( cChar );
+		}
+		return aBuf.makeStringAndClear();
+	}
+
+	::rtl::OUStringBuffer aBuf( rStr.getLength() );
+	for ( sal_Int32 j = 0; j < rStr.getLength(); ++j )
+	{
+		const sal_Unicode cChar = rStr[j];
+		if ( cDecimalDelimiter && cChar == cDecimalDelimiter )
+			aBuf.append( sal_Unicode( '.' ) );
+		else if ( cChar == '.' )
+			continue;
+		else if ( cThousandDelimiter && cChar == cThousandDelimiter )
+			;
+		else
+			aBuf.append( cChar );
+	}
+	return aBuf.makeStringAndClear();
+}
+
 //------------------------------------------------------------------
 sal_Bool OFlatTable::fetchRow(OValueRefRow& _rRow,const OSQLColumns & _rCols,sal_Bool bIsTable,sal_Bool bRetrieveData)
 {
@@ -678,41 +719,12 @@ sal_Bool OFlatTable::fetchRow(OValueRefRow& _rRow,const OSQLColumns & _rCols,sal
 				case DataType::NUMERIC:
 				{
 
-					String aStrConverted;
-                    if ( DataType::INTEGER != nType )
-                    {
-                        sal_Unicode* pData = aStrConverted.AllocBuffer(aStr.getLength());
-                        const sal_Unicode* pStart = pData;
-
-					    OSL_ENSURE(cDecimalDelimiter && nType != DataType::INTEGER ||
-							       !cDecimalDelimiter && nType == DataType::INTEGER,
-							       "FalscherTyp");
-
-					    // In Standard-Notation (DezimalPUNKT ohne Tausender-Komma) umwandeln:
-					    for (sal_Int32 j = 0; j < aStr.getLength(); ++j)
-					    {
-                            const sal_Unicode cChar = aStr[j];
-						    if (cDecimalDelimiter && cChar == cDecimalDelimiter)
-                                *pData++ = '.';
-							    //aStrConverted.Append( '.' );
-						    else if ( cChar == '.' ) // special case, if decimal seperator isn't '.' we have to put the string after it
-							    continue; // #99189# OJ
-						    else if (cThousandDelimiter && cChar == cThousandDelimiter)
-						    {
-							    // weglassen
-						    }
-						    else
-                                *pData++ = cChar;
-							    //aStrConverted.Append(cChar);
-					    } // for (sal_Int32 j = 0; j < aStr.Len(); ++j)
-                        aStrConverted.ReleaseBufferAccess(xub_StrLen(pData - pStart));
-                    } // if ( DataType::INTEGER != nType )
-                    else
-                    {
-                        aStrConverted = aStr;
-                        if ( cThousandDelimiter )
-                            aStrConverted.EraseAllChars(cThousandDelimiter);
-                    }
+					OSL_ENSURE(cDecimalDelimiter && nType != DataType::INTEGER ||
+							   !cDecimalDelimiter && nType == DataType::INTEGER,
+							   "FalscherTyp");
+					const ::rtl::OUString aStrConverted = lcl_NormalizeCsvNumber(
+							aStr, cDecimalDelimiter, cThousandDelimiter,
+							nType == DataType::INTEGER );
 					const double nVal = ::rtl::math::stringToDouble(aStrConverted,'.',',',NULL,NULL);
 
 					// #99178# OJ
