@@ -33,24 +33,15 @@ TARGET=so_icu
 
 .INCLUDE :	icuversion.mk
 
-.IF "$(ICU_MICRO)"!="0"
-TARFILE_NAME=icu4c-$(ICU_MAJOR)_$(ICU_MINOR)_$(ICU_MICRO)-src
-TARFILE_MD5=e3738abd0d3ce1870dc1fd1f22bba5b1
-.ELSE
-TARFILE_NAME=icu4c-$(ICU_MAJOR)_$(ICU_MINOR)-src
-TARFILE_MD5=
-.ENDIF
+# 78.3 sources tarball uses dots (icu4c-78.3-sources.tgz), not 4.2's
+# icu4c-4_2_1-src.tgz underscores. LIB_VERSION is 78.3 (so.78.3 / so.78).
+TARFILE_NAME=icu4c-$(ICU_MAJOR).$(ICU_MINOR)-sources
+TARFILE_MD5=a7b736b570ef0e180c96a31715a00c78
 TARFILE_ROOTDIR=icu
 
-# TODO file icu-mp.patch does not seem to be required
-PATCH_FILES=${TARFILE_NAME}.patch icu-win-layout.patch \
-	icu-parallel-build.patch \
-	icu-format-security.patch icu-win-icutu-dll-version.patch \
-	icu-vcproj-outputdirectory.patch
-
-.IF "$(OS)"=="MACOSX"
-PATCH_FILES+=icu-darwin.patch
-.ENDIF
+# 4.2.1 patches do not apply (layout, vcproj, uconv parallel, format-security).
+# ICU 78 mh-linux already embeds $ORIGIN rpath when --enable-rpath is set.
+PATCH_FILES=none
 
 # ADDITIONAL_FILES=
 
@@ -75,10 +66,8 @@ icu_LDFLAGS+= -L../lib  -L../../lib -L../stubdata -L../../stubdata  -L$(SYSBASE)
 
 icu_CFLAGS+=-O $(ARCH_FLAGS) $(EXTRA_CDEFS)
 icu_LDFLAGS+=$(EXTRA_LINKFLAGS)
-icu_CXXFLAGS+=-O $(ARCH_FLAGS) $(EXTRA_CDEFS)
-
-# remove conversion and transliteration data to reduce binary size.
-CONFIGURE_ACTION=rm data/mappings/ucm*.mk data/translit/trn*.mk ;
+# ICU 75+ requires C++17 to build the library. AOO consumers are unchanged.
+icu_CXXFLAGS+=-O -std=c++17 $(ARCH_FLAGS) $(EXTRA_CDEFS)
 
 # until someone introduces SOLARIS 64-bit builds
 .IF "$(OS)"=="SOLARIS"
@@ -100,35 +89,35 @@ LDFLAGSADD+=$(FBSD_GCC_RPATH)
 
 CONFIGURE_DIR=source
 
-CONFIGURE_ACTION+=sh -c 'CFLAGS="$(icu_CFLAGS)" CXXFLAGS="$(icu_CXXFLAGS)" LDFLAGS="$(icu_LDFLAGS) $(LDFLAGSADD)" ./configure --enable-layout --enable-static --enable-shared=yes $(DISABLE_64BIT)'
+# --enable-layout errors on 78 ("ICU Layout Engine has been removed").
+# --enable-rpath writes $ORIGIN (mh-linux). PYTHON=python3 for the data build.
+CONFIGURE_ACTION=sh -c 'CFLAGS="$(icu_CFLAGS)" CXXFLAGS="$(icu_CXXFLAGS)" LDFLAGS="$(icu_LDFLAGS) $(LDFLAGSADD)" PYTHON=python3 ./configure --disable-layout --disable-samples --disable-tests --enable-rpath --enable-static --enable-shared=yes $(DISABLE_64BIT)'
 
-#CONFIGURE_FLAGS=--enable-layout --enable-static --enable-shared=yes --enable-64bit-libs=no
 CONFIGURE_FLAGS=
 
 # Use of
 # CONFIGURE_ACTION=sh -c 'CFLAGS=-O CXXFLAGS=-O ./configure'
-# CONFIGURE_FLAGS=--enable-layout --enable-static --enable-shared=yes --enable-64bit-libs=no
+# CONFIGURE_FLAGS=--enable-static --enable-shared=yes
 # doesn't work as it would result in
-# sh -c 'CFLAGS=-O CXXFLAGS=-O ./configure' --enable-layout ...
+# sh -c 'CFLAGS=-O CXXFLAGS=-O ./configure' --enable-static ...
 # note the position of the single quotes.
 
 BUILD_DIR=$(CONFIGURE_DIR)
 BUILD_ACTION=$(AUGMENT_LIBRARY_PATH) $(GNUMAKE) -j$(EXTMAXPROCESS)
+# 78 soname is libicuuc.so.78.3 + libicuuc.so.78 (MAJOR.MINOR, not MAJORMINOR).
+# No libicule (layout removed in ICU 58).
 OUT2LIB= \
-	$(BUILD_DIR)$/lib$/libicudata$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR).$(ICU_MICRO) \
-	$(BUILD_DIR)$/lib$/libicudata$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR) \
+	$(BUILD_DIR)$/lib$/libicudata$(DLLPOST).$(ICU_MAJOR).$(ICU_MINOR) \
+	$(BUILD_DIR)$/lib$/libicudata$(DLLPOST).$(ICU_MAJOR) \
 	$(BUILD_DIR)$/lib$/libicudata$(DLLPOST) \
-	$(BUILD_DIR)$/lib$/libicuuc$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR).$(ICU_MICRO) \
-	$(BUILD_DIR)$/lib$/libicuuc$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR) \
+	$(BUILD_DIR)$/lib$/libicuuc$(DLLPOST).$(ICU_MAJOR).$(ICU_MINOR) \
+	$(BUILD_DIR)$/lib$/libicuuc$(DLLPOST).$(ICU_MAJOR) \
 	$(BUILD_DIR)$/lib$/libicuuc$(DLLPOST) \
-	$(BUILD_DIR)$/lib$/libicui18n$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR).$(ICU_MICRO) \
-	$(BUILD_DIR)$/lib$/libicui18n$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR) \
+	$(BUILD_DIR)$/lib$/libicui18n$(DLLPOST).$(ICU_MAJOR).$(ICU_MINOR) \
+	$(BUILD_DIR)$/lib$/libicui18n$(DLLPOST).$(ICU_MAJOR) \
 	$(BUILD_DIR)$/lib$/libicui18n$(DLLPOST) \
-	$(BUILD_DIR)$/lib$/libicule$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR).$(ICU_MICRO) \
-	$(BUILD_DIR)$/lib$/libicule$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR) \
-	$(BUILD_DIR)$/lib$/libicule$(DLLPOST) \
-	$(BUILD_DIR)$/lib$/libicutu$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR).$(ICU_MICRO) \
-	$(BUILD_DIR)$/lib$/libicutu$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR) \
+	$(BUILD_DIR)$/lib$/libicutu$(DLLPOST).$(ICU_MAJOR).$(ICU_MINOR) \
+	$(BUILD_DIR)$/lib$/libicutu$(DLLPOST).$(ICU_MAJOR) \
 	$(BUILD_DIR)$/lib$/libicutu$(DLLPOST)
 
 OUT2BIN= \
@@ -141,7 +130,7 @@ OUT2BIN= \
 .IF "$(GUI)"=="WNT"
 CONFIGURE_DIR=source
 .IF "$(COM)"=="GCC"
-CONFIGURE_ACTION=rm data/mappings/ucm*.mk data/translit/trn*.mk ;
+CONFIGURE_ACTION=
 .IF "$(MINGW_SHARED_GCCLIB)"=="YES"
 icu_LDFLAGS+=-shared-libgcc
 .ENDIF
@@ -154,7 +143,7 @@ icu_LIBS=
 icu_LIBS+=$(MINGW_SHARED_LIBSTDCPP)
 .ENDIF
 icu_LDFLAGS+=-Wl,--enable-runtime-pseudo-reloc-v2
-CONFIGURE_ACTION+=sh -c 'CFLAGS="-O -D_MT" CXXFLAGS="-O -D_MT" LDFLAGS="$(icu_LDFLAGS)" LIBS="$(icu_LIBS)" ./configure --build=i586-pc-mingw32 --enable-layout --enable-static --enable-shared=yes --enable-64bit-libs=no'
+CONFIGURE_ACTION+=sh -c 'CFLAGS="-O -D_MT" CXXFLAGS="-O -std=c++17 -D_MT" LDFLAGS="$(icu_LDFLAGS)" LIBS="$(icu_LIBS)" PYTHON=python3 ./configure --build=i586-pc-mingw32 --disable-layout --disable-samples --disable-tests --enable-static --enable-shared=yes --enable-64bit-libs=no'
 
 #CONFIGURE_FLAGS=--enable-layout --enable-static --enable-shared=yes --enable-64bit-libs=no
 CONFIGURE_FLAGS=
@@ -171,11 +160,10 @@ BUILD_ACTION=$(GNUMAKE)
 OUT2LIB=
 
 OUT2BIN= \
-	$(BUILD_DIR)$/lib$/icudt$(ICU_MAJOR)$(ICU_MINOR)$(DLLPOST) \
-	$(BUILD_DIR)$/lib$/icuuc$(ICU_MAJOR)$(ICU_MINOR)$(DLLPOST) \
-	$(BUILD_DIR)$/lib$/icuin$(ICU_MAJOR)$(ICU_MINOR)$(DLLPOST) \
-	$(BUILD_DIR)$/lib$/icule$(ICU_MAJOR)$(ICU_MINOR)$(DLLPOST) \
-	$(BUILD_DIR)$/lib$/icutu$(ICU_MAJOR)$(ICU_MINOR)$(DLLPOST) \
+	$(BUILD_DIR)$/lib$/icudt$(ICU_MAJOR)$(DLLPOST) \
+	$(BUILD_DIR)$/lib$/icuuc$(ICU_MAJOR)$(DLLPOST) \
+	$(BUILD_DIR)$/lib$/icuin$(ICU_MAJOR)$(DLLPOST) \
+	$(BUILD_DIR)$/lib$/icutu$(ICU_MAJOR)$(DLLPOST) \
 	$(BUILD_DIR)$/bin$/genccode.exe \
 	$(BUILD_DIR)$/bin$/genbrk.exe \
 	$(BUILD_DIR)$/bin$/gencmn.exe
@@ -239,19 +227,19 @@ BUILD_ACTION=cd allinone && nmake /f all.mak EXFLAGS="-EHa -Zc:wchar_t-" stubdat
 BUILD_ACTION=cd allinone && nmake /f all.mak EXFLAGS="-EHa -Zc:wchar_t-" && cd ..$/..
 .ENDIF
 
+# Windows MSVC still uses createmak.pl / all.mak from ICU 4.2. 78 dropped
+# that layout (CMake). Not verified; Linux is the CI target.
 OUT2LIB= \
 	$(BUILD_DIR)$/..$/lib$/icudata.lib \
 	$(BUILD_DIR)$/..$/lib$/icuin$(ICU_BUILD_LIBPOST).lib \
 	$(BUILD_DIR)$/..$/lib$/icuuc$(ICU_BUILD_LIBPOST).lib \
-	$(BUILD_DIR)$/..$/lib$/icule$(ICU_BUILD_LIBPOST).lib \
 	$(BUILD_DIR)$/..$/lib$/icutu$(ICU_BUILD_LIBPOST).lib
 
 OUT2BIN= \
-	$(BUILD_DIR)$/..$/bin$/icudt$(ICU_MAJOR)$(ICU_MINOR).dll \
-	$(BUILD_DIR)$/..$/bin$/icuin$(ICU_MAJOR)$(ICU_MINOR)$(ICU_BUILD_LIBPOST).dll \
-	$(BUILD_DIR)$/..$/bin$/icuuc$(ICU_MAJOR)$(ICU_MINOR)$(ICU_BUILD_LIBPOST).dll \
-	$(BUILD_DIR)$/..$/bin$/icule$(ICU_MAJOR)$(ICU_MINOR)$(ICU_BUILD_LIBPOST).dll \
-	$(BUILD_DIR)$/..$/bin$/icutu$(ICU_MAJOR)$(ICU_MINOR)$(ICU_BUILD_LIBPOST).dll \
+	$(BUILD_DIR)$/..$/bin$/icudt$(ICU_MAJOR).dll \
+	$(BUILD_DIR)$/..$/bin$/icuin$(ICU_MAJOR)$(ICU_BUILD_LIBPOST).dll \
+	$(BUILD_DIR)$/..$/bin$/icuuc$(ICU_MAJOR)$(ICU_BUILD_LIBPOST).dll \
+	$(BUILD_DIR)$/..$/bin$/icutu$(ICU_MAJOR)$(ICU_BUILD_LIBPOST).dll \
 	$(BUILD_DIR)$/..$/bin$/genccode.exe \
 	$(BUILD_DIR)$/..$/bin$/genbrk.exe \
     $(BUILD_DIR)$/..$/bin$/gencmn.exe
@@ -280,7 +268,6 @@ ALLTAR : \
 	$(LB)$/icudata.lib \
 	$(LB)$/icuin$(ICU_BUILD_LIBPOST).lib \
 	$(LB)$/icuuc$(ICU_BUILD_LIBPOST).lib \
-	$(LB)$/icule$(ICU_BUILD_LIBPOST).lib \
 	$(LB)$/icutu$(ICU_BUILD_LIBPOST).lib
 
 $(LB)$/icudata.lib : $(PACKAGE_DIR)$/$(PREDELIVER_FLAG_FILE)
@@ -290,9 +277,6 @@ $(LB)$/icuin$(ICU_BUILD_LIBPOST).lib : $(PACKAGE_DIR)$/$(PREDELIVER_FLAG_FILE)
 	$(TOUCH) $@
 
 $(LB)$/icuuc$(ICU_BUILD_LIBPOST).lib : $(PACKAGE_DIR)$/$(PREDELIVER_FLAG_FILE)
-	$(TOUCH) $@
-
-$(LB)$/icule$(ICU_BUILD_LIBPOST).lib : $(PACKAGE_DIR)$/$(PREDELIVER_FLAG_FILE)
 	$(TOUCH) $@
 
 $(LB)$/icutu$(ICU_BUILD_LIBPOST).lib : $(PACKAGE_DIR)$/$(PREDELIVER_FLAG_FILE)

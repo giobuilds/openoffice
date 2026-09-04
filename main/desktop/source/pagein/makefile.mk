@@ -62,7 +62,7 @@ ALL: \
 
 .INCLUDE :  target.mk
 
-ICUDLLPOST=$(DLLPOST).$(ICU_MAJOR)$(ICU_MINOR)
+ICUDLLPOST=$(DLLPOST).$(ICU_MAJOR)
 UDKDLLPOST=$(DLLPOST).$(UDK_MAJOR)
 UNODLLPOST=.uno$(DLLPOST)
 DFTDLLPOST=$(DLLPOSTFIX)$(DLLPOST) # Default
@@ -99,7 +99,6 @@ $(MISC)$/$(TARGET)-common : makefile.mk
 	@-echo i18npool$(UNODLLPOST)         >  $@
 .IF "$(SYSTEM_ICU)" != "YES"
 	@-echo $(DLLPRE)icui18n$(ICUDLLPOST) >> $@
-	@-echo $(DLLPRE)icule$(ICUDLLPOST)   >> $@
 	@-echo $(DLLPRE)icuuc$(ICUDLLPOST)   >> $@
 	@-echo $(DLLPRE)icudata$(ICUDLLPOST) >> $@
 .ENDIF # SYSTEM_ICU

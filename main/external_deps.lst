@@ -137,10 +137,11 @@ if (SOLAR_JAVA==TRUE && ENABLE_MEDIAWIKI==YES)
     URL1 = https://archive.apache.org/dist/commons/codec/source/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
-if ( true )
-    MD5 = e3738abd0d3ce1870dc1fd1f22bba5b1
-    name = icu4c-4_2_1-src.tgz
-    URL1 = https://sourceforge.net/projects/icu/files/ICU4C/4.2.1/$(name)
+if (SYSTEM_ICU != YES)
+    MD5 = a7b736b570ef0e180c96a31715a00c78
+    SHA256 = 3a2e7a47604ba702f345878308e6fefeca612ee895cf4a5f222e7955fabfe0c0
+    name = icu4c-78.3-sources.tgz
+    URL1 = https://github.com/unicode-org/icu/releases/download/release-78.3/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (SOLAR_JAVA==TRUE && (ENABLE_MEDIAWIKI==YES || ENABLE_REPORTBUILDER==YES))
