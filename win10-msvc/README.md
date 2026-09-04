@@ -504,8 +504,7 @@ Honest accounting, because the gap still matters more than the list of changes.
   exercises it.
 * Nothing has been **run**. The build produces libraries; whether the product
   starts is a question this branch has not asked. See also
-  [Known gap: the staged CRT is still VC90](#known-gap-the-staged-crt-is-still-vc90),
-  which is a runtime problem by construction.
+  [CRT staging (UCRT-generation toolset)](#crt-staging-ucrt-generation-toolset).
 
 The rate is the useful number here. On `win10-64-minimal` the last mile was six
 defects in four families; this branch took forty in a dozen to reach a green
