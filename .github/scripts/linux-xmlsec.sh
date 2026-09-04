@@ -41,9 +41,9 @@ ccache -s || true
 
 autoconf
 
-# xmlsec needs NSS. --disable-category-b forces enable_nss_module=no
-# (configure.ac), so this job enables category B and uses distro NSS
-# (>= 3.91, required by xmlsec 1.3.10+) plus distro libxml2.
+# xmlsec 1.3.10+ wants NSS >= 3.91. --disable-category-b forces
+# enable_nss_module=no, so enable category B and compile bundled NSS
+# 3.128 then xmlsec. Distro libxml2 is enough for this job.
 ./configure \
     --without-java \
     --without-junit \
@@ -59,7 +59,6 @@ autoconf
     --enable-unit-tests \
     --with-system-boost \
     --with-system-python \
-    --with-system-nss \
     --with-system-hunspell \
     --with-system-hyphen \
     --with-system-libxml \
@@ -96,11 +95,13 @@ build_dir() {
 
 build_dir soltools
 build_dir stlport
+build_dir nss
 build_dir libxmlsec
 
 LIBDIR="${SOLARVERSION}/${INPATH}/lib${UPDMINOREXT:-}"
 echo "===== verify ${LIBDIR} ====="
-ls -l "${LIBDIR}"/libxmlsec1* || true
+ls -l "${LIBDIR}"/libnss3* "${LIBDIR}"/libnspr4* "${LIBDIR}"/libxmlsec1* || true
+test -e "${LIBDIR}/libnss3.so" -o -e "${LIBDIR}/libnss3.so.3"
 test -e "${LIBDIR}/libxmlsec1.a"
 test -e "${LIBDIR}/libxmlsec1-nss.a"
 

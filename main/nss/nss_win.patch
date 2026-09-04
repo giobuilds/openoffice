@@ -1,5 +1,5 @@
---- misc/nss-3.39/nss/cmd/signtool/sign.c	2016-06-20 14:11:28.000000000 -0300
-+++ misc/build/nss-3.39/nss/cmd/signtool/sign.c	2019-11-01 13:32:56.496828470 -0300
+--- misc/nss-3.128/nss/cmd/signtool/sign.c	2016-06-20 14:11:28.000000000 -0300
++++ misc/build/nss-3.128/nss/cmd/signtool/sign.c	2019-11-01 13:32:56.496828470 -0300
 @@ -8,6 +8,10 @@
  #include "blapi.h"
  #include "sechash.h" /* for HASH_GetHashObject() */
@@ -11,9 +11,9 @@
  static int create_pk7(char *dir, char *keyName, int *keyType);
  static int jar_find_key_type(CERTCertificate *cert);
  static int manifesto(char *dirname, char *install_script, PRBool recurse);
-diff -ur misc/nss-3.39/nss/cmd/Makefile misc/build/nss-3.39/nss/cmd/Makefile
---- misc/nss-3.39/nss/cmd/Makefile	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/cmd/Makefile	2018-10-22 14:53:30.297923000 -0700
+diff -ur misc/nss-3.128/nss/cmd/Makefile misc/build/nss-3.128/nss/cmd/Makefile
+--- misc/nss-3.128/nss/cmd/Makefile	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/cmd/Makefile	2018-10-22 14:53:30.297923000 -0700
 @@ -21,7 +21,8 @@
  FIPSTEST_SRCDIR =
  SHLIBSIGN_SRCDIR =
@@ -24,9 +24,9 @@ diff -ur misc/nss-3.39/nss/cmd/Makefile misc/build/nss-3.39/nss/cmd/Makefile
  ECPERF_SRCDIR = ecperf
  FREEBL_ECTEST_SRCDIR = fbectest
  FIPSTEST_SRCDIR = fipstest
-diff -ur misc/nss-3.39/nss/cmd/lib/secutil.c misc/build/nss-3.39/nss/cmd/lib/secutil.c
---- misc/nss-3.39/nss/cmd/lib/secutil.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/cmd/lib/secutil.c	2018-10-22 10:44:05.694582000 -0700
+diff -ur misc/nss-3.128/nss/cmd/lib/secutil.c misc/build/nss-3.128/nss/cmd/lib/secutil.c
+--- misc/nss-3.128/nss/cmd/lib/secutil.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/cmd/lib/secutil.c	2018-10-22 10:44:05.694582000 -0700
 @@ -217,6 +217,7 @@
      secuPWData *pwdata = (secuPWData *)arg;
      secuPWData pwnull = { PW_NONE, 0 };
@@ -80,9 +80,9 @@ diff -ur misc/nss-3.39/nss/cmd/lib/secutil.c misc/build/nss-3.39/nss/cmd/lib/sec
      while (p) {
          SSLSignatureScheme scheme = schemeNameToScheme(p);
          if (scheme == ssl_sig_none) {
-diff -ur misc/nss-3.39/nss/cmd/signtool/javascript.c misc/build/nss-3.39/nss/cmd/signtool/javascript.c
---- misc/nss-3.39/nss/cmd/signtool/javascript.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/cmd/signtool/javascript.c	2018-10-22 15:02:16.878938000 -0700
+diff -ur misc/nss-3.128/nss/cmd/signtool/javascript.c misc/build/nss-3.128/nss/cmd/signtool/javascript.c
+--- misc/nss-3.128/nss/cmd/signtool/javascript.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/cmd/signtool/javascript.c	2018-10-22 15:02:16.878938000 -0700
 @@ -1672,7 +1672,7 @@
  {
      char fn[FNSIZE];
@@ -92,9 +92,9 @@ diff -ur misc/nss-3.39/nss/cmd/signtool/javascript.c misc/build/nss-3.39/nss/cmd
      if (c >= sizeof(fn)) {
          return PR_FAILURE;
      }
-diff -ur misc/nss-3.39/nss/cmd/signtool/sign.c misc/build/nss-3.39/nss/cmd/signtool/sign.c
---- misc/nss-3.39/nss/cmd/signtool/sign.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/cmd/signtool/sign.c	2018-10-22 15:01:53.353243000 -0700
+diff -ur misc/nss-3.128/nss/cmd/signtool/sign.c misc/build/nss-3.128/nss/cmd/signtool/sign.c
+--- misc/nss-3.128/nss/cmd/signtool/sign.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/cmd/signtool/sign.c	2018-10-22 15:01:53.353243000 -0700
 @@ -82,13 +82,13 @@
          }
  
@@ -161,9 +161,9 @@ diff -ur misc/nss-3.39/nss/cmd/signtool/sign.c misc/build/nss-3.39/nss/cmd/signt
      if (count >= sizeof(fullname)) {
          return 1;
      }
-diff -ur misc/nss-3.39/nss/gtests/freebl_gtest/kat/blake2b_kat.h misc/build/nss-3.39/nss/gtests/freebl_gtest/kat/blake2b_kat.h
---- misc/nss-3.39/nss/gtests/freebl_gtest/kat/blake2b_kat.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/gtests/freebl_gtest/kat/blake2b_kat.h	2018-10-21 01:47:24.131348000 -0700
+diff -ur misc/nss-3.128/nss/gtests/freebl_gtest/kat/blake2b_kat.h misc/build/nss-3.128/nss/gtests/freebl_gtest/kat/blake2b_kat.h
+--- misc/nss-3.128/nss/gtests/freebl_gtest/kat/blake2b_kat.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/gtests/freebl_gtest/kat/blake2b_kat.h	2018-10-21 01:47:24.131348000 -0700
 @@ -5,7 +5,23 @@
  /* https://github.com/BLAKE2/BLAKE2/blob/master/testvectors/blake2b-kat.txt */
  
@@ -196,9 +196,9 @@ diff -ur misc/nss-3.39/nss/gtests/freebl_gtest/kat/blake2b_kat.h misc/build/nss-
 -             0x6d, 0xee, 0x2d, 0x46, 0xd6, 0x2e, 0xf2, 0xa4, 0x61}))};
 \ No newline at end of file
 +             0x6d, 0xee, 0x2d, 0x46, 0xd6, 0x2e, 0xf2, 0xa4, 0x61}))};
-diff -ur misc/nss-3.39/nss/gtests/ssl_gtest/libssl_internals.h misc/build/nss-3.39/nss/gtests/ssl_gtest/libssl_internals.h
---- misc/nss-3.39/nss/gtests/ssl_gtest/libssl_internals.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/gtests/ssl_gtest/libssl_internals.h	2018-10-21 01:47:16.342484000 -0700
+diff -ur misc/nss-3.128/nss/gtests/ssl_gtest/libssl_internals.h misc/build/nss-3.128/nss/gtests/ssl_gtest/libssl_internals.h
+--- misc/nss-3.128/nss/gtests/ssl_gtest/libssl_internals.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/gtests/ssl_gtest/libssl_internals.h	2018-10-21 01:47:16.342484000 -0700
 @@ -7,7 +7,23 @@
  #ifndef libssl_internals_h_
  #define libssl_internals_h_
@@ -224,9 +224,9 @@ diff -ur misc/nss-3.39/nss/gtests/ssl_gtest/libssl_internals.h misc/build/nss-3.
  
  #include "prio.h"
  #include "seccomon.h"
-diff -ur misc/nss-3.39/nss/lib/freebl/blake2b.c misc/build/nss-3.39/nss/lib/freebl/blake2b.c
---- misc/nss-3.39/nss/lib/freebl/blake2b.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/blake2b.c	2018-10-21 15:08:03.065644000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/blake2b.c misc/build/nss-3.128/nss/lib/freebl/blake2b.c
+--- misc/nss-3.128/nss/lib/freebl/blake2b.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/blake2b.c	2018-10-21 15:08:03.065644000 -0700
 @@ -147,6 +147,7 @@
  blake2b_Begin(BLAKE2BContext* ctx, uint8_t outlen, const uint8_t* key,
                size_t keylen)
@@ -259,9 +259,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/blake2b.c misc/build/nss-3.39/nss/lib/free
      if (ctx == NULL) {
          PORT_SetError(SEC_ERROR_INVALID_ARGS);
          return NULL;
-diff -ur misc/nss-3.39/nss/lib/freebl/blake2b.h misc/build/nss-3.39/nss/lib/freebl/blake2b.h
---- misc/nss-3.39/nss/lib/freebl/blake2b.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/blake2b.h	2018-10-21 01:46:57.467020000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/blake2b.h misc/build/nss-3.128/nss/lib/freebl/blake2b.h
+--- misc/nss-3.128/nss/lib/freebl/blake2b.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/blake2b.h	2018-10-21 01:46:57.467020000 -0700
 @@ -9,7 +9,23 @@
  #define BLAKE_H
  
@@ -287,9 +287,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/blake2b.h misc/build/nss-3.39/nss/lib/free
  
  struct Blake2bContextStr {
      uint64_t h[8];                     /* chained state */
-diff -ur misc/nss-3.39/nss/lib/freebl/chacha20poly1305.c misc/build/nss-3.39/nss/lib/freebl/chacha20poly1305.c
---- misc/nss-3.39/nss/lib/freebl/chacha20poly1305.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/chacha20poly1305.c	2018-10-21 21:01:18.295557000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/chacha20poly1305.c misc/build/nss-3.128/nss/lib/freebl/chacha20poly1305.c
+--- misc/nss-3.128/nss/lib/freebl/chacha20poly1305.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/chacha20poly1305.c	2018-10-21 21:01:18.295557000 -0700
 @@ -77,14 +77,14 @@
          Hacl_Poly1305_mk_state(stateStack, stateStack + offset);
  
@@ -307,9 +307,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/chacha20poly1305.c misc/build/nss-3.39/nss
      for (i = 0, j = adLen; i < 8; i++, j >>= 8) {
          block[i] = j;
      }
-diff -ur misc/nss-3.39/nss/lib/freebl/ecl/ecp_25519.c misc/build/nss-3.39/nss/lib/freebl/ecl/ecp_25519.c
---- misc/nss-3.39/nss/lib/freebl/ecl/ecp_25519.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/ecl/ecp_25519.c	2018-10-21 21:06:07.350639000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/ecl/ecp_25519.c misc/build/nss-3.128/nss/lib/freebl/ecl/ecp_25519.c
+--- misc/nss-3.128/nss/lib/freebl/ecl/ecp_25519.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/ecl/ecp_25519.c	2018-10-21 21:06:07.350639000 -0700
 @@ -104,6 +104,7 @@
  {
      PRUint8 *px;
@@ -327,9 +327,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/ecl/ecp_25519.c misc/build/nss-3.39/nss/li
      if (NSS_SecureMemcmpZero(X->data, X->len) == 0) {
          return SECFailure;
      }
-diff -ur misc/nss-3.39/nss/lib/freebl/gcm.h misc/build/nss-3.39/nss/lib/freebl/gcm.h
---- misc/nss-3.39/nss/lib/freebl/gcm.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/gcm.h	2018-10-21 01:46:50.706497000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/gcm.h misc/build/nss-3.128/nss/lib/freebl/gcm.h
+--- misc/nss-3.128/nss/lib/freebl/gcm.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/gcm.h	2018-10-21 01:46:50.706497000 -0700
 @@ -6,7 +6,23 @@
  #define GCM_H 1
  
@@ -355,9 +355,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/gcm.h misc/build/nss-3.39/nss/lib/freebl/g
  
  #ifdef NSS_X86_OR_X64
  /* GCC <= 4.8 doesn't support including emmintrin.h without enabling SSE2 */
-diff -ur misc/nss-3.39/nss/lib/freebl/rijndael.h misc/build/nss-3.39/nss/lib/freebl/rijndael.h
---- misc/nss-3.39/nss/lib/freebl/rijndael.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/rijndael.h	2018-10-21 01:47:05.758087000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/rijndael.h misc/build/nss-3.128/nss/lib/freebl/rijndael.h
+--- misc/nss-3.128/nss/lib/freebl/rijndael.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/rijndael.h	2018-10-21 01:47:05.758087000 -0700
 @@ -6,7 +6,23 @@
  #define _RIJNDAEL_H_ 1
  
@@ -383,9 +383,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/rijndael.h misc/build/nss-3.39/nss/lib/fre
  
  #if defined(NSS_X86_OR_X64)
  /* GCC <= 4.8 doesn't support including emmintrin.h without enabling SSE2 */
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/FStar.c misc/build/nss-3.39/nss/lib/freebl/verified/FStar.c
---- misc/nss-3.39/nss/lib/freebl/verified/FStar.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/FStar.c	2018-10-21 23:50:44.099188000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/FStar.c misc/build/nss-3.128/nss/lib/freebl/verified/FStar.c
+--- misc/nss-3.128/nss/lib/freebl/verified/FStar.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/FStar.c	2018-10-21 23:50:44.099188000 -0700
 @@ -32,37 +32,37 @@
  FStar_UInt128_uint128
  FStar_UInt128_add(FStar_UInt128_uint128 a, FStar_UInt128_uint128 b)
@@ -619,9 +619,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/FStar.c misc/build/nss-3.39/nss/l
  }
  
  FStar_UInt128_uint128
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/FStar.h misc/build/nss-3.39/nss/lib/freebl/verified/FStar.h
---- misc/nss-3.39/nss/lib/freebl/verified/FStar.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/FStar.h	2018-10-21 23:03:05.151005000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/FStar.h misc/build/nss-3.128/nss/lib/freebl/verified/FStar.h
+--- misc/nss-3.128/nss/lib/freebl/verified/FStar.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/FStar.h	2018-10-21 23:03:05.151005000 -0700
 @@ -17,6 +17,7 @@
  #ifndef __FStar_H
  #define __FStar_H
@@ -630,9 +630,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/FStar.h misc/build/nss-3.39/nss/l
  #include "kremlib_base.h"
  
  typedef struct
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20.c misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20.c
---- misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20.c	2018-10-21 21:47:24.553180000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20.c misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20.c
+--- misc/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20.c	2018-10-21 21:47:24.553180000 -0700
 @@ -18,7 +18,8 @@
  static void
  Hacl_Lib_LoadStore32_uint32s_from_le_bytes(uint32_t *output, uint8_t *input, uint32_t len)
@@ -776,9 +776,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20.c misc/build/nss-3.
          uint8_t *b = plain + (uint32_t)64U * i;
          uint8_t *o = output + (uint32_t)64U * i;
          Hacl_Impl_Chacha20_update(o, b, st, ctr + i);
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20.h misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20.h
---- misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20.h	2018-10-21 21:12:36.078858000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20.h misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20.h
+--- misc/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20.h	2018-10-21 21:12:36.078858000 -0700
 @@ -13,6 +13,7 @@
   * limitations under the License.
   */
@@ -787,9 +787,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20.h misc/build/nss-3.
  #include "kremlib.h"
  #ifndef __Hacl_Chacha20_H
  #define __Hacl_Chacha20_H
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.c misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.c
---- misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.c	2018-10-21 22:13:55.130785000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.c misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.c
+--- misc/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.c	2018-10-21 22:13:55.130785000 -0700
 @@ -25,14 +25,18 @@
  inline static void
  Hacl_Impl_Chacha20_Vec128_State_state_to_key_block(uint8_t *stream_block, vec *k)
@@ -1073,9 +1073,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.c misc/build
      Hacl_Impl_Chacha20_Vec128_init(st, k, n1, ctr);
      Hacl_Impl_Chacha20_Vec128_chacha20_counter_mode(output, plain, len, st);
  }
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.h misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.h
---- misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.h	2018-10-21 21:52:15.090683000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.h misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.h
+--- misc/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.h	2018-10-21 21:52:15.090683000 -0700
 @@ -13,6 +13,7 @@
   * limitations under the License.
   */
@@ -1084,9 +1084,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Chacha20_Vec128.h misc/build
  #include "kremlib.h"
  #ifndef __Hacl_Chacha20_Vec128_H
  #define __Hacl_Chacha20_Vec128_H
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Curve25519.c misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Curve25519.c
---- misc/nss-3.39/nss/lib/freebl/verified/Hacl_Curve25519.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Curve25519.c	2018-10-21 22:57:57.044565000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/Hacl_Curve25519.c misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Curve25519.c
+--- misc/nss-3.128/nss/lib/freebl/verified/Hacl_Curve25519.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Curve25519.c	2018-10-21 22:57:57.044565000 -0700
 @@ -129,6 +129,7 @@
  Hacl_Bignum_Fmul_shift_reduce(uint64_t *output)
  {
@@ -1549,9 +1549,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Curve25519.c misc/build/nss-
      x[0U] = (uint64_t)1U;
      Hacl_EC_Ladder_cmult(nq, scalar, q);
      Hacl_EC_Format_scalar_of_point(mypublic, nq);
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Curve25519.h misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Curve25519.h
---- misc/nss-3.39/nss/lib/freebl/verified/Hacl_Curve25519.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Curve25519.h	2018-10-21 22:18:23.286647000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/Hacl_Curve25519.h misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Curve25519.h
+--- misc/nss-3.128/nss/lib/freebl/verified/Hacl_Curve25519.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Curve25519.h	2018-10-21 22:18:23.286647000 -0700
 @@ -13,6 +13,7 @@
   * limitations under the License.
   */
@@ -1560,9 +1560,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Curve25519.h misc/build/nss-
  #include "kremlib.h"
  #ifndef __Hacl_Curve25519_H
  #define __Hacl_Curve25519_H
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Poly1305_32.c misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Poly1305_32.c
---- misc/nss-3.39/nss/lib/freebl/verified/Hacl_Poly1305_32.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Poly1305_32.c	2018-10-22 00:58:55.601973000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/Hacl_Poly1305_32.c misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Poly1305_32.c
+--- misc/nss-3.128/nss/lib/freebl/verified/Hacl_Poly1305_32.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Poly1305_32.c	2018-10-22 00:58:55.601973000 -0700
 @@ -47,7 +47,8 @@
  inline static void
  Hacl_Bignum_Fproduct_copy_from_wide_(uint32_t *output, uint64_t *input)
@@ -2049,9 +2049,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Poly1305_32.c misc/build/nss
      Hacl_Impl_Poly1305_32_poly1305_last_pass(acc);
  }
  
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Poly1305_32.h misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Poly1305_32.h
---- misc/nss-3.39/nss/lib/freebl/verified/Hacl_Poly1305_32.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/Hacl_Poly1305_32.h	2018-10-22 00:11:45.152423000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/Hacl_Poly1305_32.h misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Poly1305_32.h
+--- misc/nss-3.128/nss/lib/freebl/verified/Hacl_Poly1305_32.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/Hacl_Poly1305_32.h	2018-10-22 00:11:45.152423000 -0700
 @@ -13,6 +13,7 @@
   * limitations under the License.
   */
@@ -2060,9 +2060,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/Hacl_Poly1305_32.h misc/build/nss
  #include "kremlib.h"
  #ifndef __Hacl_Poly1305_32_H
  #define __Hacl_Poly1305_32_H
-diff -ur misc/nss-3.39/nss/lib/freebl/verified/kremlib_base.h misc/build/nss-3.39/nss/lib/freebl/verified/kremlib_base.h
---- misc/nss-3.39/nss/lib/freebl/verified/kremlib_base.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/freebl/verified/kremlib_base.h	2018-10-21 20:56:12.848112000 -0700
+diff -ur misc/nss-3.128/nss/lib/freebl/verified/kremlib_base.h misc/build/nss-3.128/nss/lib/freebl/verified/kremlib_base.h
+--- misc/nss-3.128/nss/lib/freebl/verified/kremlib_base.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/freebl/verified/kremlib_base.h	2018-10-21 20:56:12.848112000 -0700
 @@ -16,9 +16,26 @@
  #ifndef __KREMLIB_BASE_H
  #define __KREMLIB_BASE_H
@@ -2102,9 +2102,9 @@ diff -ur misc/nss-3.39/nss/lib/freebl/verified/kremlib_base.h misc/build/nss-3.3
  #endif
  
  /* GCC-specific attribute syntax; everyone else gets the standard C inline
-diff -ur misc/nss-3.39/nss/lib/pk11wrap/pk11skey.c misc/build/nss-3.39/nss/lib/pk11wrap/pk11skey.c
---- misc/nss-3.39/nss/lib/pk11wrap/pk11skey.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/pk11wrap/pk11skey.c	2018-10-22 01:25:27.313788000 -0700
+diff -ur misc/nss-3.128/nss/lib/pk11wrap/pk11skey.c misc/build/nss-3.128/nss/lib/pk11wrap/pk11skey.c
+--- misc/nss-3.128/nss/lib/pk11wrap/pk11skey.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/pk11wrap/pk11skey.c	2018-10-22 01:25:27.313788000 -0700
 @@ -2217,12 +2217,13 @@
      /* old PKCS #11 spec was ambiguous on what needed to be passed,
       * try this again with an encoded public key */
@@ -2120,9 +2120,9 @@ diff -ur misc/nss-3.39/nss/lib/pk11wrap/pk11skey.c misc/build/nss-3.39/nss/lib/p
                                                 &pubKey->u.ec.publicValue,
                                                 SEC_ASN1_GET(SEC_OctetStringTemplate));
          if (pubValue == NULL) {
-diff -ur misc/nss-3.39/nss/lib/pkcs7/p7create.c misc/build/nss-3.39/nss/lib/pkcs7/p7create.c
---- misc/nss-3.39/nss/lib/pkcs7/p7create.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/pkcs7/p7create.c	2018-10-22 10:00:01.127657000 -0700
+diff -ur misc/nss-3.128/nss/lib/pkcs7/p7create.c misc/build/nss-3.128/nss/lib/pkcs7/p7create.c
+--- misc/nss-3.128/nss/lib/pkcs7/p7create.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/pkcs7/p7create.c	2018-10-22 10:00:01.127657000 -0700
 @@ -1263,6 +1263,7 @@
      SECAlgorithmID *algid;
      SEC_PKCS7EncryptedData *enc_data;
@@ -2139,9 +2139,9 @@ diff -ur misc/nss-3.39/nss/lib/pkcs7/p7create.c misc/build/nss-3.39/nss/lib/pkcs
      pbe_algid = PK11_CreatePBEV2AlgorithmID(pbe_algorithm,
                                              cipher_algorithm,
                                              prf_algorithm,
-diff -ur misc/nss-3.39/nss/lib/softoken/pkcs11c.c misc/build/nss-3.39/nss/lib/softoken/pkcs11c.c
---- misc/nss-3.39/nss/lib/softoken/pkcs11c.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/softoken/pkcs11c.c	2018-10-22 01:08:34.274286000 -0700
+diff -ur misc/nss-3.128/nss/lib/softoken/pkcs11c.c misc/build/nss-3.128/nss/lib/softoken/pkcs11c.c
+--- misc/nss-3.128/nss/lib/softoken/pkcs11c.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/softoken/pkcs11c.c	2018-10-22 01:08:34.274286000 -0700
 @@ -5125,8 +5125,9 @@
                  crv = sftk_AddAttributeType(publicKey, CKA_EC_POINT,
                                              sftk_item_expand(&ecPriv->publicValue));
@@ -2153,9 +2153,9 @@ diff -ur misc/nss-3.39/nss/lib/softoken/pkcs11c.c misc/build/nss-3.39/nss/lib/so
                                                         &ecPriv->publicValue,
                                                         SEC_ASN1_GET(SEC_OctetStringTemplate));
                  if (!pubValue) {
-diff -ur misc/nss-3.39/nss/lib/softoken/sdb.c misc/build/nss-3.39/nss/lib/softoken/sdb.c
---- misc/nss-3.39/nss/lib/softoken/sdb.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/softoken/sdb.c	2018-10-22 01:18:14.220773000 -0700
+diff -ur misc/nss-3.128/nss/lib/softoken/sdb.c misc/build/nss-3.128/nss/lib/softoken/sdb.c
+--- misc/nss-3.128/nss/lib/softoken/sdb.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/softoken/sdb.c	2018-10-22 01:18:14.220773000 -0700
 @@ -206,12 +206,13 @@
  sdb_chmod(const char *filename, int pmode)
  {
@@ -2171,9 +2171,9 @@ diff -ur misc/nss-3.39/nss/lib/softoken/sdb.c misc/build/nss-3.39/nss/lib/softok
      if (!filenameWide) {
          return -1;
      }
-diff -ur misc/nss-3.39/nss/lib/ssl/dtls13con.c misc/build/nss-3.39/nss/lib/ssl/dtls13con.c
---- misc/nss-3.39/nss/lib/ssl/dtls13con.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/dtls13con.c	2018-10-22 01:31:19.795730000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/dtls13con.c misc/build/nss-3.128/nss/lib/ssl/dtls13con.c
+--- misc/nss-3.128/nss/lib/ssl/dtls13con.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/dtls13con.c	2018-10-22 01:31:19.795730000 -0700
 @@ -64,7 +64,7 @@
  } DTLSHandshakeRecordEntry;
  
@@ -2183,9 +2183,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/dtls13con.c misc/build/nss-3.39/nss/lib/ssl/d
  dtls_CombineSequenceNumber(DTLSEpoch epoch, sslSequenceNumber seqNum)
  {
      PORT_Assert(seqNum <= RECORD_SEQ_MAX);
-diff -ur misc/nss-3.39/nss/lib/ssl/selfencrypt.c misc/build/nss-3.39/nss/lib/ssl/selfencrypt.c
---- misc/nss-3.39/nss/lib/ssl/selfencrypt.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/selfencrypt.c	2018-10-22 03:36:02.726686000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/selfencrypt.c misc/build/nss-3.128/nss/lib/ssl/selfencrypt.c
+--- misc/nss-3.128/nss/lib/ssl/selfencrypt.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/selfencrypt.c	2018-10-22 03:36:02.726686000 -0700
 @@ -193,6 +193,14 @@
      PRUint8 *out, unsigned int *outLen, unsigned int maxOutLen)
  {
@@ -2246,9 +2246,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/selfencrypt.c misc/build/nss-3.39/nss/lib/ssl
      rv = PK11_Decrypt(encKey, CKM_AES_CBC_PAD, &ivItem,
                        out, outLen, maxOutLen, cipherTextBuffer.buf, cipherTextLen);
      if (rv != SECSuccess) {
-diff -ur misc/nss-3.39/nss/lib/ssl/ssl3con.c misc/build/nss-3.39/nss/lib/ssl/ssl3con.c
---- misc/nss-3.39/nss/lib/ssl/ssl3con.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/ssl3con.c	2018-10-22 01:44:48.945390000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/ssl3con.c misc/build/nss-3.128/nss/lib/ssl/ssl3con.c
+--- misc/nss-3.128/nss/lib/ssl/ssl3con.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/ssl3con.c	2018-10-22 01:44:48.945390000 -0700
 @@ -5718,6 +5718,7 @@
      SECStatus rv = SECFailure;
      SECItem enc_pms = { siBuffer, NULL, 0 };
@@ -2316,9 +2316,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/ssl3con.c misc/build/nss-3.39/nss/lib/ssl/ssl
          SSL3_SendAlert(ss, alert_fatal, alert);
          /* Reset the error code in case SSL3_SendAlert called
           * PORT_SetError(). */
-diff -ur misc/nss-3.39/nss/lib/ssl/ssl3exthandle.c misc/build/nss-3.39/nss/lib/ssl/ssl3exthandle.c
---- misc/nss-3.39/nss/lib/ssl/ssl3exthandle.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/ssl3exthandle.c	2018-10-22 02:03:24.559698000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/ssl3exthandle.c misc/build/nss-3.128/nss/lib/ssl/ssl3exthandle.c
+--- misc/nss-3.128/nss/lib/ssl/ssl3exthandle.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/ssl3exthandle.c	2018-10-22 02:03:24.559698000 -0700
 @@ -1915,6 +1915,8 @@
                             sslBuffer *buf, PRBool *added)
  {
@@ -2339,9 +2339,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/ssl3exthandle.c misc/build/nss-3.39/nss/lib/s
      if (rv != SECSuccess) {
          return SECFailure;
      }
-diff -ur misc/nss-3.39/nss/lib/ssl/sslbloom.c misc/build/nss-3.39/nss/lib/ssl/sslbloom.c
---- misc/nss-3.39/nss/lib/ssl/sslbloom.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/sslbloom.c	2018-10-22 01:50:48.294197000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/sslbloom.c misc/build/nss-3.128/nss/lib/ssl/sslbloom.c
+--- misc/nss-3.128/nss/lib/ssl/sslbloom.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/sslbloom.c	2018-10-22 01:50:48.294197000 -0700
 @@ -10,7 +10,7 @@
  #include "prnetdb.h"
  #include "secport.h"
@@ -2351,9 +2351,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/sslbloom.c misc/build/nss-3.39/nss/lib/ssl/ss
  sslBloom_Size(unsigned int bits)
  {
      return (bits >= 3) ? (1 << (bits - 3)) : 1;
-diff -ur misc/nss-3.39/nss/lib/ssl/sslencode.c misc/build/nss-3.39/nss/lib/ssl/sslencode.c
---- misc/nss-3.39/nss/lib/ssl/sslencode.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/sslencode.c	2018-10-22 01:55:55.317356000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/sslencode.c misc/build/nss-3.128/nss/lib/ssl/sslencode.c
+--- misc/nss-3.128/nss/lib/ssl/sslencode.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/sslencode.c	2018-10-22 01:55:55.317356000 -0700
 @@ -214,6 +214,8 @@
  SECStatus
  sslRead_ReadNumber(sslReader *reader, unsigned int bytes, PRUint64 *num)
@@ -2372,9 +2372,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/sslencode.c misc/build/nss-3.39/nss/lib/ssl/s
      for (i = 0; i < bytes; i++) {
          number = (number << 8) + reader->buf.buf[i + reader->offset];
      }
-diff -ur misc/nss-3.39/nss/lib/ssl/sslnonce.c misc/build/nss-3.39/nss/lib/ssl/sslnonce.c
---- misc/nss-3.39/nss/lib/ssl/sslnonce.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/sslnonce.c	2018-10-22 02:55:25.098750000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/sslnonce.c misc/build/nss-3.128/nss/lib/ssl/sslnonce.c
+--- misc/nss-3.128/nss/lib/ssl/sslnonce.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/sslnonce.c	2018-10-22 02:55:25.098750000 -0700
 @@ -439,6 +439,10 @@
  ssl_DecodeResumptionToken(sslSessionID *sid, const PRUint8 *encodedToken,
                            PRUint32 encodedTokenLen)
@@ -2535,9 +2535,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/sslnonce.c misc/build/nss-3.39/nss/lib/ssl/ss
      PORT_Assert(sec);
  
      if (sec->ci.sid) {
-diff -ur misc/nss-3.39/nss/lib/ssl/sslsnce.c misc/build/nss-3.39/nss/lib/ssl/sslsnce.c
---- misc/nss-3.39/nss/lib/ssl/sslsnce.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/sslsnce.c	2018-10-22 03:10:53.707928000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/sslsnce.c misc/build/nss-3.128/nss/lib/ssl/sslsnce.c
+--- misc/nss-3.128/nss/lib/ssl/sslsnce.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/sslsnce.c	2018-10-22 03:10:53.707928000 -0700
 @@ -732,11 +732,11 @@
  void
  ssl_ServerCacheSessionID(sslSessionID *sid)
@@ -2552,9 +2552,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/sslsnce.c misc/build/nss-3.39/nss/lib/ssl/ssl
  
      if (sid->u.ssl3.sessionIDLength == 0) {
          return;
-diff -ur misc/nss-3.39/nss/lib/ssl/sslsock.c misc/build/nss-3.39/nss/lib/ssl/sslsock.c
---- misc/nss-3.39/nss/lib/ssl/sslsock.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/sslsock.c	2018-10-22 03:26:21.638950000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/sslsock.c misc/build/nss-3.128/nss/lib/ssl/sslsock.c
+--- misc/nss-3.128/nss/lib/ssl/sslsock.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/sslsock.c	2018-10-22 03:26:21.638950000 -0700
 @@ -53,38 +53,38 @@
  ** default settings for socket enables
  */
@@ -2677,9 +2677,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/sslsock.c misc/build/nss-3.39/nss/lib/ssl/ssl
  
      /* Populate sid values */
      if (ssl_DecodeResumptionToken(&sid, tokenData, tokenLen) != SECSuccess) {
-diff -ur misc/nss-3.39/nss/lib/ssl/tls13exthandle.c misc/build/nss-3.39/nss/lib/ssl/tls13exthandle.c
---- misc/nss-3.39/nss/lib/ssl/tls13exthandle.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/tls13exthandle.c	2018-10-22 03:41:59.569200000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/tls13exthandle.c misc/build/nss-3.128/nss/lib/ssl/tls13exthandle.c
+--- misc/nss-3.128/nss/lib/ssl/tls13exthandle.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/tls13exthandle.c	2018-10-22 03:41:59.569200000 -0700
 @@ -773,6 +773,7 @@
                                       sslBuffer *buf, PRBool *added)
  {
@@ -2697,9 +2697,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/tls13exthandle.c misc/build/nss-3.39/nss/lib/
                                              ss->protocolVariant);
      rv = sslBuffer_AppendNumber(buf, ver, 2);
      if (rv != SECSuccess) {
-diff -ur misc/nss-3.39/nss/lib/ssl/tls13hashstate.c misc/build/nss-3.39/nss/lib/ssl/tls13hashstate.c
---- misc/nss-3.39/nss/lib/ssl/tls13hashstate.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/ssl/tls13hashstate.c	2018-10-22 04:03:39.133885000 -0700
+diff -ur misc/nss-3.128/nss/lib/ssl/tls13hashstate.c misc/build/nss-3.128/nss/lib/ssl/tls13hashstate.c
+--- misc/nss-3.128/nss/lib/ssl/tls13hashstate.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/ssl/tls13hashstate.c	2018-10-22 04:03:39.133885000 -0700
 @@ -95,6 +95,9 @@
      PRUint64 group;
      const sslNamedGroupDef *selectedGroup;
@@ -2739,9 +2739,9 @@ diff -ur misc/nss-3.39/nss/lib/ssl/tls13hashstate.c misc/build/nss-3.39/nss/lib/
      if (hashLen != tls13_GetHashSize(ss)) {
          FATAL_ERROR(ss, SSL_ERROR_RX_MALFORMED_CLIENT_HELLO, illegal_parameter);
          return SECFailure;
-diff -ur misc/nss-3.39/nss/lib/util/quickder.c misc/build/nss-3.39/nss/lib/util/quickder.c
---- misc/nss-3.39/nss/lib/util/quickder.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/util/quickder.c	2018-09-10 17:24:47.548844000 -0700
+diff -ur misc/nss-3.128/nss/lib/util/quickder.c misc/build/nss-3.128/nss/lib/util/quickder.c
+--- misc/nss-3.128/nss/lib/util/quickder.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/util/quickder.c	2018-09-10 17:24:47.548844000 -0700
 @@ -408,11 +408,12 @@
  {
      const SEC_ASN1Template* ptrTemplate =
@@ -2756,9 +2756,9 @@ diff -ur misc/nss-3.39/nss/lib/util/quickder.c misc/build/nss-3.39/nss/lib/util/
      *(void**)((char*)dest + templateEntry->offset) = subdata;
      if (subdata) {
          return DecodeItem(subdata, ptrTemplate, src, arena, checkTag);
-diff -ur misc/nss-3.39/nss/lib/util/secport.c misc/build/nss-3.39/nss/lib/util/secport.c
---- misc/nss-3.39/nss/lib/util/secport.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/util/secport.c	2018-10-21 01:46:42.919736000 -0700
+diff -ur misc/nss-3.128/nss/lib/util/secport.c misc/build/nss-3.128/nss/lib/util/secport.c
+--- misc/nss-3.128/nss/lib/util/secport.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/util/secport.c	2018-10-21 01:46:42.919736000 -0700
 @@ -21,7 +21,23 @@
  #include "prenv.h"
  #include "prinit.h"
@@ -2801,9 +2801,9 @@ diff -ur misc/nss-3.39/nss/lib/util/secport.c misc/build/nss-3.39/nss/lib/util/s
      if (!v) {
          return NULL;
      }
-diff -ur misc/nss-3.39/nss/lib/util/secport.h misc/build/nss-3.39/nss/lib/util/secport.h
---- misc/nss-3.39/nss/lib/util/secport.h	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/util/secport.h	2018-10-21 20:43:01.473838000 -0700
+diff -ur misc/nss-3.128/nss/lib/util/secport.h misc/build/nss-3.128/nss/lib/util/secport.h
+--- misc/nss-3.128/nss/lib/util/secport.h	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/util/secport.h	2018-10-21 20:43:01.473838000 -0700
 @@ -45,7 +45,30 @@
  #include <string.h>
  #include <stddef.h>
@@ -2836,9 +2836,9 @@ diff -ur misc/nss-3.39/nss/lib/util/secport.h misc/build/nss-3.39/nss/lib/util/s
  #include "prtypes.h"
  #include "prlog.h" /* for PR_ASSERT */
  #include "plarena.h"
-diff -ur misc/nss-3.39/nss/lib/util/utilmod.c misc/build/nss-3.39/nss/lib/util/utilmod.c
---- misc/nss-3.39/nss/lib/util/utilmod.c	2018-08-31 05:55:53.000000000 -0700
-+++ misc/build/nss-3.39/nss/lib/util/utilmod.c	2018-09-11 01:58:56.505884000 -0700
+diff -ur misc/nss-3.128/nss/lib/util/utilmod.c misc/build/nss-3.128/nss/lib/util/utilmod.c
+--- misc/nss-3.128/nss/lib/util/utilmod.c	2018-08-31 05:55:53.000000000 -0700
++++ misc/build/nss-3.128/nss/lib/util/utilmod.c	2018-09-11 01:58:56.505884000 -0700
 @@ -75,12 +75,13 @@
  os_open(const char *filename, int oflag, int pmode)
  {

@@ -159,6 +159,13 @@ CONFIGURE_FLAGS+=--with-libxml=$(LIBXML_PREFIX)
 # $with_nss/lib.
 .IF "$(SYSTEM_NSS)" != "YES"
 CONFIGURE_FLAGS+=--enable-pkgconfig=no
+# 1.3.x will not pkg-config bundled NSS. Point at the solver tree
+# delivered by the nss module (mozilla/nss + mozilla/nspr).
+NSS_CFLAGS=-I$(SOLARVERSION)/$(INPATH)/inc$(UPDMINOREXT)/external/mozilla/nss -I$(SOLARVERSION)/$(INPATH)/inc$(UPDMINOREXT)/external/mozilla/nspr
+NSPR_CFLAGS=$(NSS_CFLAGS)
+NSS_LIBS=-L$(SOLARVERSION)/$(INPATH)/lib$(UPDMINOREXT) -lnss3 -lsmime3 -lnssutil3 -lnspr4 -lplds4 -lplc4
+NSPR_LIBS=-L$(SOLARVERSION)/$(INPATH)/lib$(UPDMINOREXT) -lnspr4 -lplds4 -lplc4
+.EXPORT : NSS_CFLAGS NSS_LIBS NSPR_CFLAGS NSPR_LIBS
 .ENDIF
 BUILD_ACTION=$(GNUMAKE) -j$(EXTMAXPROCESS)
 BUILD_DIR=$(CONFIGURE_DIR)

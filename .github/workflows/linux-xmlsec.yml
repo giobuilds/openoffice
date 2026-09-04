@@ -62,8 +62,6 @@ jobs:
             libhunspell-dev \
             libhyphen-dev \
             libjpeg-dev \
-            libnspr4-dev \
-            libnss3-dev \
             libtool \
             libpng-dev \
             libxml2-dev \

@@ -1,5 +1,5 @@
---- misc/nss-3.39/nspr/configure
-+++ misc/build/nss-3.39/nspr/configure
+--- misc/nss-3.128/nspr/configure
++++ misc/build/nss-3.128/nspr/configure
 @@ -7300,15 +7300,27 @@
              if test -z "$GNU_CC" -a "$MSC_VER" -ge "1700"; then
                                                  CFLAGS="$CFLAGS -arch:IA32"

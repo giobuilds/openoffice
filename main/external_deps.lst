@@ -93,8 +93,9 @@ if (ENABLE_NSS_MODULE!=NO)
     MD5 = d5f31478d4d7bd782424a02239edb48d
     SHA256 = 24045199af12d93fe5fdbbbf7e386e823e4842071e9432e2b90ac108b889a923
     name = xmlsec1-1.3.12.tar.gz
-    URL1 = https://www.aleksey.com/xmlsec/download/$(name)
-    URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
+    URL1 = https://github.com/lsh123/xmlsec/releases/download/1.3.12/$(name)
+    URL2 = https://www.aleksey.com/xmlsec/download/$(name)
+    URL3 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (SYSTEM_REDLAND != YES)
     MD5 = a39f6c07ddb20d7dd2ff1f95fa21e2cd
@@ -323,9 +324,10 @@ if (ENABLE_CATEGORY_B==YES && SOLAR_JAVA==TRUE && ENABLE_JAVASCRIPT==YES)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (ENABLE_CATEGORY_B==YES && ENABLE_NSS_MODULE==YES)
-    MD5 = 8ac77166663de5c33bba6cb3d0066929
-    name = nss-3.39-with-nspr-4.20.tar.gz
-    URL1 = https://ftp.mozilla.org/pub/security/nss/releases/NSS_3_39_RTM/src/$(name)
+    MD5 = 37e4ac075a179db3a48a15cf6dedb90f
+    SHA256 = bfd84218ee9b0b24775723eb62bdf4590bf21a3818e8210d37de0b2c2db79750
+    name = nss-3.128-with-nspr-4.39.tar.gz
+    URL1 = https://ftp.mozilla.org/pub/security/nss/releases/NSS_3_128_RTM/src/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
 if (ENABLE_CATEGORY_B==YES && SYSTEM_SAXON!=YES && DISABLE_SAXON!=YES && SOLAR_JAVA==TRUE)
