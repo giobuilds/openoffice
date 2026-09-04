@@ -21,8 +21,8 @@
 
 
 # major
-ICU_MAJOR=4
+ICU_MAJOR=78
 # minor
-ICU_MINOR=2
+ICU_MINOR=3
 # micro
-ICU_MICRO=1
+ICU_MICRO=0

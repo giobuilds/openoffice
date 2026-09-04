@@ -320,7 +320,6 @@ Module gid_Module_Root_Files_5
 	gid_File_Lib_I18nutil,
 	gid_File_Lib_Icudata,
 	gid_File_Lib_Icui18n,
-	gid_File_Lib_Icule,
 	gid_File_Lib_Icuuc,
 	gid_File_Lib_Localedata_En,
 	gid_File_Lib_Localedata_Es,
