@@ -63,6 +63,8 @@ jobs:
             libfreetype6-dev \
             libjpeg-dev \
             libpng-dev \
+            libxml2-dev \
+            libxslt1-dev \
             liblwp-protocol-https-perl \
             libpam0g-dev \
             libssl-dev \

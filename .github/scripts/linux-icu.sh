@@ -65,7 +65,6 @@ autoconf
     --with-system-openssl \
     --with-system-curl \
     --with-system-jpeg \
-    --with-system-libpng \
     --with-system-libxml \
     --with-system-libxslt \
     --with-dmake-url=https://github.com/jimjag/dmake/archive/v4.13.1/dmake-4.13.1.tar.gz
