@@ -644,7 +644,7 @@ void DXF2GDIMetaFile::DrawAttribEntity(const DXFAttribEntity & rE, const DXFTran
 
 void DXF2GDIMetaFile::DrawPolyLineEntity(const DXFPolyLineEntity & rE, const DXFTransform & rTransform)
 {
-	sal_uInt16 i,nPolySize;
+	sal_Int32 nPolySize;
 	double fW;
 	const DXFBasicEntity * pBE;
 
@@ -654,13 +654,17 @@ void DXF2GDIMetaFile::DrawPolyLineEntity(const DXFPolyLineEntity & rE, const DXF
 		nPolySize++;
 		pBE=pBE->pSucc;
 	}
-	if (nPolySize<2) return;
-	Polygon aPoly(nPolySize);
+	// tools::Polygon is indexed by sal_uInt16. Counting VERTEX entities in
+	// 16 bits wraps the size used to allocate the point buffer
+	// (CVE-2026-6039 class). Reject a polyline that does not fit.
+	if (nPolySize<2 || nPolySize>0xFFFF) return;
+	const sal_uInt16 nPts = (sal_uInt16)nPolySize;
+	Polygon aPoly(nPts);
 	fW=0.0;
 	pBE=rE.pSucc;
-	for (i=0; i<nPolySize; i++) {
+	for (sal_uInt16 i=0; i<nPts; i++) {
 		rTransform.Transform(((DXFVertexEntity*)pBE)->aP0,aPoly[i]);
-		if (i+1<nPolySize || (rE.nFlags&1)!=0) {
+		if (i+1<nPts || (rE.nFlags&1)!=0) {
 			if (((DXFVertexEntity*)pBE)->fSWidth>=0.0) fW+=((DXFVertexEntity*)pBE)->fSWidth;
 			else fW+=rE.fSWidth;
 			if (((DXFVertexEntity*)pBE)->fEWidth>=0.0) fW+=((DXFVertexEntity*)pBE)->fEWidth;
@@ -669,15 +673,15 @@ void DXF2GDIMetaFile::DrawPolyLineEntity(const DXFPolyLineEntity & rE, const DXF
 		pBE=pBE->pSucc;
 	}
 	fW/=2.0;
-	if ((rE.nFlags&1)!=0) fW/=(double)nPolySize;
-	else fW/=(double)(nPolySize-1);
+	if ((rE.nFlags&1)!=0) fW/=(double)nPts;
+	else fW/=(double)(nPts-1);
 	if (SetLineAttribute(rE,rTransform.TransLineWidth(fW))) {
 		if ((rE.nFlags&1)!=0) pVirDev->DrawPolygon(aPoly);
 		else pVirDev->DrawPolyLine(aPoly);
 		if (rE.fThickness!=0) {
-			Polygon aPoly2(nPolySize);
+			Polygon aPoly2(nPts);
 			pBE=rE.pSucc;
-			for (i=0; i<nPolySize; i++) {
+			for (sal_uInt16 i=0; i<nPts; i++) {
 				rTransform.Transform(
 				   (((DXFVertexEntity*)pBE)->aP0)+DXFVector(0,0,rE.fThickness),
 				   aPoly2[i]
@@ -686,7 +690,7 @@ void DXF2GDIMetaFile::DrawPolyLineEntity(const DXFPolyLineEntity & rE, const DXF
 			}
 			if ((rE.nFlags&1)!=0) pVirDev->DrawPolygon(aPoly2);
 			else pVirDev->DrawPolyLine(aPoly2);
-			for (i=0; i<nPolySize; i++) pVirDev->DrawLine(aPoly[i],aPoly2[i]);
+			for (sal_uInt16 i=0; i<nPts; i++) pVirDev->DrawLine(aPoly[i],aPoly2[i]);
 		}
 	}
 }
@@ -867,11 +871,12 @@ void DXF2GDIMetaFile::DrawHatchEntity(const DXFHatchEntity & rE, const DXFTransf
 				}
 			}
 		}
-		sal_uInt16 i, nSize = (sal_uInt16)aPtAry.size();
-		if ( nSize )
+		const sal_Int32 nPathSize = (sal_Int32)aPtAry.size();
+		if ( nPathSize > 0 && nPathSize <= 0xFFFF )
 		{
+			const sal_uInt16 nSize = (sal_uInt16)nPathSize;
 			Polygon aPoly( nSize );
-			for ( i = 0; i < nSize; i++ )
+			for ( sal_uInt16 i = 0; i < nSize; i++ )
 				aPoly[ i ] = aPtAry[ i ];
 			aPolyPoly.Insert( aPoly, POLYPOLY_APPEND );
 		}
