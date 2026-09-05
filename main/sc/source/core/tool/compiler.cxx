@@ -3785,8 +3785,10 @@ ScTokenArray* ScCompiler::CompileString( const String& rFormula )
     bool bPODF = FormulaGrammar::isPODF( meGrammar);
     const size_t nAlloc = 512;
     FunctionStack aFuncs[ nAlloc ];
-    FunctionStack* pFunctionStack = (bPODF && rFormula.Len() > nAlloc ?
-            new FunctionStack[ rFormula.Len() ] : &aFuncs[0]);
+    // A formula of length L composed entirely of open tokens needs L+1 slots
+    // (CVE-2026-8357). Use the heap once L reaches the on-stack buffer.
+    FunctionStack* pFunctionStack = (bPODF && rFormula.Len() >= nAlloc ?
+            new FunctionStack[ rFormula.Len() + 1 ] : &aFuncs[0]);
     pFunctionStack[0].eOp = ocNone;
     pFunctionStack[0].nPar = 0;
     size_t nFunction = 0;

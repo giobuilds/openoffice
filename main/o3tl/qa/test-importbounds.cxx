@@ -32,6 +32,7 @@
 //   main/filter/source/graphicfilter/icgm/class7.cxx
 //   main/filter/source/graphicfilter/itiff/itiff.cxx
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
+//   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 
 namespace {
 
@@ -194,4 +195,28 @@ TEST(ImportBounds, DxfPolylineRejectsCountThatDoesNotFitPolygon)
     // 16-bit wrap of the old nPolySize++ counter: 65536 -> 0, 65538 -> 2.
     EXPECT_EQ(0u, dxfPolylineCountWrapsTo(0x10000));
     EXPECT_EQ(2u, dxfPolylineCountWrapsTo(0x10002));
+}
+
+// Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).
+// Keep in sync with main/sc/source/core/tool/compiler.cxx
+
+namespace {
+
+unsigned formulaFunctionStackSlots(unsigned nFormulaLen, unsigned nAlloc)
+{
+    if (nFormulaLen >= nAlloc)
+        return nFormulaLen + 1;
+    return nAlloc;
+}
+
+}
+
+TEST(ImportBounds, FormulaFunctionStackHasRoomForAllOpens)
+{
+    const unsigned nAlloc = 512;
+    // Sentinel at [0], then one slot per open token. L opens need L+1.
+    EXPECT_EQ(512u, formulaFunctionStackSlots(511, nAlloc));
+    EXPECT_EQ(513u, formulaFunctionStackSlots(512, nAlloc));
+    EXPECT_EQ(514u, formulaFunctionStackSlots(513, nAlloc));
+    EXPECT_GE(formulaFunctionStackSlots(512, nAlloc), 512u + 1u);
 }
