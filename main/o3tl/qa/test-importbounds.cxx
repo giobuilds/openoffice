@@ -27,10 +27,11 @@
 
 #include <cstring>
 
-// Spec of the three importer bounds in issue #2. Keep in sync with:
+// Spec of importer bounds. Keep in sync with:
 //   main/sw/source/filter/ww8/ww8scan.cxx      (WW8 FKP)
 //   main/filter/source/graphicfilter/icgm/class7.cxx
 //   main/filter/source/graphicfilter/itiff/itiff.cxx
+//   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 
 namespace {
 
@@ -161,4 +162,36 @@ TEST(ImportBounds, TiffRowSizeRejectsOverflowAndZeroPlanes)
 
     EXPECT_FALSE(tiffRowSize(100, 1, 0, 8, &nBytes));
     EXPECT_FALSE(tiffRowSize(0xFFFFFFFFul, 4, 1, 32, &nBytes));
+}
+
+// Spec of DXF POLYLINE VERTEX count vs tools::Polygon (CVE-2026-6039 class).
+// Keep in sync with DrawPolyLineEntity in
+//   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx
+
+namespace {
+
+bool dxfPolylineFitsPolygon(unsigned nVertices)
+{
+    return nVertices >= 2 && nVertices <= 0xFFFFu;
+}
+
+unsigned dxfPolylineCountWrapsTo(unsigned nVertices)
+{
+    return static_cast<unsigned short>(nVertices);
+}
+
+}
+
+TEST(ImportBounds, DxfPolylineRejectsCountThatDoesNotFitPolygon)
+{
+    EXPECT_FALSE(dxfPolylineFitsPolygon(0));
+    EXPECT_FALSE(dxfPolylineFitsPolygon(1));
+    EXPECT_TRUE(dxfPolylineFitsPolygon(2));
+    EXPECT_TRUE(dxfPolylineFitsPolygon(0xFFFF));
+    EXPECT_FALSE(dxfPolylineFitsPolygon(0x10000));
+    EXPECT_FALSE(dxfPolylineFitsPolygon(0x10001));
+
+    // 16-bit wrap of the old nPolySize++ counter: 65536 -> 0, 65538 -> 2.
+    EXPECT_EQ(0u, dxfPolylineCountWrapsTo(0x10000));
+    EXPECT_EQ(2u, dxfPolylineCountWrapsTo(0x10002));
 }
