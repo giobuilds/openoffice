@@ -26,6 +26,7 @@
 
 #define _GIFPRIVATE
 
+#include <tools/solar.h>
 #include "decode.hxx"
 #include "gifread.hxx"
 
@@ -87,6 +88,16 @@ void GIFReader::ClearImageExtensions()
 sal_Bool GIFReader::CreateBitmaps( long nWidth, long nHeight, BitmapPalette* pPal,
 							   sal_Bool bWatchForBackgroundColor )
 {
+	// Sides are 16-bit in the GIF header, but 65535^2 still exceeds the
+	// TIFF 64M-pixel ceiling and 32-bit Size().
+	if ( nWidth <= 0 || nHeight <= 0
+		|| nWidth > ( SAL_MAX_INT32 / 32 ) || nHeight > ( SAL_MAX_INT32 / 32 )
+		|| (sal_uLong)nHeight > ( 64UL * 1024UL * 1024UL ) / (sal_uLong)nWidth )
+	{
+		bStatus = sal_False;
+		return sal_False;
+	}
+
 	const Size aSize( nWidth, nHeight );
 
 	if( bGCTransparent )
@@ -385,8 +396,7 @@ sal_Bool GIFReader::ReadLocalHeader()
 		// diese auch fuer dieses Bild gilt )
 		if( NO_PENDING( rIStm ) )
 		{
-			CreateBitmaps( nImageWidth, nImageHeight, pPal, bGlobalPalette && ( pPal == &aGPalette ) );
-			bRet = sal_True;
+			bRet = CreateBitmaps( nImageWidth, nImageHeight, pPal, bGlobalPalette && ( pPal == &aGPalette ) );
 		}
 	}
 
