@@ -101,6 +101,12 @@ sal_Bool PBMReader::ReadPBM( SvStream & rPBM, Graphic & rGraphic )
 
 	if ( ( mnMaxVal == 0 ) || ( mnWidth == 0 ) || ( mnHeight == 0 ) )
 		return sal_False;
+	// Same caps as TIFF: Size() is 32-bit, and a 64M pixel ceiling.
+	if ( mnWidth > static_cast<sal_uLong>(SAL_MAX_INT32 / 32) ||
+		 mnHeight > static_cast<sal_uLong>(SAL_MAX_INT32 / 32) )
+		return sal_False;
+	if ( mnHeight > ( 64UL * 1024UL * 1024UL ) / mnWidth )
+		return sal_False;
 
 	// 0->PBM, 1->PGM, 2->PPM
 	switch ( mnMode )
@@ -233,18 +239,24 @@ sal_Bool PBMReader::ImplReadHeader()
 			nDat -= '0';
 			if ( nCount == 0 )
 			{
-				mnWidth *= 10;
-				mnWidth += nDat;
+				sal_uLong nNew = mnWidth * 10 + nDat;
+				if ( mnWidth != 0 && nNew / 10 != mnWidth )
+					return sal_False;
+				mnWidth = nNew;
 			}
 			else if ( nCount == 1 )
 			{
-				mnHeight *= 10;
-				mnHeight += nDat;
+				sal_uLong nNew = mnHeight * 10 + nDat;
+				if ( mnHeight != 0 && nNew / 10 != mnHeight )
+					return sal_False;
+				mnHeight = nNew;
 			}
 			else if ( nCount == 2 )
 			{
-				mnMaxVal *= 10;
-				mnMaxVal += nDat;
+				sal_uLong nNew = mnMaxVal * 10 + nDat;
+				if ( mnMaxVal != 0 && nNew / 10 != mnMaxVal )
+					return sal_False;
+				mnMaxVal = nNew;
 			}
 		}
 		else
