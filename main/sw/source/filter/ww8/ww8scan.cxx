@@ -1864,10 +1864,16 @@ WW8ScannerBase::WW8ScannerBase( SvStream* pSt, SvStream* pTblSt,
             // Extended ATRD
             if (pWwFib->fcAtrdExtra && pWwFib->lcbAtrdExtra)
             {
-                pExtendedAtrds = new sal_uInt8[pWwFib->lcbAtrdExtra];
                 long nOldPos = pTblSt->Tell();
                 pTblSt->Seek(pWwFib->fcAtrdExtra);
-                pTblSt->Read(pExtendedAtrds, pWwFib->lcbAtrdExtra);
+                const sal_uInt32 nPos = pTblSt->Tell();
+                const sal_uInt32 nEnd = pTblSt->Seek( STREAM_SEEK_TO_END );
+                pTblSt->Seek( nPos );
+                if ( nEnd >= nPos && pWwFib->lcbAtrdExtra <= nEnd - nPos )
+                {
+                    pExtendedAtrds = new sal_uInt8[pWwFib->lcbAtrdExtra];
+                    pTblSt->Read(pExtendedAtrds, pWwFib->lcbAtrdExtra);
+                }
                 pTblSt->Seek(nOldPos);
             }
 
