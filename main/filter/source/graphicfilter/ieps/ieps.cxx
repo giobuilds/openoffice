@@ -44,6 +44,7 @@
 #include <svtools/fltcall.hxx>
 #include <tools/urlobj.hxx>
 #include <tools/tempfile.hxx>
+#include <tools/solar.h>
 #include <osl/process.h>
 #include <osl/file.hxx>
 
@@ -105,6 +106,11 @@ static long ImplGetNumber( sal_uInt8 **pBuf, int& nSecurityCount )
 					nSecurityCount = 1;			// error parsing the bounding box values
 				else if ( bValid )
 				{
+					if ( nRetValue > ( SAL_MAX_INT32 - ( nByte - '0' ) ) / 10 )
+					{
+						nSecurityCount = 0;
+						return 0;
+					}
 					nRetValue *= 10;
 					nRetValue += nByte - '0';
 				}
@@ -116,6 +122,18 @@ static long ImplGetNumber( sal_uInt8 **pBuf, int& nSecurityCount )
 	if ( bNegative )
 		nRetValue = -nRetValue;
 	return nRetValue;
+}
+
+// Same caps as TIFF: Size() is 32-bit, and a 64M pixel ceiling.
+static sal_Bool ImplDimsOk( long nWidth, long nHeight )
+{
+	if ( nWidth <= 0 || nHeight <= 0 )
+		return sal_False;
+	if ( nWidth > ( SAL_MAX_INT32 / 32 ) || nHeight > ( SAL_MAX_INT32 / 32 ) )
+		return sal_False;
+	if ( (sal_uLong)nHeight > ( 64UL * 1024UL * 1024UL ) / (sal_uLong)nWidth )
+		return sal_False;
+	return sal_True;
 }
 
 //--------------------------------------------------------------------------
@@ -591,7 +609,7 @@ extern "C" sal_Bool GraphicImport(SvStream & rStream, Graphic & rGraphic, Filter
 						long nBitDepth = ImplGetNumber( &pDest, nSecurityCount );
 						long nScanLines = ImplGetNumber( &pDest, nSecurityCount );
 						pDest = ImplSearchEntry( pDest, (sal_uInt8*)"%", 16, 1 );		// go to the first Scanline
-						if ( nSecurityCount && pDest && nWidth && nHeight && ( ( nBitDepth == 1 ) || ( nBitDepth == 8 ) ) && nScanLines )
+						if ( nSecurityCount && pDest && ImplDimsOk( nWidth, nHeight ) && ( ( nBitDepth == 1 ) || ( nBitDepth == 8 ) ) && nScanLines > 0 )
 						{
 							rStream.Seek( nBufStartPos + ( pDest - pBuf ) );
 
@@ -693,14 +711,15 @@ extern "C" sal_Bool GraphicImport(SvStream & rStream, Graphic & rGraphic, Filter
 					{
 						nNumb[ i ] = ImplGetNumber( &pDest, nSecurityCount );
 					}
-					if ( nSecurityCount)
+					if ( nSecurityCount && nNumb[2] >= nNumb[0] && nNumb[3] >= nNumb[1] )
+					{
+						long nWidth =  nNumb[2] - nNumb[0] + 1;
+						long nHeight = nNumb[3] - nNumb[1] + 1;
+						if ( ImplDimsOk( nWidth, nHeight ) )
 					{
 						bGraphicLinkCreated = sal_True;
 						GfxLink		aGfxLink( pBuf, nPSSize, GFX_LINK_TYPE_EPS_BUFFER, sal_True ) ;
 						GDIMetaFile	aMtf;
-
-						long nWidth =  nNumb[2] - nNumb[0] + 1;
-						long nHeight = nNumb[3] - nNumb[1] + 1;
 
 						// if there is no preview -> try with gs to make one
 						if( !bHasPreview )
@@ -725,6 +744,7 @@ extern "C" sal_Bool GraphicImport(SvStream & rStream, Graphic & rGraphic, Filter
 						aMtf.SetPrefSize( Size( nWidth, nHeight ) );
 						rGraphic = aMtf;
 						bRetValue = sal_True;
+					}
 					}
 				}
 			}
