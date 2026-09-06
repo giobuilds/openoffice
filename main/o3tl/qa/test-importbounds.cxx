@@ -31,6 +31,7 @@
 // Spec of importer bounds. Keep in sync with:
 //   main/sw/source/filter/ww8/ww8scan.cxx      (WW8 FKP)
 //   main/filter/source/graphicfilter/icgm/class7.cxx
+//   main/filter/source/graphicfilter/icgm/class4.cxx    (CGM polygon counts)
 //   main/filter/source/graphicfilter/itiff/itiff.cxx
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
@@ -197,6 +198,47 @@ TEST(ImportBounds, DxfPolylineRejectsCountThatDoesNotFitPolygon)
     // 16-bit wrap of the old nPolySize++ counter: 65536 -> 0, 65538 -> 2.
     EXPECT_EQ(0u, dxfPolylineCountWrapsTo(0x10000));
     EXPECT_EQ(2u, dxfPolylineCountWrapsTo(0x10002));
+}
+
+// Spec of CGM polyline/polygon/polybezier vs tools::Polygon (CVE-2026-6039
+// class). Polygon Set fills a 0x4000-point scratch buffer.
+// Keep in sync with main/filter/source/graphicfilter/icgm/class4.cxx
+
+namespace {
+
+bool cgmPointsFitPolygon(unsigned nPoints)
+{
+    return nPoints <= 0xFFFFu;
+}
+
+bool cgmPolygonSetFitsScratch(unsigned nPoints)
+{
+    return nPoints < 0x4000u;
+}
+
+unsigned cgmPointCount(unsigned nElementSize, unsigned nPointSize)
+{
+    if (nPointSize == 0)
+        return 0xFFFFFFFFu;
+    return nElementSize / nPointSize;
+}
+
+}
+
+TEST(ImportBounds, CgmPolygonRejectsCountThatDoesNotFitPolygon)
+{
+    EXPECT_TRUE(cgmPointsFitPolygon(0));
+    EXPECT_TRUE(cgmPointsFitPolygon(2));
+    EXPECT_TRUE(cgmPointsFitPolygon(0xFFFF));
+    EXPECT_FALSE(cgmPointsFitPolygon(0x10000));
+
+    EXPECT_TRUE(cgmPolygonSetFitsScratch(0));
+    EXPECT_TRUE(cgmPolygonSetFitsScratch(0x3FFF));
+    EXPECT_FALSE(cgmPolygonSetFitsScratch(0x4000));
+
+    // Zero VDC precision: point size 0. Do not divide.
+    EXPECT_EQ(0xFFFFFFFFu, cgmPointCount(100, 0));
+    EXPECT_EQ(25u, cgmPointCount(100, 4));
 }
 
 // Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).

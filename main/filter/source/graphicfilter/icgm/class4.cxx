@@ -29,6 +29,18 @@
 
 using namespace ::com::sun::star;
 
+namespace {
+
+// tools::Polygon is indexed by sal_uInt16 (CVE-2026-6039 class).
+bool cgmPointsFitPolygon( sal_uInt32 nPoints )
+{
+	return nPoints <= 0xFFFFu;
+}
+
+enum { CGM_POLYSET_MAX = 0x4000 };
+
+}
+
 double CGM::ImplGetOrientation( FloatPoint& rCenter, FloatPoint& rPoint )
 {
 	double fOrientation;
@@ -128,9 +140,15 @@ void CGM::ImplDoClass4()
 		{
 			case 0x01 : ComOut( CGM_LEVEL1, "PolyLine" )
 			{
-				sal_uInt32 nPoints = mnElementSize / ImplGetPointSize();
-				Polygon aPolygon( (sal_uInt16)nPoints );
-				for ( sal_uInt16 i = 0; i < nPoints; i++)
+				sal_uInt32 nPointSize = ImplGetPointSize();
+				if ( nPointSize == 0 )
+					break;
+				sal_uInt32 nPoints = mnElementSize / nPointSize;
+				if ( !cgmPointsFitPolygon( nPoints ) )
+					break;
+				sal_uInt16 nPts = (sal_uInt16)nPoints;
+				Polygon aPolygon( nPts );
+				for ( sal_uInt16 i = 0; i < nPts; i++)
 				{
 					FloatPoint	aFloatPoint;
 					ImplGetPoint( aFloatPoint, sal_True );
@@ -145,8 +163,13 @@ void CGM::ImplDoClass4()
 
 			case 0x02 : ComOut( CGM_LEVEL1 | CGM_EXTENDED_PRIMITIVES_SET, "Disjoint PolyLine" )
 			{
-				sal_uInt16 nPoints = sal::static_int_cast< sal_uInt16 >(
-					mnElementSize / ImplGetPointSize());
+				sal_uInt32 nPointSize = ImplGetPointSize();
+				if ( nPointSize == 0 )
+					break;
+				sal_uInt32 nRaw = mnElementSize / nPointSize;
+				if ( !cgmPointsFitPolygon( nRaw ) )
+					break;
+				sal_uInt16 nPoints = (sal_uInt16)nRaw;
 				if ( ! ( nPoints & 1 ) )
 				{
 					nPoints >>= 1;
@@ -264,8 +287,13 @@ void CGM::ImplDoClass4()
 				if ( mbFigure )
 					mpOutAct->CloseRegion();
 
-				sal_uInt16 nPoints = sal::static_int_cast< sal_uInt16 >(
-					mnElementSize / ImplGetPointSize());
+				sal_uInt32 nPointSize = ImplGetPointSize();
+				if ( nPointSize == 0 )
+					break;
+				sal_uInt32 nPoints32 = mnElementSize / nPointSize;
+				if ( !cgmPointsFitPolygon( nPoints32 ) )
+					break;
+				sal_uInt16 nPoints = (sal_uInt16)nPoints32;
 				Polygon aPolygon( nPoints );
 				for ( sal_uInt16 i = 0; i < nPoints; i++)
 				{
@@ -283,13 +311,15 @@ void CGM::ImplDoClass4()
 					mpOutAct->CloseRegion();
 
 				sal_uInt16		nPoints = 0;
-				Point*		pPoints = new Point[ 0x4000 ];
+				Point*		pPoints = new Point[ CGM_POLYSET_MAX ];
 
 				PolyPolygon aPolyPolygon;
 				FloatPoint	aFloatPoint;
 				sal_uInt32		nEdgeFlag;
 				while ( mnParaSize < mnElementSize )
 				{
+					if ( nPoints >= CGM_POLYSET_MAX )
+						break;
 					ImplGetPoint( aFloatPoint, sal_True );
 					nEdgeFlag = ImplGetUI16();
 					pPoints[ nPoints++ ] = Point( (long)aFloatPoint.X, (long)aFloatPoint.Y );
@@ -720,7 +750,14 @@ void CGM::ImplDoClass4()
 			{
 				sal_uInt32 nOrder = ImplGetI( pElement->nIntegerPrecision );
 
-				sal_uInt16 nNumberOfPoints = sal::static_int_cast< sal_uInt16 >(( mnElementSize - pElement->nIntegerPrecision ) / ImplGetPointSize());
+				sal_uInt32 nPointSize = ImplGetPointSize();
+				if ( nPointSize == 0 || mnElementSize < pElement->nIntegerPrecision )
+					break;
+				sal_uInt32 nNumberOfPoints32 =
+					( mnElementSize - pElement->nIntegerPrecision ) / nPointSize;
+				if ( !cgmPointsFitPolygon( nNumberOfPoints32 ) )
+					break;
+				sal_uInt16 nNumberOfPoints = (sal_uInt16)nNumberOfPoints32;
 
 				Polygon aPolygon( nNumberOfPoints );
 
