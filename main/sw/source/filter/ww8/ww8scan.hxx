@@ -147,6 +147,17 @@ public:
 	inline int getVersion() const { return meVersion; } //cmc, I'm dubious about the usage of this, how can it be 0
 };
 
+// GetSprmSize can wrap to 0. A zero advance hangs every SPRM walker.
+inline bool ww8SprmFitsRemain(sal_uInt16 nSprm, sal_uInt16 nRemain)
+{
+    return nSprm != 0 && nSprm <= nRemain;
+}
+
+inline bool ww8SprmFitsRemain(sal_uInt16 nSprm, long nRemain)
+{
+    return nSprm != 0 && nRemain > 0 && static_cast<long>(nSprm) <= nRemain;
+}
+
 //--Line abovewhich the code has meaningful comments
 
 class  WW8Fib;

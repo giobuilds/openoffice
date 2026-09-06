@@ -911,6 +911,13 @@ void WW8SprmIter::UpdateMyMembers()
         nAktId = mrSprmParser.GetSprmId(pSprms);
         pAktParams = pSprms + mrSprmParser.DistanceToData(nAktId);
         nAktSize = mrSprmParser.GetSprmSize(nAktId, pSprms);
+        if ( !ww8SprmFitsRemain( nAktSize, nRemLen ) )
+        {
+            nAktId = 0;
+            pAktParams = 0;
+            nAktSize = 0;
+            nRemLen = 0;
+        }
     }
     else
     {
@@ -3739,6 +3746,8 @@ bool WW8PLCFx_SEPX::Find4Sprms(sal_uInt16 nId1,sal_uInt16 nId2,sal_uInt16 nId3,s
         bFound |= bOk;
         // erhoehe Zeiger, so dass er auf naechsten Sprm zeigt
         sal_uInt16 x = maSprmParser.GetSprmSize(nAktId, pSp);
+        if ( !ww8SprmFitsRemain( x, static_cast<sal_uInt16>(nSprmSiz - i) ) )
+            break;
         i = i + x;
         pSp += x;
     }
@@ -3765,6 +3774,8 @@ const sal_uInt8* WW8PLCFx_SEPX::HasSprm( sal_uInt16 nId, sal_uInt8 n2nd ) const
         }
         // erhoehe Zeiger, so dass er auf naechsten Sprm zeigt
         sal_uInt16 x = maSprmParser.GetSprmSize(nAktId, pSp);
+        if ( !ww8SprmFitsRemain( x, static_cast<sal_uInt16>(nSprmSiz - i) ) )
+            break;
         i = i + x;
         pSp += x;
     }

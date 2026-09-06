@@ -3832,6 +3832,8 @@ const sal_uInt8* WW8RStyle::HasParaSprm( sal_uInt16 nId ) const
             return pSprms + maSprmParser.DistanceToData(nId);
 
         x = maSprmParser.GetSprmSize(nAktId, pSprms);
+        if ( !ww8SprmFitsRemain( x, static_cast<sal_uInt16>(nSprmsLen - i) ) )
+            break;
         i = i + x;
         pSprms += x;
     }
@@ -3854,6 +3856,8 @@ void WW8RStyle::ImportSprms(sal_uInt8 *pSprms, short nLen, bool bPap)
     while ( nLen > 0 )
     {
         sal_uInt16 nL1 = pIo->ImportSprm(pSprms);
+        if ( !ww8SprmFitsRemain( nL1, nLen ) )
+            break;
         nLen = nLen - nL1;
         pSprms += nL1;
     }

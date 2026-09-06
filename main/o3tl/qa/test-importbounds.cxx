@@ -45,6 +45,7 @@
 //   main/filter/source/graphicfilter/ipcx/ipcx.cxx     (PCX dimensions)
 //   main/filter/source/graphicfilter/itga/itga.cxx     (TGA dimensions)
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
+//   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
@@ -437,6 +438,23 @@ TEST(ImportBounds, Ww8SprmRejectsNonPositiveLength)
 
     // short -1 as size_t on a 32-bit size is 0xFFFFFFFF.
     EXPECT_EQ(static_cast<unsigned>(-1), ww8SprmAllocWrapsTo(-1));
+}
+
+namespace {
+
+bool ww8SprmFitsRemain(unsigned nSprm, unsigned nRemain)
+{
+    return nSprm != 0 && nSprm <= nRemain;
+}
+
+}
+
+TEST(ImportBounds, Ww8SprmWalkStopsOnZeroOrOversize)
+{
+    EXPECT_TRUE(ww8SprmFitsRemain(1, 10));
+    EXPECT_TRUE(ww8SprmFitsRemain(10, 10));
+    EXPECT_FALSE(ww8SprmFitsRemain(0, 10));
+    EXPECT_FALSE(ww8SprmFitsRemain(11, 10));
 }
 
 // Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).
