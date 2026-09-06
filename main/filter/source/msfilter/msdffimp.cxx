@@ -3742,12 +3742,29 @@ void SvxMSDffManager::ReadObjText( const String& rText, SdrObject* pObj ) const
 void SvxMSDffManager::MSDFFReadZString( SvStream& rIn, String& rStr,
 									sal_uLong nRecLen, FASTBOOL bUniCode )
 {
-	sal_uInt16 nLen = (sal_uInt16)nRecLen;
+	// tools::String AllocBuffer is 16-bit. Truncating nRecLen wrapped
+	// huge DFF records to a tiny allocation (e.g. 0x10000 -> 0).
+	sal_uInt16 nLen;
+	if ( bUniCode )
+	{
+		if ( nRecLen > (sal_uLong)0xFFFF * 2 )
+		{
+			rStr.Erase();
+			return;
+		}
+		nLen = (sal_uInt16)( nRecLen >> 1 );
+	}
+	else
+	{
+		if ( nRecLen > 0xFFFF )
+		{
+			rStr.Erase();
+			return;
+		}
+		nLen = (sal_uInt16)nRecLen;
+	}
 	if( nLen )
 	{
-		if ( bUniCode )
-			nLen >>= 1;
-
 		String sBuf;
 		sal_Unicode* pBuf = sBuf.AllocBuffer( nLen );
 
