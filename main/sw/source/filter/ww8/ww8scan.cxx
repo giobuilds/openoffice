@@ -6475,6 +6475,21 @@ WW8Fonts::WW8Fonts( SvStream& rSt, WW8Fib& rFib )
     rSt.Seek( rFib.fcSttbfffn );
 
     sal_Int32 nFFn = rFib.lcbSttbfffn - 2;
+    if ( nFFn <= 0 )
+    {
+        pFontA = 0;
+        nMax = 0;
+        return;
+    }
+    const sal_uInt32 nPos = rSt.Tell();
+    const sal_uInt32 nEnd = rSt.Seek( STREAM_SEEK_TO_END );
+    rSt.Seek( nPos );
+    if ( nEnd < nPos || static_cast<sal_uInt32>(nFFn) > nEnd - nPos )
+    {
+        pFontA = 0;
+        nMax = 0;
+        return;
+    }
 
     // allocate Font Array
     sal_uInt8* pA   = new sal_uInt8[ nFFn ];

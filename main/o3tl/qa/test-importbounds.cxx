@@ -46,6 +46,7 @@
 //   main/filter/source/graphicfilter/itga/itga.cxx     (TGA dimensions)
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
+//   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
@@ -455,6 +456,23 @@ TEST(ImportBounds, Ww8SprmWalkStopsOnZeroOrOversize)
     EXPECT_TRUE(ww8SprmFitsRemain(10, 10));
     EXPECT_FALSE(ww8SprmFitsRemain(0, 10));
     EXPECT_FALSE(ww8SprmFitsRemain(11, 10));
+}
+
+namespace {
+
+bool ww8FontTableFitsStream(unsigned nFFn, unsigned nRemain)
+{
+    return nFFn > 0 && nFFn <= nRemain;
+}
+
+}
+
+TEST(ImportBounds, Ww8FontTableFitsRemainingStream)
+{
+    EXPECT_FALSE(ww8FontTableFitsStream(0, 100));
+    EXPECT_TRUE(ww8FontTableFitsStream(1, 100));
+    EXPECT_TRUE(ww8FontTableFitsStream(100, 100));
+    EXPECT_FALSE(ww8FontTableFitsStream(101, 100));
 }
 
 // Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).
