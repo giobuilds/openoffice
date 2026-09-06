@@ -44,6 +44,7 @@
 //   main/filter/source/graphicfilter/ipict/ipict.cxx   (PICT dimensions)
 //   main/filter/source/graphicfilter/ipcx/ipcx.cxx     (PCX dimensions)
 //   main/filter/source/graphicfilter/itga/itga.cxx     (TGA dimensions)
+//   main/filter/source/graphicfilter/ipsd/ipsd.cxx     (PSD dimensions)
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table)
@@ -415,6 +416,14 @@ TEST(ImportBounds, PictPcxTga16BitSidesStillExceedPixelCap)
     EXPECT_FALSE(tiffDimensionsOk(65535, 65535));
     // PCX nMax-nMin+1 can be 65536.
     EXPECT_FALSE(tiffDimensionsOk(65536, 65536));
+}
+
+TEST(ImportBounds, Psd30000SidesStillExceedPixelCap)
+{
+    // PSD spec max is 30000 per side; 30000^2 still exceeds 64M pixels.
+    EXPECT_TRUE(tiffDimensionsOk(30000, 1));
+    EXPECT_TRUE(tiffDimensionsOk(8192, 8192));
+    EXPECT_FALSE(tiffDimensionsOk(30000, 30000));
 }
 
 namespace {
