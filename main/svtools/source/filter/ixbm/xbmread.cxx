@@ -28,6 +28,7 @@
 
 #define _XBMPRIVATE
 #include <ctype.h>
+#include <tools/solar.h>
 #include "xbmread.hxx"
 
 // -------------
@@ -175,6 +176,8 @@ long XBMReader::ParseDefine( const sal_Char* pDefine )
 
 		while ( pHexTable[ cTmp ] != -1 )
 		{
+			if ( nRet > ( SAL_MAX_INT32 >> 4 ) )
+				return 0;
 			nRet = ( nRet << 4 ) + pHexTable[ cTmp ];
 			cTmp = *pTmp++;
 		}
@@ -185,6 +188,8 @@ long XBMReader::ParseDefine( const sal_Char* pDefine )
 		cTmp = *pTmp++;
 		while( ( cTmp >= '0' ) && ( cTmp <= '9' ) )
 		{
+			if ( nRet > ( SAL_MAX_INT32 - ( cTmp - '0' ) ) / 10 )
+				return 0;
 			nRet = nRet * 10 + ( cTmp - '0' );
 			cTmp = *pTmp++;
 		}
@@ -324,7 +329,15 @@ ReadState XBMReader::ReadXBM( Graphic& rGraphic )
 						else
 							bStatus = sal_False;
 
-						if ( bStatus && nWidth && nHeight )
+						if ( bStatus && nWidth > 0 && nHeight > 0 )
+						{
+							// Same caps as TIFF: Size() is 32-bit, and a 64M pixel ceiling.
+							if ( nWidth > ( SAL_MAX_INT32 / 32 ) || nHeight > ( SAL_MAX_INT32 / 32 ) )
+								bStatus = sal_False;
+							else if ( (sal_uLong)nHeight > ( 64UL * 1024UL * 1024UL ) / (sal_uLong)nWidth )
+								bStatus = sal_False;
+						}
+						if ( bStatus && nWidth > 0 && nHeight > 0 )
 						{
 							aBmp1 = Bitmap( Size( nWidth, nHeight ), 1 );
 							pAcc1 = aBmp1.AcquireWriteAccess();

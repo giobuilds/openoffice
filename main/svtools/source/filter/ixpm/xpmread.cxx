@@ -102,9 +102,21 @@ ReadState XPMReader::ReadXPM( Graphic& rGraphic )
 				mnColors = ImplGetULONG( 2 );
 				mnCpp = ImplGetULONG( 3 );
 			}
-			if ( mnColors > ( SAL_MAX_UINT32 / ( 4 + mnCpp ) ) )
+			if ( mnCpp == 0 || mnCpp > SAL_MAX_UINT32 - 4 )
 				mbStatus = sal_False;
-			if ( ( mnWidth * mnCpp ) >= XPMSTRINGBUF )
+			if ( mbStatus && mnColors > ( SAL_MAX_UINT32 / ( 4 + mnCpp ) ) )
+				mbStatus = sal_False;
+			if ( mbStatus && mnWidth > ( SAL_MAX_UINT32 / mnCpp ) )
+				mbStatus = sal_False;
+			else if ( mbStatus && ( mnWidth * mnCpp ) >= XPMSTRINGBUF )
+				mbStatus = sal_False;
+			// Same caps as TIFF: Size() is 32-bit, and a 64M pixel ceiling.
+			if ( mbStatus && ( mnWidth == 0 || mnHeight == 0 ) )
+				mbStatus = sal_False;
+			if ( mbStatus && ( mnWidth > static_cast<sal_uLong>(SAL_MAX_INT32 / 32) ||
+				 mnHeight > static_cast<sal_uLong>(SAL_MAX_INT32 / 32) ) )
+				mbStatus = sal_False;
+			if ( mbStatus && mnHeight > ( 64UL * 1024UL * 1024UL ) / mnWidth )
 				mbStatus = sal_False;
 			if ( mbStatus && mnWidth && mnHeight && mnColors && mnCpp )
 			{
@@ -474,6 +486,8 @@ sal_uLong XPMReader::ImplGetULONG( sal_uLong nPara )
 		{
 			sal_uInt8 j = (*pPtr++) - 48;
 			if ( j > 9 ) return 0;				// ascii is invalid
+			if ( nRetValue > ( SAL_MAX_UINT32 - j ) / 10 )
+				return 0;
 			nRetValue*=10;
 			nRetValue+=j;
 		}
