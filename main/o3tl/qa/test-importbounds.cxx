@@ -49,6 +49,7 @@
 //   main/svtools/source/filter/wmf/winwmf.cxx          (WMF polypolygon count)
 //   main/svtools/source/svrtf/parrtf.cxx               (RTF \\bin skip)
 //   main/editeng/source/rtf/rtfgrf.cxx                 (RTF picture \\bin)
+//   main/filter/source/graphicfilter/ios2met/ios2met.cxx (OS/2 MET dims)
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table)
@@ -508,6 +509,13 @@ TEST(ImportBounds, RtfBinFitsRemainingStream)
 
     // PICW/PICH are stored as sal_uInt16; 65535^2 still exceeds 64M.
     EXPECT_TRUE(tiffDimensionsOk(65535, 1));
+    EXPECT_FALSE(tiffDimensionsOk(65535, 65535));
+}
+
+TEST(ImportBounds, Os2Met16BitSidesStillExceedPixelCap)
+{
+    EXPECT_TRUE(tiffDimensionsOk(640, 480));
+    EXPECT_FALSE(tiffDimensionsOk(0, 480));
     EXPECT_FALSE(tiffDimensionsOk(65535, 65535));
 }
 
