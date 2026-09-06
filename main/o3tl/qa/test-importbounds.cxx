@@ -33,6 +33,7 @@
 //   main/filter/source/graphicfilter/icgm/class7.cxx
 //   main/filter/source/graphicfilter/icgm/class4.cxx    (CGM polygon counts)
 //   main/filter/source/graphicfilter/icgm/outact.cxx    (CGM figure scratch)
+//   main/filter/source/graphicfilter/icgm/bitmap.cxx    (CGM cell-array size)
 //   main/filter/source/graphicfilter/itiff/itiff.cxx
 //   main/filter/source/graphicfilter/iras/iras.cxx     (RAS dimensions)
 //   main/filter/source/graphicfilter/ipbm/ipbm.cxx      (PBM dimensions)
@@ -301,6 +302,34 @@ TEST(ImportBounds, CgmFigureRejectsPolylineThatDoesNotFitScratch)
     EXPECT_TRUE(cgmFigureFitsScratch(0x1FFF, 1));
     EXPECT_FALSE(cgmFigureFitsScratch(0x1FFF, 2));
     EXPECT_FALSE(cgmFigureFitsScratch(0x1000, 0x1001));
+}
+
+namespace {
+
+// Old CGM cell-array check was (nX || nY) == 0, which is true only if both
+// are zero. A zero-width, huge-height cell array slipped through.
+bool cgmBitmapOldZeroCheck(unsigned nX, unsigned nY)
+{
+    return (nX || nY) == 0;
+}
+
+bool cgmBitmapDimsOk(unsigned nX, unsigned nY)
+{
+    if (nX == 0 || nY == 0)
+        return false;
+    return tiffDimensionsOk(nX, nY);
+}
+
+}
+
+TEST(ImportBounds, CgmBitmapRejectsZeroOrHugeDimensions)
+{
+    EXPECT_TRUE(cgmBitmapOldZeroCheck(0, 0));
+    EXPECT_FALSE(cgmBitmapOldZeroCheck(0, 1000000));
+    EXPECT_FALSE(cgmBitmapDimsOk(0, 1000000));
+    EXPECT_FALSE(cgmBitmapDimsOk(1000000, 0));
+    EXPECT_TRUE(cgmBitmapDimsOk(320, 200));
+    EXPECT_FALSE(cgmBitmapDimsOk(65536, 65536));
 }
 
 // Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).

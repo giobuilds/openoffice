@@ -251,6 +251,7 @@ sal_Bool CGMBitmap::ImplGetDimensions( CGMBitmapDescriptor& rDesc )
 	rDesc.mnY = mpCGM->ImplGetUI( nPrecision );
 	rDesc.mnLocalColorPrecision = mpCGM->ImplGetI( nPrecision );
 	rDesc.mnScanSize = 0;
+	rDesc.mnDstBitsPerPixel = 0;
 	switch( rDesc.mnLocalColorPrecision )
 	{
 		case static_cast<long>(0x80000001) :	// monochrome ( bit = 0->backgroundcolor )
@@ -286,6 +287,9 @@ sal_Bool CGMBitmap::ImplGetDimensions( CGMBitmapDescriptor& rDesc )
 		case -32 :
 			rDesc.mbStatus = sal_False;
 			break;
+		default :
+			rDesc.mbStatus = sal_False;
+			break;
 
 	}
 	// mnCompressionMode == 0 : CCOMP_RUNLENGTH
@@ -293,9 +297,22 @@ sal_Bool CGMBitmap::ImplGetDimensions( CGMBitmapDescriptor& rDesc )
 	if ( ( rDesc.mnCompressionMode = mpCGM->ImplGetUI16() ) != 1 )
 		rDesc.mbStatus = sal_False;
 
-	if ( ( rDesc.mnX || rDesc.mnY ) == 0 )
+	// Old check was (mnX || mnY) == 0, which only failed when both were 0.
+	if ( rDesc.mnX == 0 || rDesc.mnY == 0 )
+		rDesc.mbStatus = sal_False;
+	// Same caps as TIFF: Size() is 32-bit, and a 64M pixel ceiling.
+	if ( rDesc.mbStatus && ( rDesc.mnX > static_cast<sal_uInt32>(SAL_MAX_INT32 / 32) ||
+		 rDesc.mnY > static_cast<sal_uInt32>(SAL_MAX_INT32 / 32) ) )
+		rDesc.mbStatus = sal_False;
+	if ( rDesc.mbStatus && rDesc.mnY > ( 64UL * 1024UL * 1024UL ) / rDesc.mnX )
+		rDesc.mbStatus = sal_False;
+	if ( rDesc.mbStatus && ( rDesc.mnDstBitsPerPixel == 0 || rDesc.mnDstBitsPerPixel > 32 ) )
+		rDesc.mbStatus = sal_False;
+	if ( rDesc.mbStatus && rDesc.mnX > ( SAL_MAX_UINT32 - 7 ) / rDesc.mnDstBitsPerPixel )
 		rDesc.mbStatus = sal_False;
 
+	if ( rDesc.mbStatus )
+	{
 	sal_uInt32 nHeaderSize = 2 + 3 * nPrecision + 3 * mpCGM->ImplGetPointSize();
 	rDesc.mnScanSize = ( ( rDesc.mnX * rDesc.mnDstBitsPerPixel + 7 ) >> 3 );
 
@@ -323,6 +340,7 @@ sal_Bool CGMBitmap::ImplGetDimensions( CGMBitmapDescriptor& rDesc )
 		}
 	}
 	rDesc.mnScanSize = nScanSize;
+	}
 	if ( rDesc.mbStatus )
 	{
 		rDesc.mpBuf = mpCGM->mpSource + mpCGM->mnParaSize;	// mpBuf now points to the first scanline
