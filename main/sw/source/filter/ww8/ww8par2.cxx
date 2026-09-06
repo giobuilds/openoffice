@@ -3840,7 +3840,9 @@ const sal_uInt8* WW8RStyle::HasParaSprm( sal_uInt16 nId ) const
 
 void WW8RStyle::ImportSprms(sal_uInt8 *pSprms, short nLen, bool bPap)
 {
-    if (!nLen)
+    // nLen is signed. A negative length (e.g. size_t truncated to short)
+    // must not become nSprmsLen or drive the SPRM walk.
+    if ( nLen <= 0 )
         return;
 
     if( bPap )
@@ -3862,13 +3864,16 @@ void WW8RStyle::ImportSprms(sal_uInt8 *pSprms, short nLen, bool bPap)
 
 void WW8RStyle::ImportSprms(sal_Size nPosFc, short nLen, bool bPap)
 {
-    if (!nLen)
+    // nLen is signed. new sal_uInt8[nLen] with nLen < 0 wraps to a huge
+    // size_t allocation, then Read() uses that length.
+    if ( nLen <= 0 )
         return;
 
-    sal_uInt8 *pSprms = new sal_uInt8[nLen];
+    const sal_uInt16 nCount = static_cast<sal_uInt16>(nLen);
+    sal_uInt8 *pSprms = new sal_uInt8[nCount];
 
     pStStrm->Seek(nPosFc);
-    pStStrm->Read(pSprms, nLen);
+    pStStrm->Read(pSprms, nCount);
 
     ImportSprms(pSprms, nLen, bPap);
 

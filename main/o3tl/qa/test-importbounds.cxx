@@ -44,6 +44,7 @@
 //   main/filter/source/graphicfilter/ipict/ipict.cxx   (PICT dimensions)
 //   main/filter/source/graphicfilter/ipcx/ipcx.cxx     (PCX dimensions)
 //   main/filter/source/graphicfilter/itga/itga.cxx     (TGA dimensions)
+//   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
@@ -411,6 +412,31 @@ TEST(ImportBounds, PictPcxTga16BitSidesStillExceedPixelCap)
     EXPECT_FALSE(tiffDimensionsOk(65535, 65535));
     // PCX nMax-nMin+1 can be 65536.
     EXPECT_FALSE(tiffDimensionsOk(65536, 65536));
+}
+
+namespace {
+
+bool ww8SprmLenOk(int nLen)
+{
+    return nLen > 0;
+}
+
+unsigned ww8SprmAllocWrapsTo(int nLen)
+{
+    return static_cast<unsigned>(nLen);
+}
+
+}
+
+TEST(ImportBounds, Ww8SprmRejectsNonPositiveLength)
+{
+    EXPECT_FALSE(ww8SprmLenOk(0));
+    EXPECT_FALSE(ww8SprmLenOk(-1));
+    EXPECT_TRUE(ww8SprmLenOk(1));
+    EXPECT_TRUE(ww8SprmLenOk(32767));
+
+    // short -1 as size_t on a 32-bit size is 0xFFFFFFFF.
+    EXPECT_EQ(static_cast<unsigned>(-1), ww8SprmAllocWrapsTo(-1));
 }
 
 // Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).
