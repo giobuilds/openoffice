@@ -2195,6 +2195,12 @@ void OS2METReader::ReadImageData(sal_uInt16 nDataID, sal_uInt16 nDataLen)
 					ErrorCode=3;
 					return;
 				}
+				// Sides come from 16-bit words, but 65535^2 still exceeds the TIFF 64M-pixel ceiling.
+				if ( p->nHeight > ( 64UL * 1024UL * 1024UL ) / p->nWidth ) {
+					pOS2MET->SetError(SVSTREAM_FILEFORMAT_ERROR);
+					ErrorCode=3;
+					return;
+				}
 				// Schreibe (Windows-)BITMAPINFOHEADER:
 				*(p->pBMP) << ((sal_uInt32)40) << p->nWidth << p->nHeight;
 				*(p->pBMP) << ((sal_uInt16)1) << p->nBitsPerPixel;
