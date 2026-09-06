@@ -53,7 +53,8 @@
 //   main/filter/source/msfilter/msocximex.cxx          (OCX picture/icon)
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
-//   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table)
+//   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table / FIB blobs)
+//   main/sw/source/filter/ww8/ww8par.cxx               (WW8 macro cmds)
 //   main/filter/source/msfilter/msdffimp.cxx           (DFF ZString)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
@@ -596,6 +597,25 @@ TEST(ImportBounds, Ww8FontTableFitsRemainingStream)
     EXPECT_TRUE(ww8FontTableFitsStream(1, 100));
     EXPECT_TRUE(ww8FontTableFitsStream(100, 100));
     EXPECT_FALSE(ww8FontTableFitsStream(101, 100));
+}
+
+namespace {
+
+bool ww8FibBlobFitsStream(long nLen, unsigned nRemain)
+{
+    return nLen > 0 && static_cast<unsigned long>(nLen) <= nRemain;
+}
+
+}
+
+TEST(ImportBounds, Ww8FibBlobFitsRemainingStream)
+{
+    // lcbCmds is signed; negative wraps new sal_uInt8[n].
+    EXPECT_FALSE(ww8FibBlobFitsStream(0, 100));
+    EXPECT_FALSE(ww8FibBlobFitsStream(-1, 100));
+    EXPECT_TRUE(ww8FibBlobFitsStream(1, 100));
+    EXPECT_TRUE(ww8FibBlobFitsStream(100, 100));
+    EXPECT_FALSE(ww8FibBlobFitsStream(101, 100));
 }
 
 namespace {

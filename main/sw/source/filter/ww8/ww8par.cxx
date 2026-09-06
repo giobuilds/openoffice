@@ -4186,28 +4186,33 @@ void wwSectionManager::InsertSegments()
 
 void SwWW8ImplReader::StoreMacroCmds()
 {
-    if (pWwFib->lcbCmds)
+    if (pWwFib->lcbCmds <= 0)
+        return;
+
+    pTableStream->Seek(pWwFib->fcCmds);
+    const sal_uInt32 nPos = pTableStream->Tell();
+    const sal_uInt32 nEnd = pTableStream->Seek( STREAM_SEEK_TO_END );
+    pTableStream->Seek( nPos );
+    if ( nEnd < nPos || static_cast<sal_uInt32>(pWwFib->lcbCmds) > nEnd - nPos )
+        return;
+
+    maTracer.Log(sw::log::eContainsWordBasic);
+
+    uno::Reference < embed::XStorage > xRoot(mpDocShell->GetStorage());
+    try
     {
-        maTracer.Log(sw::log::eContainsWordBasic);
+        uno::Reference < io::XStream > xStream =
+                xRoot->openStreamElement( CREATE_CONST_ASC(SL::aMSMacroCmds), embed::ElementModes::READWRITE );
+        SvStream* pStream = ::utl::UcbStreamHelper::CreateStream( xStream );
 
-        pTableStream->Seek(pWwFib->fcCmds);
-
-        uno::Reference < embed::XStorage > xRoot(mpDocShell->GetStorage());
-        try
-        {
-            uno::Reference < io::XStream > xStream =
-                    xRoot->openStreamElement( CREATE_CONST_ASC(SL::aMSMacroCmds), embed::ElementModes::READWRITE );
-            SvStream* pStream = ::utl::UcbStreamHelper::CreateStream( xStream );
-
-            sal_uInt8 *pBuffer = new sal_uInt8[pWwFib->lcbCmds];
-            pTableStream->Read(pBuffer, pWwFib->lcbCmds);
-            pStream->Write(pBuffer, pWwFib->lcbCmds);
-            delete[] pBuffer;
-            delete pStream;
-        }
-        catch ( uno::Exception& )
-        {
-        }
+        sal_uInt8 *pBuffer = new sal_uInt8[pWwFib->lcbCmds];
+        pTableStream->Read(pBuffer, pWwFib->lcbCmds);
+        pStream->Write(pBuffer, pWwFib->lcbCmds);
+        delete[] pBuffer;
+        delete pStream;
+    }
+    catch ( uno::Exception& )
+    {
     }
 }
 
