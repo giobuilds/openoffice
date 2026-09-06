@@ -37,8 +37,8 @@ CGMOutAct::CGMOutAct( CGM& rCGM )
 	mnCurrentPage = 0;
     mnGroupActCount = mnGroupLevel = 0;
 	mpGroupLevel = new sal_uInt32[ CGM_OUTACT_MAX_GROUP_LEVEL ];
-	mpPoints = (Point*)new sal_Int8[ 0x2000 * sizeof( Point ) ];
-	mpFlags = new sal_uInt8[ 0x2000 ];
+	mpPoints = (Point*)new sal_Int8[ CGM_OUTACT_MAX_FIGURE_POINTS * sizeof( Point ) ];
+	mpFlags = new sal_uInt8[ CGM_OUTACT_MAX_FIGURE_POINTS ];
 
 	mnIndex = 0;
 	mpGradient = NULL;
@@ -109,6 +109,15 @@ void CGMOutAct::RegPolyLine( Polygon& rPolygon, sal_Bool bReverse )
 	sal_uInt16 nPoints = rPolygon.GetSize();
 	if ( nPoints )
 	{
+		// mpPoints / mpFlags are CGM_OUTACT_MAX_FIGURE_POINTS long.
+		// A figure can append several polylines; without a cap this writes
+		// past the scratch buffer (CVE-2026-6039 class).
+		if ( nPoints > CGM_OUTACT_MAX_FIGURE_POINTS )
+			return;
+		if ( (sal_uInt32)mnIndex + nPoints > CGM_OUTACT_MAX_FIGURE_POINTS )
+			NewRegion();
+		if ( (sal_uInt32)mnIndex + nPoints > CGM_OUTACT_MAX_FIGURE_POINTS )
+			return;
 		if ( bReverse )
 		{
 			for ( sal_uInt16 i = 0; i <  nPoints; i++ )

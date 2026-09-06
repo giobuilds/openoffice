@@ -32,6 +32,7 @@
 //   main/sw/source/filter/ww8/ww8scan.cxx      (WW8 FKP)
 //   main/filter/source/graphicfilter/icgm/class7.cxx
 //   main/filter/source/graphicfilter/icgm/class4.cxx    (CGM polygon counts)
+//   main/filter/source/graphicfilter/icgm/outact.cxx    (CGM figure scratch)
 //   main/filter/source/graphicfilter/itiff/itiff.cxx
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
@@ -203,6 +204,8 @@ TEST(ImportBounds, DxfPolylineRejectsCountThatDoesNotFitPolygon)
 // Spec of CGM polyline/polygon/polybezier vs tools::Polygon (CVE-2026-6039
 // class). Polygon Set fills a 0x4000-point scratch buffer.
 // Keep in sync with main/filter/source/graphicfilter/icgm/class4.cxx
+// Figure polylines fill a 0x2000-point scratch buffer in
+//   main/filter/source/graphicfilter/icgm/outact.cxx
 
 namespace {
 
@@ -239,6 +242,29 @@ TEST(ImportBounds, CgmPolygonRejectsCountThatDoesNotFitPolygon)
     // Zero VDC precision: point size 0. Do not divide.
     EXPECT_EQ(0xFFFFFFFFu, cgmPointCount(100, 0));
     EXPECT_EQ(25u, cgmPointCount(100, 4));
+}
+
+namespace {
+
+enum { CGM_FIGURE_MAX = 0x2000 };
+
+bool cgmFigureFitsScratch(unsigned nIndex, unsigned nPoints)
+{
+    if (nPoints > CGM_FIGURE_MAX)
+        return false;
+    return nIndex + nPoints <= CGM_FIGURE_MAX;
+}
+
+}
+
+TEST(ImportBounds, CgmFigureRejectsPolylineThatDoesNotFitScratch)
+{
+    EXPECT_TRUE(cgmFigureFitsScratch(0, 2));
+    EXPECT_TRUE(cgmFigureFitsScratch(0, 0x2000));
+    EXPECT_FALSE(cgmFigureFitsScratch(0, 0x2001));
+    EXPECT_TRUE(cgmFigureFitsScratch(0x1FFF, 1));
+    EXPECT_FALSE(cgmFigureFitsScratch(0x1FFF, 2));
+    EXPECT_FALSE(cgmFigureFitsScratch(0x1000, 0x1001));
 }
 
 // Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).
