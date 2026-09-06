@@ -40,6 +40,7 @@
 //   main/svtools/source/filter/ixbm/xbmread.cxx        (XBM dimensions)
 //   main/svtools/source/filter/ixpm/xpmread.cxx        (XPM dimensions)
 //   main/filter/source/graphicfilter/ieps/ieps.cxx     (EPS preview/bbox)
+//   main/svtools/source/filter/igif/gifread.cxx        (GIF dimensions)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
@@ -390,6 +391,14 @@ TEST(ImportBounds, EpsPreviewRejectsNonPositiveOrHugeDims)
 
     EXPECT_TRUE(epsGetNumberDigitOk(12, 3, 0x7FFFFFFF));
     EXPECT_FALSE(epsGetNumberDigitOk(0x7FFFFFFF, 0, 0x7FFFFFFF));
+}
+
+TEST(ImportBounds, Gif16BitSidesStillExceedPixelCap)
+{
+    // GIF width/height are u16, so 65535 is a legal header value.
+    EXPECT_TRUE(tiffDimensionsOk(65535, 1));
+    EXPECT_TRUE(tiffDimensionsOk(8192, 8192));
+    EXPECT_FALSE(tiffDimensionsOk(65535, 65535));
 }
 
 // Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).
