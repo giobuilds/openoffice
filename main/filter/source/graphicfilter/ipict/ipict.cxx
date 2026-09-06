@@ -729,8 +729,15 @@ sal_uLong PictReader::ReadPixMapEtc( Bitmap &rBitmap, sal_Bool bBaseAddr, sal_Bo
 
 	// PixMap oder Bitmap-Struktur einlesen;
 	*pPict >> nRowBytes >> nBndY >> nBndX >> nHeight >> nWidth;
+	if ( nBndY > nHeight || nBndX > nWidth )
+		BITMAPERROR;
 	nHeight = nHeight - nBndY;
 	nWidth = nWidth - nBndX;
+	// Sides are 16-bit, but 65535^2 still exceeds the TIFF 64M-pixel ceiling.
+	if ( nWidth == 0 || nHeight == 0 )
+		BITMAPERROR;
+	if ( (sal_uLong)nHeight > ( 64UL * 1024UL * 1024UL ) / nWidth )
+		BITMAPERROR;
 
 	if ( ( nRowBytes & 0x8000 ) != 0 )
 	{	// it is a PixMap

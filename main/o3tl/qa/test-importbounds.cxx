@@ -41,6 +41,9 @@
 //   main/svtools/source/filter/ixpm/xpmread.cxx        (XPM dimensions)
 //   main/filter/source/graphicfilter/ieps/ieps.cxx     (EPS preview/bbox)
 //   main/svtools/source/filter/igif/gifread.cxx        (GIF dimensions)
+//   main/filter/source/graphicfilter/ipict/ipict.cxx   (PICT dimensions)
+//   main/filter/source/graphicfilter/ipcx/ipcx.cxx     (PCX dimensions)
+//   main/filter/source/graphicfilter/itga/itga.cxx     (TGA dimensions)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
@@ -399,6 +402,15 @@ TEST(ImportBounds, Gif16BitSidesStillExceedPixelCap)
     EXPECT_TRUE(tiffDimensionsOk(65535, 1));
     EXPECT_TRUE(tiffDimensionsOk(8192, 8192));
     EXPECT_FALSE(tiffDimensionsOk(65535, 65535));
+}
+
+TEST(ImportBounds, PictPcxTga16BitSidesStillExceedPixelCap)
+{
+    EXPECT_TRUE(tiffDimensionsOk(640, 480));
+    EXPECT_FALSE(tiffDimensionsOk(0, 480));
+    EXPECT_FALSE(tiffDimensionsOk(65535, 65535));
+    // PCX nMax-nMin+1 can be 65536.
+    EXPECT_FALSE(tiffDimensionsOk(65536, 65536));
 }
 
 // Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).
