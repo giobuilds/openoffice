@@ -48,6 +48,7 @@
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table)
+//   main/filter/source/msfilter/msdffimp.cxx           (DFF ZString)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
@@ -482,6 +483,26 @@ TEST(ImportBounds, Ww8FontTableFitsRemainingStream)
     EXPECT_TRUE(ww8FontTableFitsStream(1, 100));
     EXPECT_TRUE(ww8FontTableFitsStream(100, 100));
     EXPECT_FALSE(ww8FontTableFitsStream(101, 100));
+}
+
+namespace {
+
+bool msdffZStringFits16(unsigned long nRecLen, bool bUniCode)
+{
+    if (bUniCode)
+        return nRecLen <= 0xFFFFul * 2ul;
+    return nRecLen <= 0xFFFFul;
+}
+
+}
+
+TEST(ImportBounds, MsdffZStringRejectsLengthThatDoesNotFit16Bit)
+{
+    EXPECT_TRUE(msdffZStringFits16(0, false));
+    EXPECT_TRUE(msdffZStringFits16(0xFFFF, false));
+    EXPECT_FALSE(msdffZStringFits16(0x10000, false));
+    EXPECT_TRUE(msdffZStringFits16(0xFFFFul * 2ul, true));
+    EXPECT_FALSE(msdffZStringFits16(0xFFFFul * 2ul + 2ul, true));
 }
 
 // Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).
