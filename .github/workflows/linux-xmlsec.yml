@@ -99,8 +99,9 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ext_sources
-          key: ext-tarballs-${{ hashFiles('main/external_deps.lst') }}
+          key: ext-tarballs-xmlsec-${{ hashFiles('main/external_deps.lst') }}
           restore-keys: |
+            ext-tarballs-xmlsec-
             ext-tarballs-
 
       - name: Configure, build bundled xmlsec
