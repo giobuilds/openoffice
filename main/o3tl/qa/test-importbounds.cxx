@@ -50,6 +50,7 @@
 //   main/svtools/source/svrtf/parrtf.cxx               (RTF \\bin skip)
 //   main/editeng/source/rtf/rtfgrf.cxx                 (RTF picture \\bin)
 //   main/filter/source/graphicfilter/ios2met/ios2met.cxx (OS/2 MET dims)
+//   main/filter/source/msfilter/msocximex.cxx          (OCX picture/icon)
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table)
@@ -517,6 +518,25 @@ TEST(ImportBounds, Os2Met16BitSidesStillExceedPixelCap)
     EXPECT_TRUE(tiffDimensionsOk(640, 480));
     EXPECT_FALSE(tiffDimensionsOk(0, 480));
     EXPECT_FALSE(tiffDimensionsOk(65535, 65535));
+}
+
+namespace {
+
+bool ocxPictureFitsRemaining(unsigned nLen, unsigned nRemain)
+{
+    const unsigned nMax = 64u * 1024u * 1024u;
+    return nLen == 0 || (nLen <= nMax && nLen <= nRemain);
+}
+
+}
+
+TEST(ImportBounds, OcxPictureFitsRemainingStream)
+{
+    EXPECT_TRUE(ocxPictureFitsRemaining(0, 0));
+    EXPECT_TRUE(ocxPictureFitsRemaining(1, 100));
+    EXPECT_TRUE(ocxPictureFitsRemaining(100, 100));
+    EXPECT_FALSE(ocxPictureFitsRemaining(101, 100));
+    EXPECT_FALSE(ocxPictureFitsRemaining(64u * 1024u * 1024u + 1, 0xFFFFFFFFu));
 }
 
 namespace {
