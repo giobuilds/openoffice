@@ -33,6 +33,7 @@
 
 
 #define CGM_OUTACT_MAX_GROUP_LEVEL 64
+#define CGM_OUTACT_MAX_FIGURE_POINTS 0x2000
 
 #include "cgm.hxx"
 #include <chart.hxx>
