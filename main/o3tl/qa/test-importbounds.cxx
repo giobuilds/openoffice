@@ -37,6 +37,8 @@
 //   main/filter/source/graphicfilter/itiff/itiff.cxx
 //   main/filter/source/graphicfilter/iras/iras.cxx     (RAS dimensions)
 //   main/filter/source/graphicfilter/ipbm/ipbm.cxx      (PBM dimensions)
+//   main/svtools/source/filter/ixbm/xbmread.cxx        (XBM dimensions)
+//   main/svtools/source/filter/ixpm/xpmread.cxx        (XPM dimensions)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
@@ -330,6 +332,34 @@ TEST(ImportBounds, CgmBitmapRejectsZeroOrHugeDimensions)
     EXPECT_FALSE(cgmBitmapDimsOk(1000000, 0));
     EXPECT_TRUE(cgmBitmapDimsOk(320, 200));
     EXPECT_FALSE(cgmBitmapDimsOk(65536, 65536));
+}
+
+TEST(ImportBounds, XbmXpmDimensionsMatchTiffCap)
+{
+    EXPECT_TRUE(tiffDimensionsOk(16, 16));
+    EXPECT_TRUE(tiffDimensionsOk(1024, 768));
+    EXPECT_FALSE(tiffDimensionsOk(65536, 65536));
+}
+
+namespace {
+
+bool xpmWidthTimesCppOk(unsigned nWidth, unsigned nCpp, unsigned nBuf)
+{
+    if (nCpp == 0)
+        return false;
+    if (nWidth > 0xFFFFFFFFu / nCpp)
+        return false;
+    return nWidth * nCpp < nBuf;
+}
+
+}
+
+TEST(ImportBounds, XpmWidthTimesCppRejectsWrap)
+{
+    EXPECT_TRUE(xpmWidthTimesCppOk(8, 1, 0x8000));
+    EXPECT_FALSE(xpmWidthTimesCppOk(0x8000, 1, 0x8000));
+    EXPECT_FALSE(xpmWidthTimesCppOk(0xFFFFFFFFu, 4, 0x8000));
+    EXPECT_FALSE(xpmWidthTimesCppOk(100, 0, 0x8000));
 }
 
 // Spec of ScCompiler::CompileString FunctionStack (CVE-2026-8357).
