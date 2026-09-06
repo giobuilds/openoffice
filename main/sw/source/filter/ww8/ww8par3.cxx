@@ -490,6 +490,8 @@ sal_uInt8* WW8ListManager::GrpprlHasSprm(sal_uInt16 nId, sal_uInt8& rSprms,
 
         // gib Zeiger auf Daten
         sal_uInt16 x = maSprmParser.GetSprmSize(nAktId, pSprms);
+        if ( !ww8SprmFitsRemain( x, static_cast<sal_uInt16>(nLen - i) ) )
+            break;
         i = i + x;
         pSprms += x;
     }
@@ -735,6 +737,8 @@ bool WW8ListManager::ReadLVL(
         while (0 < nLen)
         {
             sal_uInt16 nL1 = rReader.ImportSprm( pSprms1 );
+            if ( !ww8SprmFitsRemain( nL1, nLen ) )
+                break;
             nLen       = nLen - nL1;
             pSprms1   += nL1;
         }
@@ -1976,6 +1980,8 @@ void SwWW8ImplReader::RegisterNumFmtOnTxtNode(
                     while (0 < nLen)
                     {
                         sal_uInt16 nL1 = ImportSprm(pSprms1);
+                        if ( !ww8SprmFitsRemain( nL1, nLen ) )
+                            break;
                         nLen = nLen - nL1;
                         pSprms1 += nL1;
                     }
