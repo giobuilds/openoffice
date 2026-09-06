@@ -369,6 +369,25 @@ void lclReadCharArray( SvStorageStream& rStrm, char*& rpcCharArr, sal_uInt32 nLe
     }
 }
 
+// nLen is attacker-controlled. Cap to remaining stream and 64M.
+sal_Bool lclReadCountedBytes( SvStorageStream* pS, sal_uInt8*& rpBuf, sal_uInt32 nLen )
+{
+	delete[] rpBuf;
+	rpBuf = 0;
+	if ( !nLen )
+		return sal_True;
+	if ( nLen > ( 64UL * 1024UL * 1024UL ) )
+		return sal_False;
+	sal_Size nPos = pS->Tell();
+	sal_Size nEnd = pS->Seek( STREAM_SEEK_TO_END );
+	pS->Seek( nPos );
+	if ( nEnd < nPos || nLen > nEnd - nPos )
+		return sal_False;
+	rpBuf = new sal_uInt8[ nLen ];
+	pS->Read( rpBuf, nLen );
+	return sal_True;
+}
+
 
 /** Creates an OUString from a character array created with lclReadCharArray().
 
@@ -3177,16 +3196,16 @@ sal_Bool OCX_ModernControl::Read(SvStorageStream *pS)
 	{
 		pS->Read(pIconHeader,20);
 		*pS >> nIconLen;
-		pIcon = new sal_uInt8[nIconLen];
-		pS->Read(pIcon,nIconLen);
+		if ( !lclReadCountedBytes( pS, pIcon, nIconLen ) )
+			return sal_False;
 	}
 
 	if (nPicture)
 	{
 		pS->Read(pPictureHeader,20);
 		*pS >> nPictureLen;
-		pPicture = new sal_uInt8[nPictureLen];
-		pS->Read(pPicture,nPictureLen);
+		if ( !lclReadCountedBytes( pS, pPicture, nPictureLen ) )
+			return sal_False;
 	}
 
 	return sal_True;
@@ -3268,16 +3287,16 @@ sal_Bool OCX_CommandButton::Read(SvStorageStream *pS)
 	{
 		pS->Read(pIconHeader,20);
 		*pS >> nIconLen;
-		pIcon = new sal_uInt8[nIconLen];
-		pS->Read(pIcon,nIconLen);
+		if ( !lclReadCountedBytes( pS, pIcon, nIconLen ) )
+			return sal_False;
 	}
 
 	if (nPicture)
 	{
 		pS->Read(pPictureHeader,20);
 		*pS >> nPictureLen;
-		pPicture = new sal_uInt8[nPictureLen];
-		pS->Read(pPicture,nPictureLen);
+		if ( !lclReadCountedBytes( pS, pPicture, nPictureLen ) )
+			return sal_False;
 	}
 
 	return sal_True;
@@ -3372,15 +3391,15 @@ sal_Bool OCX_Label::Read(SvStorageStream *pS)
 	{
 		pS->Read(pPictureHeader,20);
 		*pS >> nPictureLen;
-		pPicture = new sal_uInt8[nPictureLen];
-		pS->Read(pPicture,nPictureLen);
+		if ( !lclReadCountedBytes( pS, pPicture, nPictureLen ) )
+			return sal_False;
 	}
     if (nIcon)
     {
         pS->Read(pIconHeader,20);
         *pS >> nIconLen;
-        pIcon = new sal_uInt8[nIconLen];
-        pS->Read(pIcon,nIconLen);
+        if ( !lclReadCountedBytes( pS, pIcon, nIconLen ) )
+            return sal_False;
     }
 
 	return sal_True;
@@ -3988,16 +4007,16 @@ sal_Bool OCX_Frame::Read(SvStorageStream *pS)
 	{
 		pS->Read(pIconHeader,20);
 		*pS >> nIconLen;
-		pIcon = new sal_uInt8[nIconLen];
-		pS->Read(pIcon,nIconLen);
+		if ( !lclReadCountedBytes( pS, pIcon, nIconLen ) )
+			return sal_False;
 	}
 
 	if (nPicture)
 	{
 		pS->Read(pPictureHeader,20);
 		*pS >> nPictureLen;
-		pPicture = new sal_uInt8[nPictureLen];
-		pS->Read(pPicture,nPictureLen);
+		if ( !lclReadCountedBytes( pS, pPicture, nPictureLen ) )
+			return sal_False;
 	}
 
     ReadAlign( pS, pS->Tell() - nStart, 4);
@@ -4169,16 +4188,16 @@ sal_Bool OCX_UserForm::Read(SvStorageStream *pS)
 	{
 		pS->Read(pIconHeader,20);
 		*pS >> nIconLen;
-		pIcon = new sal_uInt8[nIconLen];
-		pS->Read(pIcon,nIconLen);
+		if ( !lclReadCountedBytes( pS, pIcon, nIconLen ) )
+			return sal_False;
 	}
 
 	if (nPicture)
 	{
 		pS->Read(pPictureHeader,20);
 		*pS >> nPictureLen;
-		pPicture = new sal_uInt8[nPictureLen];
-		pS->Read(pPicture,nPictureLen);
+		if ( !lclReadCountedBytes( pS, pPicture, nPictureLen ) )
+			return sal_False;
 	}
 
     ReadAlign( pS, pS->Tell() - nStart, 4);
