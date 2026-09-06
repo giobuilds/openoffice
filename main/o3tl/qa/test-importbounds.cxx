@@ -34,6 +34,8 @@
 //   main/filter/source/graphicfilter/icgm/class4.cxx    (CGM polygon counts)
 //   main/filter/source/graphicfilter/icgm/outact.cxx    (CGM figure scratch)
 //   main/filter/source/graphicfilter/itiff/itiff.cxx
+//   main/filter/source/graphicfilter/iras/iras.cxx     (RAS dimensions)
+//   main/filter/source/graphicfilter/ipbm/ipbm.cxx      (PBM dimensions)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
@@ -154,6 +156,40 @@ TEST(ImportBounds, TiffDimensionsUseCheckedMultiplyAndCap)
     EXPECT_FALSE(tiffDimensionsOk(65536, 65536));
     EXPECT_FALSE(tiffDimensionsOk(0xFFFFFFFFul, 0xFFFFFFFFul));
     EXPECT_FALSE(tiffDimensionsOk(1, 0xFFFFFFFFul));
+}
+
+// RAS and PBM use the same Size()/64M cap as TIFF.
+
+TEST(ImportBounds, RasPbmDimensionsMatchTiffCap)
+{
+    EXPECT_TRUE(tiffDimensionsOk(640, 480));
+    EXPECT_FALSE(tiffDimensionsOk(0, 480));
+    EXPECT_FALSE(tiffDimensionsOk(65536, 65536));
+}
+
+namespace {
+
+bool pbmAsciiMultiplyOk32(unsigned nCur, unsigned nDigit, unsigned* pNew)
+{
+    unsigned nNew = nCur * 10 + nDigit;
+    if (nCur != 0 && nNew / 10 != nCur)
+        return false;
+    *pNew = nNew;
+    return true;
+}
+
+}
+
+TEST(ImportBounds, PbmAsciiWidthRejectsUnsignedWrap)
+{
+    unsigned nNew = 0;
+    EXPECT_TRUE(pbmAsciiMultiplyOk32(0, 6, &nNew));
+    EXPECT_EQ(6u, nNew);
+    EXPECT_TRUE(pbmAsciiMultiplyOk32(12, 3, &nNew));
+    EXPECT_EQ(123u, nNew);
+
+    // 0xFFFFFFFF * 10 wraps a 32-bit unsigned width accumulator.
+    EXPECT_FALSE(pbmAsciiMultiplyOk32(0xFFFFFFFFu, 0, &nNew));
 }
 
 TEST(ImportBounds, TiffRowSizeRejectsOverflowAndZeroPlanes)

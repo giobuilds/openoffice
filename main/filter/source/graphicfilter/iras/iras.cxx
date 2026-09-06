@@ -184,6 +184,12 @@ sal_Bool RASReader::ImplReadHeader()
 
 	if ( mnWidth == 0 || mnHeight == 0 )
 		mbStatus = sal_False;
+	// Same caps as TIFF: Size() is 32-bit, and a 64M pixel ceiling.
+	if ( mbStatus && ( mnWidth > static_cast<sal_uInt32>(SAL_MAX_INT32 / 32) ||
+		 mnHeight > static_cast<sal_uInt32>(SAL_MAX_INT32 / 32) ) )
+		mbStatus = sal_False;
+	if ( mbStatus && mnHeight > ( 64UL * 1024UL * 1024UL ) / mnWidth )
+		mbStatus = sal_False;
 
 	switch ( mnDepth )
 	{
