@@ -194,6 +194,9 @@ sal_Bool PSDReader::ImplReadHeader()
 
 	if ( ( mpFileHeader->nRows > 30000 ) || ( mpFileHeader->nColumns > 30000 ) )
 		return sal_False;
+	// Spec max 30000 per side still exceeds the TIFF 64M-pixel ceiling (30000^2).
+	if ( mpFileHeader->nRows > ( 64UL * 1024UL * 1024UL ) / mpFileHeader->nColumns )
+		return sal_False;
 
 	sal_uInt16 nDepth = mpFileHeader->nDepth;
 	if (!( ( nDepth == 1 ) || ( nDepth == 8 ) || ( nDepth == 16 ) ) )
