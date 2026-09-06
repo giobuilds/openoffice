@@ -406,8 +406,24 @@ sal_Bool SvxRTFParser::ReadBmpData( Graphic& rGrf, SvxRTFPictureType& rPicType )
 			}
 			break;
 
-		case RTF_PICW:				rPicType.nWidth = nVal; break;
-		case RTF_PICH:				rPicType.nHeight = nVal; break;
+		case RTF_PICW:
+			if ( nTokenValue < 0 || nTokenValue > 0xFFFF )
+				bValidBmp = sal_False;
+			else
+				rPicType.nWidth = nVal;
+			if ( bValidBmp && rPicType.nWidth && rPicType.nHeight &&
+				 rPicType.nHeight > ( 64UL * 1024UL * 1024UL ) / rPicType.nWidth )
+				bValidBmp = sal_False;
+			break;
+		case RTF_PICH:
+			if ( nTokenValue < 0 || nTokenValue > 0xFFFF )
+				bValidBmp = sal_False;
+			else
+				rPicType.nHeight = nVal;
+			if ( bValidBmp && rPicType.nWidth && rPicType.nHeight &&
+				 rPicType.nHeight > ( 64UL * 1024UL * 1024UL ) / rPicType.nWidth )
+				bValidBmp = sal_False;
+			break;
 		case RTF_WBMBITSPIXEL:		rPicType.nBitsPerPixel = nVal; break;
 		case RTF_WBMPLANES: 		rPicType.nPlanes = nVal; break;
 		case RTF_WBMWIDTHBYTES:		rPicType.nWidthBytes = nVal; break;
@@ -415,12 +431,23 @@ sal_Bool SvxRTFParser::ReadBmpData( Graphic& rGrf, SvxRTFPictureType& rPicType )
 		case RTF_PICHGOAL:			rPicType.nGoalHeight = nVal; break;
 		case RTF_BIN:
             rPicType.nMode = SvxRTFPictureType::BINARY_MODE;
-			rPicType.uPicLen = nTokenValue;
+			if ( nTokenValue <= 0 )
+			{
+				bValidBmp = sal_False;
+				break;
+			}
+			rPicType.uPicLen = static_cast< sal_uInt32 >( nTokenValue );
             if (rPicType.uPicLen)
             {
-                sal_uInt32 nPos = rStrm.Tell();
-                nPos = nPos;
                 rStrm.SeekRel(-1);
+                sal_uInt32 nPos = rStrm.Tell();
+                sal_uInt32 nEnd = rStrm.Seek( STREAM_SEEK_TO_END );
+                rStrm.Seek( nPos );
+                if ( nEnd < nPos || rPicType.uPicLen > nEnd - nPos )
+                {
+                    bValidBmp = sal_False;
+                    break;
+                }
                 sal_uInt8 aData[4096];
                 sal_uInt32 nSize = sizeof(aData);
 
@@ -435,8 +462,6 @@ sal_Bool SvxRTFParser::ReadBmpData( Graphic& rGrf, SvxRTFPictureType& rPicType )
                 }
                 nNextCh = GetNextChar();
                 bValidBmp = !pTmpFile->GetError();
-                nPos = rStrm.Tell();
-                nPos = nPos;
             }
             break;
 		case RTF_PICSCALEX:			rPicType.nScalX = nVal; break;

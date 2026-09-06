@@ -136,8 +136,18 @@ int SvRTFParser::_GetNextToken()
 						{
 							nTokenValue = 0;
 							do {
+								int nDigit = nNextCh - '0';
+								if ( nTokenValue > ( SAL_MAX_INT32 / 10 ) ||
+									 nTokenValue * 10 > SAL_MAX_INT32 - nDigit )
+								{
+									nTokenValue = SAL_MAX_INT32;
+									do {
+										nNextCh = GetNextChar();
+									} while( RTF_ISDIGIT( nNextCh ) );
+									break;
+								}
 								nTokenValue *= 10;
-								nTokenValue += nNextCh - '0';
+								nTokenValue += nDigit;
 								nNextCh = GetNextChar();
 							} while( RTF_ISDIGIT( nNextCh ) );
 							if( bNegValue )
@@ -538,7 +548,17 @@ _inSkipGroup++;
 		if (nToken == RTF_BIN)
 		{
 			rInput.SeekRel(-1);
-			rInput.SeekRel(nTokenValue);
+			if ( nTokenValue > 0 )
+			{
+				sal_Size nPos = rInput.Tell();
+				sal_Size nEnd = rInput.Seek( STREAM_SEEK_TO_END );
+				rInput.Seek( nPos );
+				sal_uLong nRemain = nEnd > nPos ? nEnd - nPos : 0;
+				if ( static_cast< sal_uLong >( nTokenValue ) <= nRemain )
+					rInput.SeekRel( nTokenValue );
+				else
+					rInput.Seek( nEnd );
+			}
 			nNextCh = GetNextChar();
 		}
 		while (nNextCh==0xa || nNextCh==0xd)

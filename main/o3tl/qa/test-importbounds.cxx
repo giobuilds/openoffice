@@ -47,6 +47,8 @@
 //   main/filter/source/graphicfilter/ipsd/ipsd.cxx     (PSD dimensions)
 //   main/svtools/source/filter/wmf/enhwmf.cxx          (EMF point counts)
 //   main/svtools/source/filter/wmf/winwmf.cxx          (WMF polypolygon count)
+//   main/svtools/source/svrtf/parrtf.cxx               (RTF \\bin skip)
+//   main/editeng/source/rtf/rtfgrf.cxx                 (RTF picture \\bin)
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table)
@@ -469,6 +471,44 @@ TEST(ImportBounds, EmfPolylineRejectsCountThatDoesNotFitPolygon)
     EXPECT_TRUE(wmfPolyPolygonCountFits16(1, 10));
     EXPECT_TRUE(wmfPolyPolygonCountFits16(2, 0x7FFF));
     EXPECT_FALSE(wmfPolyPolygonCountFits16(2, 0x8000));
+}
+
+namespace {
+
+bool rtfBinFitsRemaining(long nTokenValue, unsigned nRemain)
+{
+    return nTokenValue > 0 &&
+        static_cast<unsigned long>(nTokenValue) <= nRemain;
+}
+
+bool rtfTokenValueDigitOk(long nCur, int nDigit, long nMax, long* pNew)
+{
+    if (!pNew || nDigit < 0 || nDigit > 9)
+        return false;
+    if (nCur > nMax / 10 || nCur * 10 > nMax - nDigit)
+        return false;
+    *pNew = nCur * 10 + nDigit;
+    return true;
+}
+
+}
+
+TEST(ImportBounds, RtfBinFitsRemainingStream)
+{
+    EXPECT_FALSE(rtfBinFitsRemaining(0, 100));
+    EXPECT_FALSE(rtfBinFitsRemaining(-1, 100));
+    EXPECT_TRUE(rtfBinFitsRemaining(1, 100));
+    EXPECT_TRUE(rtfBinFitsRemaining(100, 100));
+    EXPECT_FALSE(rtfBinFitsRemaining(101, 100));
+
+    long nNew = 0;
+    EXPECT_TRUE(rtfTokenValueDigitOk(0, 6, 0x7FFFFFFF, &nNew));
+    EXPECT_EQ(6L, nNew);
+    EXPECT_FALSE(rtfTokenValueDigitOk(0x7FFFFFFF, 0, 0x7FFFFFFF, &nNew));
+
+    // PICW/PICH are stored as sal_uInt16; 65535^2 still exceeds 64M.
+    EXPECT_TRUE(tiffDimensionsOk(65535, 1));
+    EXPECT_FALSE(tiffDimensionsOk(65535, 65535));
 }
 
 namespace {
