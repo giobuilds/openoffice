@@ -880,14 +880,21 @@ void ScXMLChangeTrackingImportHelper::CreateChangeTrack(ScDocument* pTempDoc)
                 }
 			}
 
-			if (pAction)
-				pTrack->AppendLoaded(pAction);
+			// Malformed documents can repeat the same XML id across actions.
+			// If this happens drop entries whose action number is already in
+			// the track so SetContentDependencies never static_casts a smaller
+			// ScChangeActionIns to ScChangeActionContent (CVE-2026-8358).
+			if (pAction && pTrack->AppendLoaded(pAction))
+				++aItr;
 			else
 			{
-				DBG_ERROR("no action");
+				DBG_ERROR("Dropping malformed change track entry");
+				if (pAction)
+					delete pAction;
+				if (*aItr)
+					delete *aItr;
+				aItr = aActions.erase(aItr);
 			}
-
-			++aItr;
 		}
 		if (pTrack->GetLast())
 			pTrack->SetActionMax(pTrack->GetLast()->GetActionNumber());

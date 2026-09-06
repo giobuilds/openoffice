@@ -26,6 +26,7 @@
 #include "postextstl.h"
 
 #include <cstring>
+#include <map>
 
 // Spec of importer bounds. Keep in sync with:
 //   main/sw/source/filter/ww8/ww8scan.cxx      (WW8 FKP)
@@ -33,6 +34,7 @@
 //   main/filter/source/graphicfilter/itiff/itiff.cxx
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
+//   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
 
 namespace {
 
@@ -219,4 +221,40 @@ TEST(ImportBounds, FormulaFunctionStackHasRoomForAllOpens)
     EXPECT_EQ(513u, formulaFunctionStackSlots(512, nAlloc));
     EXPECT_EQ(514u, formulaFunctionStackSlots(513, nAlloc));
     EXPECT_GE(formulaFunctionStackSlots(512, nAlloc), 512u + 1u);
+}
+
+// Spec of ScChangeTrack::AppendLoaded (CVE-2026-8358).
+// Keep in sync with:
+//   main/sc/source/core/tool/chgtrack.cxx
+//   main/sc/source/filter/xml/XMLChangeTrackingImportHelper.cxx
+// tools::Table::Insert returns false when the action number is already in
+// the table. AppendLoaded must honor that so SetContentDependencies never
+// static_casts a smaller ScChangeActionIns via GetAction.
+
+namespace {
+
+enum { CAT_INSERT = 1, CAT_CONTENT = 2 };
+
+bool changeTrackAppendLoaded(std::map<unsigned, int>& rTable,
+    unsigned nAction, int eType)
+{
+    if (rTable.find(nAction) != rTable.end())
+        return false;
+    rTable[nAction] = eType;
+    return true;
+}
+
+}
+
+TEST(ImportBounds, ChangeTrackRejectsDuplicateActionNumber)
+{
+    std::map<unsigned, int> aTable;
+    EXPECT_TRUE(changeTrackAppendLoaded(aTable, 1, CAT_INSERT));
+    EXPECT_FALSE(changeTrackAppendLoaded(aTable, 1, CAT_CONTENT));
+    EXPECT_EQ(1u, static_cast<unsigned>(aTable.size()));
+    EXPECT_EQ(CAT_INSERT, aTable[1]);
+
+    EXPECT_TRUE(changeTrackAppendLoaded(aTable, 2, CAT_CONTENT));
+    EXPECT_EQ(2u, static_cast<unsigned>(aTable.size()));
+    EXPECT_EQ(CAT_CONTENT, aTable[2]);
 }
