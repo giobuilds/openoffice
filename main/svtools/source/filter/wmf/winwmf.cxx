@@ -1305,7 +1305,8 @@ sal_Bool WMFReader::GetPlaceableBound( Rectangle& rPlaceableBound, SvStream* pSt
 
 		        case W_META_POLYPOLYGON:
 		        {
-			        sal_uInt16	i, nPoly, nPoints = 0;
+			        sal_uInt16	i, nPoly;
+			        sal_uInt32 nPoints = 0;
 			        *pStm >> nPoly;
 			        for( i = 0; i < nPoly; i++ )
 			        {
@@ -1313,7 +1314,7 @@ sal_Bool WMFReader::GetPlaceableBound( Rectangle& rPlaceableBound, SvStream* pSt
 				        *pStm >> nP;
 				        nPoints = nPoints + nP;
 			        }
-			        for ( i = 0; i < nPoints; i++ )
+			        for ( sal_uInt32 n = 0; n < nPoints; n++ )
 				        GetWinExtMax( ReadPoint(), rPlaceableBound, nMapMode );
 		        }
 		        break;

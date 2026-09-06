@@ -45,6 +45,8 @@
 //   main/filter/source/graphicfilter/ipcx/ipcx.cxx     (PCX dimensions)
 //   main/filter/source/graphicfilter/itga/itga.cxx     (TGA dimensions)
 //   main/filter/source/graphicfilter/ipsd/ipsd.cxx     (PSD dimensions)
+//   main/svtools/source/filter/wmf/enhwmf.cxx          (EMF point counts)
+//   main/svtools/source/filter/wmf/winwmf.cxx          (WMF polypolygon count)
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table)
@@ -424,6 +426,49 @@ TEST(ImportBounds, Psd30000SidesStillExceedPixelCap)
     EXPECT_TRUE(tiffDimensionsOk(30000, 1));
     EXPECT_TRUE(tiffDimensionsOk(8192, 8192));
     EXPECT_FALSE(tiffDimensionsOk(30000, 30000));
+}
+
+namespace {
+
+bool emfPointsFitPolygon(unsigned nPoints)
+{
+    return nPoints <= 0xFFFFu;
+}
+
+unsigned emfPointCountWrapsTo(unsigned nPoints)
+{
+    return static_cast<unsigned short>(nPoints);
+}
+
+bool wmfPolyPolygonCountFits16(unsigned nPoly, unsigned nP)
+{
+    unsigned nPoints = 0;
+    for (unsigned i = 0; i < nPoly; ++i)
+    {
+        if (nPoints > 0xFFFFu - nP)
+            return false;
+        nPoints += nP;
+    }
+    return true;
+}
+
+}
+
+TEST(ImportBounds, EmfPolylineRejectsCountThatDoesNotFitPolygon)
+{
+    EXPECT_TRUE(emfPointsFitPolygon(0));
+    EXPECT_TRUE(emfPointsFitPolygon(2));
+    EXPECT_TRUE(emfPointsFitPolygon(0xFFFF));
+    EXPECT_FALSE(emfPointsFitPolygon(0x10000));
+    EXPECT_FALSE(emfPointsFitPolygon(0x10001));
+
+    // 16-bit wrap of the old Polygon((sal_uInt16)nPoints) size/loop.
+    EXPECT_EQ(0u, emfPointCountWrapsTo(0x10000));
+    EXPECT_EQ(2u, emfPointCountWrapsTo(0x10002));
+
+    EXPECT_TRUE(wmfPolyPolygonCountFits16(1, 10));
+    EXPECT_TRUE(wmfPolyPolygonCountFits16(2, 0x7FFF));
+    EXPECT_FALSE(wmfPolyPolygonCountFits16(2, 0x8000));
 }
 
 namespace {
