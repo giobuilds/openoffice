@@ -187,6 +187,11 @@ sal_Bool TGAReader::ImplReadHeader()
 			mpFileHeader->nColorMapXOrigin >> mpFileHeader->nColorMapYOrigin >> mpFileHeader->nImageWidth >>
 				mpFileHeader->nImageHeight >> mpFileHeader->nPixelDepth >> mpFileHeader->nImageDescriptor;
 
+	if ( mpFileHeader->nImageWidth == 0 || mpFileHeader->nImageHeight == 0 )
+		return sal_False;
+	// Sides are 16-bit, but 65535^2 still exceeds the TIFF 64M-pixel ceiling.
+	if ( mpFileHeader->nImageHeight > ( 64UL * 1024UL * 1024UL ) / mpFileHeader->nImageWidth )
+		return sal_False;
 	if ( mpFileHeader->nColorMapType > 1 )
 		return sal_False;
 	if ( mpFileHeader->nColorMapType == 1 )

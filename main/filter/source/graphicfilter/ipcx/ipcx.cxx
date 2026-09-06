@@ -185,6 +185,13 @@ void PCXReader::ImplReadHeader()
 
 	nWidth = nMaxX-nMinX+1;
 	nHeight = nMaxY-nMinY+1;
+	// Sides come from 16-bit coords, but 65536^2 still exceeds the TIFF 64M-pixel ceiling.
+	if ( nWidth == 0 || nHeight == 0
+		|| nHeight > ( 64UL * 1024UL * 1024UL ) / nWidth )
+	{
+		nStatus = sal_False;
+		return;
+	}
 
 	*pPCX >> nResX;
 	*pPCX >> nResY;
