@@ -1348,7 +1348,8 @@ public:
 
 			sal_uLong				AddLoadedGenerated(ScBaseCell* pOldCell,
 												const ScBigRange& aBigRange, const String& sNewValue ); // only to use in the XML import
-			void				AppendLoaded( ScChangeAction* pAppend ); // this is only for the XML import public, it should be protected
+			// returns sal_False if the action number is already in use, in which case the new duplicate is dropped
+			sal_Bool				AppendLoaded( ScChangeAction* pAppend ); // this is only for the XML import public, it should be protected
 			void				SetActionMax(sal_uLong nTempActionMax)
 									{ nActionMax = nTempActionMax; } // only to use in the XML import
 

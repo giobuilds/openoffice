@@ -2491,9 +2491,12 @@ void ScChangeTrack::MasterLinks( ScChangeAction* pAppend )
 }
 
 
-void ScChangeTrack::AppendLoaded( ScChangeAction* pAppend )
+sal_Bool ScChangeTrack::AppendLoaded( ScChangeAction* pAppend )
 {
-	aTable.Insert( pAppend->GetActionNumber(), pAppend );
+	if ( !pAppend )
+		return sal_False;
+	if ( !aTable.Insert( pAppend->GetActionNumber(), pAppend ) )
+		return sal_False;
 	if ( !pLast )
 		pFirst = pLast = pAppend;
 	else
@@ -2503,6 +2506,7 @@ void ScChangeTrack::AppendLoaded( ScChangeAction* pAppend )
 		pLast = pAppend;
 	}
 	MasterLinks( pAppend );
+	return sal_True;
 }
 
 

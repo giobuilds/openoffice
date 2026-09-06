@@ -288,7 +288,7 @@ if (SOLAR_JAVA==TRUE && SYSTEM_BSH!=YES)
 # Libraries with category B license
 #
 
-if (ENABLE_CATEGORY_B==YES && SYSTEM_COINMP!=YES)
+if (ENABLE_CATEGORY_B==YES && ENABLE_COINMP==YES && SYSTEM_COINMP!=YES)
     MD5 = dd85ff540997a95ebb233bb5ae7bcc61
     name = CoinMP-1.8.4.tgz
     URL1 = https://www.coin-or.org/download/source/CoinMP/$(name)

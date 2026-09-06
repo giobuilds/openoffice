@@ -1554,8 +1554,14 @@ if test "$enable_category_b" = "yes"; then
    enable_hyphen="yes"
    enable_saxon="yes"
    enable_javascript="yes"
-   enable_graphite="yes"
-   enable_coinmp="yes"
+   # Honor explicit --disable-* so slim CI can enable category B (NSS/xmlsec)
+   # without fetching CoinMP or graphite.
+   if test "x$enable_graphite" != "xno"; then
+      enable_graphite="yes"
+   fi
+   if test "x$enable_coinmp" != "xno"; then
+      enable_coinmp="yes"
+   fi
    enable_category_b_fonts="yes"
 
    AC_MSG_RESULT([yes: allow modules nss, hunspell, hyphen, saxon, rhino, graphite, coinmp to be built])

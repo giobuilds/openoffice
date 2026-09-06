@@ -44,6 +44,8 @@ autoconf
 # xmlsec 1.3.10+ wants NSS >= 3.91. --disable-category-b forces
 # enable_nss_module=no, so enable category B and compile bundled NSS
 # 3.128 then xmlsec. Distro libxml2 is enough for this job.
+# CoinMP and graphite are unused here; category B would otherwise
+# download CoinMP from coin-or.org (timeout) / oooextras (404).
 ./configure \
     --without-java \
     --without-junit \
@@ -53,6 +55,8 @@ autoconf
     --disable-gconf \
     --disable-cups \
     --enable-category-b \
+    --disable-coinmp \
+    --disable-graphite \
     --disable-ldap \
     --disable-online-update \
     --without-fonts \
