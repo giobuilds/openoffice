@@ -6790,27 +6790,47 @@ sal_Bool SvxMSDffManager::ReadCommonRecordHeader( SvStream& rSt,
 sal_Bool SvxMSDffManager::ProcessClientAnchor(SvStream& rStData, sal_uLong nDatLen,
 										  char*& rpBuff, sal_uInt32& rBuffLen ) const
 {
-	if( nDatLen )
-	{
-		rpBuff = new (std::nothrow) char[ nDatLen ];
-		rBuffLen = nDatLen;
-		rStData.Read( rpBuff, nDatLen );
-	}
+	// nRecLen is attacker-controlled. Cap to remaining stream and 64M.
+	// Also do not Read into a failed nothrow allocation.
+	rpBuff = 0;
+	rBuffLen = 0;
+	if( !nDatLen )
+		return sal_True;
+	if( nDatLen > ( 64UL * 1024UL * 1024UL ) )
+		return sal_False;
+	sal_uLong nPos = rStData.Tell();
+	sal_uLong nEnd = rStData.Seek( STREAM_SEEK_TO_END );
+	rStData.Seek( nPos );
+	if( nEnd < nPos || nDatLen > nEnd - nPos )
+		return sal_False;
+	rpBuff = new (std::nothrow) char[ nDatLen ];
+	if( !rpBuff )
+		return sal_False;
+	rBuffLen = nDatLen;
+	rStData.Read( rpBuff, nDatLen );
 	return sal_True;
 }
 
 sal_Bool SvxMSDffManager::ProcessClientData(SvStream& rStData, sal_uLong nDatLen,
 										char*& rpBuff, sal_uInt32& rBuffLen ) const
 {
-	if( nDatLen )
-	{
-		rpBuff = new (std::nothrow) char[ nDatLen ];
-		if ( rpBuff )
-		{
-			rBuffLen = nDatLen;
-			rStData.Read( rpBuff, nDatLen );
-		}
-	}
+	// nRecLen is attacker-controlled. Cap to remaining stream and 64M.
+	rpBuff = 0;
+	rBuffLen = 0;
+	if( !nDatLen )
+		return sal_True;
+	if( nDatLen > ( 64UL * 1024UL * 1024UL ) )
+		return sal_False;
+	sal_uLong nPos = rStData.Tell();
+	sal_uLong nEnd = rStData.Seek( STREAM_SEEK_TO_END );
+	rStData.Seek( nPos );
+	if( nEnd < nPos || nDatLen > nEnd - nPos )
+		return sal_False;
+	rpBuff = new (std::nothrow) char[ nDatLen ];
+	if( !rpBuff )
+		return sal_False;
+	rBuffLen = nDatLen;
+	rStData.Read( rpBuff, nDatLen );
 	return sal_True;
 }
 
