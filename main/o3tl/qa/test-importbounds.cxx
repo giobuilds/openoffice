@@ -51,6 +51,7 @@
 //   main/editeng/source/rtf/rtfgrf.cxx                 (RTF picture \\bin)
 //   main/filter/source/graphicfilter/ios2met/ios2met.cxx (OS/2 MET dims)
 //   main/filter/source/msfilter/msocximex.cxx          (OCX picture/icon)
+//   main/filter/source/msfilter/svdfppt.cxx            (PPT OLE zlib blob)
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table / FIB blobs)
@@ -538,6 +539,29 @@ TEST(ImportBounds, OcxPictureFitsRemainingStream)
     EXPECT_TRUE(ocxPictureFitsRemaining(100, 100));
     EXPECT_FALSE(ocxPictureFitsRemaining(101, 100));
     EXPECT_FALSE(ocxPictureFitsRemaining(64u * 1024u * 1024u + 1, 0xFFFFFFFFu));
+}
+
+namespace {
+
+// Spec of SdrPowerPointOLEDecompress in
+//   main/filter/source/msfilter/svdfppt.cxx
+// Zero is rejected (unlike OCX empty picture).
+bool pptOleFitsRemaining(unsigned nLen, unsigned nRemain)
+{
+    const unsigned nMax = 64u * 1024u * 1024u;
+    return nLen > 0 && nLen <= nMax && nLen <= nRemain;
+}
+
+}
+
+TEST(ImportBounds, PptOleFitsRemainingStream)
+{
+    EXPECT_FALSE(pptOleFitsRemaining(0, 0));
+    EXPECT_FALSE(pptOleFitsRemaining(0, 100));
+    EXPECT_TRUE(pptOleFitsRemaining(1, 100));
+    EXPECT_TRUE(pptOleFitsRemaining(100, 100));
+    EXPECT_FALSE(pptOleFitsRemaining(101, 100));
+    EXPECT_FALSE(pptOleFitsRemaining(64u * 1024u * 1024u + 1, 0xFFFFFFFFu));
 }
 
 namespace {
