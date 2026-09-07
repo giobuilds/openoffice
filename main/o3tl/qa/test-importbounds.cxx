@@ -57,7 +57,7 @@
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table / FIB blobs)
 //   main/sw/source/filter/ww8/ww8par.cxx               (WW8 macro cmds / SttbfAssoc)
 //   main/sw/source/filter/ww8/WW8Sttbf.cxx             (WW8Struct remaining stream)
-//   main/filter/source/msfilter/msdffimp.cxx           (DFF ZString)
+//   main/filter/source/msfilter/msdffimp.cxx           (DFF ZString / client blobs)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
@@ -563,6 +563,28 @@ TEST(ImportBounds, PptOleFitsRemainingStream)
     EXPECT_TRUE(pptOleFitsRemaining(100, 100));
     EXPECT_FALSE(pptOleFitsRemaining(101, 100));
     EXPECT_FALSE(pptOleFitsRemaining(64u * 1024u * 1024u + 1, 0xFFFFFFFFu));
+}
+
+namespace {
+
+// Spec of ProcessClientAnchor / ProcessClientData in
+//   main/filter/source/msfilter/msdffimp.cxx
+// Empty record is ok (same as OCX); oversize / past EOF is not.
+bool dffClientBlobFitsRemaining(unsigned nLen, unsigned nRemain)
+{
+    const unsigned nMax = 64u * 1024u * 1024u;
+    return nLen == 0 || (nLen <= nMax && nLen <= nRemain);
+}
+
+}
+
+TEST(ImportBounds, DffClientBlobFitsRemainingStream)
+{
+    EXPECT_TRUE(dffClientBlobFitsRemaining(0, 0));
+    EXPECT_TRUE(dffClientBlobFitsRemaining(1, 100));
+    EXPECT_TRUE(dffClientBlobFitsRemaining(100, 100));
+    EXPECT_FALSE(dffClientBlobFitsRemaining(101, 100));
+    EXPECT_FALSE(dffClientBlobFitsRemaining(64u * 1024u * 1024u + 1, 0xFFFFFFFFu));
 }
 
 namespace {
