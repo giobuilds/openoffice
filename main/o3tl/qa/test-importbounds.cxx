@@ -57,7 +57,7 @@
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table / FIB blobs)
 //   main/sw/source/filter/ww8/ww8par.cxx               (WW8 macro cmds / SttbfAssoc)
 //   main/sw/source/filter/ww8/WW8Sttbf.cxx             (WW8Struct remaining stream)
-//   main/filter/source/msfilter/msdffimp.cxx           (DFF ZString / client blobs)
+//   main/filter/source/msfilter/msdffimp.cxx           (DFF ZString / client / OLE10)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
@@ -586,6 +586,29 @@ TEST(ImportBounds, DffClientBlobFitsRemainingStream)
     EXPECT_TRUE(dffClientBlobFitsRemaining(100, 100));
     EXPECT_FALSE(dffClientBlobFitsRemaining(101, 100));
     EXPECT_FALSE(dffClientBlobFitsRemaining(64u * 1024u * 1024u + 1, 0xFFFFFFFFu));
+}
+
+namespace {
+
+// Spec of ConvertToOle2 OLE10 native blob in
+//   main/filter/source/msfilter/msdffimp.cxx
+// Zero is skipped by the caller; oversize / past EOF is rejected.
+bool dffOle10FitsRemaining(unsigned nLen, unsigned nRemain)
+{
+    const unsigned nMax = 64u * 1024u * 1024u;
+    return nLen > 0 && nLen <= nMax && nLen <= nRemain;
+}
+
+}
+
+TEST(ImportBounds, DffOle10FitsRemainingStream)
+{
+    EXPECT_FALSE(dffOle10FitsRemaining(0, 0));
+    EXPECT_FALSE(dffOle10FitsRemaining(0, 100));
+    EXPECT_TRUE(dffOle10FitsRemaining(1, 100));
+    EXPECT_TRUE(dffOle10FitsRemaining(100, 100));
+    EXPECT_FALSE(dffOle10FitsRemaining(101, 100));
+    EXPECT_FALSE(dffOle10FitsRemaining(64u * 1024u * 1024u + 1, 0xFFFFFFFFu));
 }
 
 namespace {

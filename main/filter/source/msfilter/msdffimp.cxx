@@ -7063,7 +7063,15 @@ sal_Bool SvxMSDffManager::ConvertToOle2( SvStream& rStm, sal_uInt32 nReadLen,
 		{
 			if( xOle10Stm.Is() )
 			{
-				pData = new sal_uInt8[ nDataLen ];
+				// nDataLen is attacker-controlled. Cap to remaining stream and 64M.
+				if( nDataLen > ( 64UL * 1024UL * 1024UL ) )
+					return sal_False;
+				sal_uInt32 nPos = rStm.Tell();
+				sal_uInt32 nEnd = rStm.Seek( STREAM_SEEK_TO_END );
+				rStm.Seek( nPos );
+				if( nEnd < nPos || nDataLen > nEnd - nPos )
+					return sal_False;
+				pData = new (std::nothrow) sal_uInt8[ nDataLen ];
 				if( !pData )
 					return sal_False;
 
