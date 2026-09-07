@@ -882,10 +882,23 @@ void DrawObjkList( SvStream& rInp, OutputDevice& rOut )
 					TextType aText;
 					rInp>>aText;
 					if (!rInp.GetError()) {
-                        aText.Buffer=new UCHAR[aText.BufSize+1]; // Ein mehr fuer LookAhead bei CK-Trennung
-						rInp.Read((char* )aText.Buffer,aText.BufSize);
-						if (!rInp.GetError()) aText.Draw(rOut);
-						delete[] aText.Buffer;
+						// BufSize is attacker-controlled. Cap to remaining stream and 64M.
+						sal_Size nPos = rInp.Tell();
+						sal_Size nEnd = rInp.Seek( STREAM_SEEK_TO_END );
+						rInp.Seek( nPos );
+						if ( aText.BufSize > ( 64UL * 1024UL * 1024UL ) ||
+							 nEnd < nPos ||
+							 static_cast<sal_Size>( aText.BufSize ) + 1 > nEnd - nPos )
+						{
+							rInp.SetError( SVSTREAM_FILEFORMAT_ERROR );
+						}
+						else
+						{
+							aText.Buffer=new UCHAR[aText.BufSize+1]; // Ein mehr fuer LookAhead bei CK-Trennung
+							rInp.Read((char* )aText.Buffer,aText.BufSize);
+							if (!rInp.GetError()) aText.Draw(rOut);
+							delete[] aText.Buffer;
+						}
 					}
 				} break;
 				case ObjBmap: {

@@ -2775,6 +2775,15 @@ void DffPropertyReader::CheckAndCorrectExcelTextRotation( SvStream& rIn, SfxItem
 		if ( rManager.pSecPropSet->SeekToContent( DFF_Prop_metroBlob, rIn ) )
 		{
 			sal_uInt32 nLen = rManager.pSecPropSet->GetPropertyValue( DFF_Prop_metroBlob );
+			// nLen is attacker-controlled. Cap to remaining stream and 64M; empty is ok.
+			if ( nLen )
+			{
+				sal_uInt32 nPos = rIn.Tell();
+				sal_uInt32 nEnd = rIn.Seek( STREAM_SEEK_TO_END );
+				rIn.Seek( nPos );
+				if ( nLen > ( 64UL * 1024UL * 1024UL ) || nEnd < nPos || nLen > nEnd - nPos )
+					nLen = 0;
+			}
 			if ( nLen )
 			{
 				::com::sun::star::uno::Sequence< sal_Int8 > aXMLDataSeq( nLen );
@@ -5874,7 +5883,10 @@ void SvxMSDffManager::GetFidclData( long nOffsDggL )
 
 			if ( mnIdClusters-- > 2 )
 			{
-				if ( aDggAtomHd.nRecLen == ( mnIdClusters * sizeof( FIDCL ) + 16 ) )
+				// mnIdClusters is attacker-controlled. Reject wrap before FIDCL alloc.
+				if ( aDggAtomHd.nRecLen >= 16 &&
+					 mnIdClusters <= ( aDggAtomHd.nRecLen - 16 ) / sizeof( FIDCL ) &&
+					 aDggAtomHd.nRecLen == ( mnIdClusters * sizeof( FIDCL ) + 16 ) )
 				{
 					//mpFidcls = new FIDCL[ mnIdClusters ];
                     mpFidcls = new (std::nothrow) FIDCL[ mnIdClusters ];
@@ -7045,6 +7057,12 @@ sal_Bool SvxMSDffManager::ConvertToOle2( SvStream& rStm, sal_uInt32 nReadLen,
 		{
 			if( 0x10000L > nStrLen )
 			{
+				// nStrLen is attacker-controlled. Cap to remaining stream.
+				sal_uInt32 nPos = rStm.Tell();
+				sal_uInt32 nEnd = rStm.Seek( STREAM_SEEK_TO_END );
+				rStm.Seek( nPos );
+				if( nEnd < nPos || nStrLen > nEnd - nPos )
+					break;
 				sal_Char * pBuf = new sal_Char[ nStrLen ];
 				rStm.Read( pBuf, nStrLen );
                 aSvrName.Assign( String( pBuf, (sal_uInt16) nStrLen-1, gsl_getSystemTextEncoding() ) );

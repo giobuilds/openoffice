@@ -39,27 +39,32 @@
 //   main/filter/source/graphicfilter/ipbm/ipbm.cxx      (PBM dimensions)
 //   main/svtools/source/filter/ixbm/xbmread.cxx        (XBM dimensions)
 //   main/svtools/source/filter/ixpm/xpmread.cxx        (XPM dimensions)
-//   main/filter/source/graphicfilter/ieps/ieps.cxx     (EPS preview/bbox)
+//   main/filter/source/graphicfilter/ieps/ieps.cxx     (EPS preview/bbox / PS+WMF+TIFF)
 //   main/svtools/source/filter/igif/gifread.cxx        (GIF dimensions)
 //   main/filter/source/graphicfilter/ipict/ipict.cxx   (PICT dimensions)
 //   main/filter/source/graphicfilter/ipcx/ipcx.cxx     (PCX dimensions)
 //   main/filter/source/graphicfilter/itga/itga.cxx     (TGA dimensions)
 //   main/filter/source/graphicfilter/ipsd/ipsd.cxx     (PSD dimensions)
-//   main/svtools/source/filter/wmf/enhwmf.cxx          (EMF point counts)
-//   main/svtools/source/filter/wmf/winwmf.cxx          (WMF polypolygon count)
+//   main/svtools/source/filter/wmf/enhwmf.cxx          (EMF points / BMP / text)
+//   main/svtools/source/filter/wmf/winwmf.cxx          (WMF polypolygon / text / EMF)
 //   main/svtools/source/svrtf/parrtf.cxx               (RTF \\bin skip)
 //   main/editeng/source/rtf/rtfgrf.cxx                 (RTF picture \\bin)
 //   main/filter/source/graphicfilter/ios2met/ios2met.cxx (OS/2 MET dims)
-//   main/filter/source/msfilter/msocximex.cxx          (OCX picture/icon / Image)
+//   main/filter/source/msfilter/msocximex.cxx          (OCX picture/icon / Image / char)
 //   main/filter/source/msfilter/svdfppt.cxx            (PPT OLE zlib blob)
+//   main/svtools/source/filter/sgfbram.cxx             (SGF bitmap dims)
+//   main/svtools/source/filter/sgvmain.cxx             (SGV text BufSize)
+//   main/svtools/source/filter/filter.cxx              (native SVG blob)
+//   main/sc/source/filter/lotus/op.cxx                 (Lotus label/note)
+//   main/sc/source/filter/qpro/qpro.cxx                (Quattro Pro string)
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table / FIB blobs)
 //   main/sw/source/filter/ww8/ww8par.cxx               (WW8 macro cmds / SttbfAssoc)
 //   main/sw/source/filter/ww8/WW8Sttbf.cxx             (WW8Struct remaining stream)
-//   main/filter/source/msfilter/msdffimp.cxx           (DFF ZString / client / OLE10)
+//   main/filter/source/msfilter/msdffimp.cxx           (DFF ZString / client / OLE10 / metro / FIDCL)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
-//   main/filter/source/graphicfilter/idxf/dxfentrd.cxx (DXF HATCH points)
+//   main/filter/source/graphicfilter/idxf/dxfentrd.cxx (DXF HATCH / LWPOLYLINE / SPLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
 
@@ -278,6 +283,103 @@ TEST(ImportBounds, DxfHatchRejectsCountThatDoesNotFit16Bit)
     EXPECT_TRUE(dxfHatchCountFits16(0xFFFF));
     EXPECT_FALSE(dxfHatchCountFits16(0x10000));
     EXPECT_FALSE(dxfHatchCountFits16(0x10001));
+}
+
+TEST(ImportBounds, DxfLwPolylineAndSplineRejectOversizeCount)
+{
+    // Same 16-bit ceiling as HATCH for LWPOLYLINE / SPLINE allocs.
+    EXPECT_TRUE(dxfHatchCountFits16(1));
+    EXPECT_TRUE(dxfHatchCountFits16(0xFFFF));
+    EXPECT_FALSE(dxfHatchCountFits16(0x10000));
+}
+
+namespace {
+
+bool blobFitsRemain64M(unsigned nLen, unsigned nRemain, bool bAllowZero)
+{
+    const unsigned nMax = 64u * 1024u * 1024u;
+    if (nLen == 0)
+        return bAllowZero;
+    return nLen <= nMax && nLen <= nRemain;
+}
+
+bool checkedAddOk(unsigned a, unsigned b)
+{
+    return a <= 0xFFFFFFFFu - b;
+}
+
+bool fidclClustersFit(unsigned nClusters, unsigned nRecLen)
+{
+    const unsigned nHdr = 16u;
+    const unsigned nEnt = 8u; // sizeof(FIDCL) historically 8
+    if (nRecLen < nHdr)
+        return false;
+    if (nClusters > (nRecLen - nHdr) / nEnt)
+        return false;
+    return nRecLen == nClusters * nEnt + nHdr;
+}
+
+}
+
+TEST(ImportBounds, EpsPsWmfTiffFitsRemainingStream)
+{
+    EXPECT_FALSE(blobFitsRemain64M(0, 100, false));
+    EXPECT_TRUE(blobFitsRemain64M(1, 100, false));
+    EXPECT_TRUE(blobFitsRemain64M(100, 100, false));
+    EXPECT_FALSE(blobFitsRemain64M(101, 100, false));
+    EXPECT_FALSE(blobFitsRemain64M(64u * 1024u * 1024u + 1, 0xFFFFFFFFu, false));
+    EXPECT_TRUE(checkedAddOk(1, 1));
+    EXPECT_FALSE(checkedAddOk(0xFFFFFFFFu, 1));
+}
+
+TEST(ImportBounds, DffMetroBlobAndSvgFitsRemainingStream)
+{
+    EXPECT_TRUE(blobFitsRemain64M(0, 0, true));
+    EXPECT_TRUE(blobFitsRemain64M(100, 100, true));
+    EXPECT_FALSE(blobFitsRemain64M(101, 100, true));
+    EXPECT_FALSE(blobFitsRemain64M(64u * 1024u * 1024u + 1, 0xFFFFFFFFu, true));
+}
+
+TEST(ImportBounds, DffFidclRejectsWrappedClusterCount)
+{
+    EXPECT_TRUE(fidclClustersFit(2, 2 * 8 + 16));
+    EXPECT_FALSE(fidclClustersFit(0x20000000u, 16));
+    EXPECT_FALSE(fidclClustersFit(3, 2 * 8 + 16));
+}
+
+TEST(ImportBounds, WmfEmfEmbedAndTextFitsBounds)
+{
+    EXPECT_FALSE(blobFitsRemain64M(0, 100, false));
+    EXPECT_TRUE(blobFitsRemain64M(1, 100, false));
+    EXPECT_FALSE(blobFitsRemain64M(64u * 1024u * 1024u + 1, 0xFFFFFFFFu, false));
+    // ANSI EXTTEXTOUT path rejects nLen > 0xFFFF.
+    EXPECT_TRUE(dxfHatchCountFits16(0xFFFF));
+    EXPECT_FALSE(dxfHatchCountFits16(0x10000));
+}
+
+TEST(ImportBounds, SgfDimensionsMatchTiffCap)
+{
+    EXPECT_TRUE(tiffDimensionsOk(1, 1));
+    EXPECT_FALSE(tiffDimensionsOk(0, 1));
+    EXPECT_FALSE(tiffDimensionsOk(65535, 65535));
+}
+
+namespace {
+
+bool recordStringFitsRemain(unsigned nLen, unsigned nRemain)
+{
+    return static_cast<unsigned long>(nLen) + 1ul <= nRemain;
+}
+
+}
+
+TEST(ImportBounds, RecordStringFitsRemainingStream)
+{
+    // Lotus / Quattro / SGV / OCX char array: need n+1 bytes.
+    EXPECT_TRUE(recordStringFitsRemain(0, 1));
+    EXPECT_TRUE(recordStringFitsRemain(99, 100));
+    EXPECT_FALSE(recordStringFitsRemain(100, 100));
+    EXPECT_FALSE(recordStringFitsRemain(0, 0));
 }
 
 // Spec of CGM polyline/polygon/polybezier vs tools::Polygon (CVE-2026-6039

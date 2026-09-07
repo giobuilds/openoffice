@@ -294,6 +294,11 @@ sal_Bool SgfFilterBMap(SvStream& rInp, SvStream& rOut, SgfHeader& rHead, SgfEntr
 	sal_uLong          nOfs;
 	sal_uInt8           cRGB[4];
 
+	// Reject empty or oversized bitmaps before row-buffer alloc / BMP body.
+	if ( !rHead.Xsize || !rHead.Ysize ||
+		 rHead.Ysize > ( 64UL * 1024UL * 1024UL ) / rHead.Xsize )
+		return sal_False;
+
 	if (rHead.Planes<=1) nColBits=1; else nColBits=4; if (rHead.Typ==4) nColBits=8;
 	nColors=1<<nColBits;
 	nWdtOut=((rHead.Xsize*nColBits+31)/32)*4;

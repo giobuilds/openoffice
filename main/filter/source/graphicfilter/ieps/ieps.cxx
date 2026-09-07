@@ -399,6 +399,49 @@ void CreateMtfReplacementAction( GDIMetaFile& rMtf, SvStream& rStrm, sal_uInt32 
 	ByteString aComment( (const sal_Char*)"EPSReplacementGraphic" );
 	if ( nSizeWMF || nSizeTIFF )
 	{
+		// WMF/TIFF lengths come from the EPS binary header.
+		if ( nSizeTIFF > ( SAL_MAX_UINT32 - nSizeWMF ) )
+		{
+			rMtf.AddAction( (MetaAction*)( new MetaCommentAction( aComment, 0, NULL, 0 ) ) );
+			return;
+		}
+		if ( nSizeWMF )
+		{
+			// Cap to remaining stream and 64M before allocating.
+			if ( nSizeWMF > ( 64UL * 1024UL * 1024UL ) )
+			{
+				rMtf.AddAction( (MetaAction*)( new MetaCommentAction( aComment, 0, NULL, 0 ) ) );
+				return;
+			}
+			rStrm.Seek( nOrigPos + nPosWMF );
+			sal_uInt32 nPos = rStrm.Tell();
+			sal_uInt32 nEnd = rStrm.Seek( STREAM_SEEK_TO_END );
+			rStrm.Seek( nPos );
+			if ( nEnd < nPos || nSizeWMF > nEnd - nPos )
+			{
+				rMtf.AddAction( (MetaAction*)( new MetaCommentAction( aComment, 0, NULL, 0 ) ) );
+				return;
+			}
+		}
+		if ( nSizeTIFF )
+		{
+			// Cap to remaining stream and 64M before allocating.
+			if ( nSizeTIFF > ( 64UL * 1024UL * 1024UL ) )
+			{
+				rMtf.AddAction( (MetaAction*)( new MetaCommentAction( aComment, 0, NULL, 0 ) ) );
+				return;
+			}
+			rStrm.Seek( nOrigPos + nPosTIFF );
+			sal_uInt32 nPos = rStrm.Tell();
+			sal_uInt32 nEnd = rStrm.Seek( STREAM_SEEK_TO_END );
+			rStrm.Seek( nPos );
+			if ( nEnd < nPos || nSizeTIFF > nEnd - nPos )
+			{
+				rMtf.AddAction( (MetaAction*)( new MetaCommentAction( aComment, 0, NULL, 0 ) ) );
+				return;
+			}
+		}
+
 		SvMemoryStream aReplacement( nSizeWMF + nSizeTIFF + 28 );
 		sal_uInt32 nMagic = 0xc6d3d0c5;
 		sal_uInt32 nPPos = 28 + nSizeWMF + nSizeTIFF;
@@ -590,7 +633,16 @@ extern "C" sal_Bool GraphicImport(SvStream & rStream, Graphic & rGraphic, Filter
 		ImplSearchEntry( &pHeader[ 15 ], (sal_uInt8*)"EPS", 3, 3 ) )
 	{
 		rStream.Seek( nPSStreamPos );
-		sal_uInt8* pBuf = new sal_uInt8[ nPSSize ];
+		// nPSSize is attacker-controlled from the EPS header. Cap to remaining stream and 64M.
+		sal_uInt8* pBuf = NULL;
+		if ( nPSSize && nPSSize <= ( 64UL * 1024UL * 1024UL ) )
+		{
+			sal_uInt32 nPos = rStream.Tell();
+			sal_uInt32 nEnd = rStream.Seek( STREAM_SEEK_TO_END );
+			rStream.Seek( nPos );
+			if ( nEnd >= nPos && nPSSize <= nEnd - nPos )
+				pBuf = new sal_uInt8[ nPSSize ];
+		}
 		if ( pBuf )
 		{
 			sal_uInt32	nBufStartPos = rStream.Tell();
