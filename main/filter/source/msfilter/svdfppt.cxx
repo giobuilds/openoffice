@@ -1882,7 +1882,14 @@ const ::com::sun::star::uno::Reference< ::com::sun::star::drawing::XDrawPage >& 
 
 sal_Bool SdrPowerPointOLEDecompress( SvStream& rOutput, SvStream& rInput, sal_uInt32 nInputSize )
 {
+	// nRecLen-derived size is attacker-controlled. Cap to remaining stream and 64M.
+	if ( !nInputSize || nInputSize > ( 64UL * 1024UL * 1024UL ) )
+		return sal_False;
 	sal_uInt32 nOldPos = rInput.Tell();
+	sal_uInt32 nEnd = rInput.Seek( STREAM_SEEK_TO_END );
+	rInput.Seek( nOldPos );
+	if ( nEnd < nOldPos || nInputSize > nEnd - nOldPos )
+		return sal_False;
 	char* pBuf = new char[ nInputSize ];
 	rInput.Read( pBuf, nInputSize );
 	ZCodec aZCodec( 0x8000, 0x8000 );
