@@ -3,6 +3,10 @@ extracting the signature key (xmlsec #78). AOO sets that flag in
 xmlsignature_nssimpl.cxx and xmlsignature_mscryptimpl.cxx. The old
 xmlsec1-noverify.patch is gone.
 
+AppliedKeys callers now use stock 1.3 AppDefaultKeysMngr
+(xmlSecNssAppDefaultKeysMngr* / xmlSecMSCryptoAppDefaultKeysMngr*). The old
+xmlsec1-customkeymanage.patch AppliedKeysMngr is gone.
+
 The XML Security library has been modified, so that there is NO verification of
 the certificate during sign or verification operation. On Windows this was done
 in the function xmlSecMSCryptoX509StoreVerify (file src/mscrypto/x509vfy.c) and

@@ -174,40 +174,16 @@ void SAL_CALL XMLSecurityContext_NssImpl :: setSecurityEnvironment( const Refere
 //	slot = pSecEnv->getCryptoSlot() ;
 	handler = pSecEnv->getCertDb() ;
 
-	/*-
-	 * The following lines is based on the private version of xmlSec-NSS
-	 * crypto engine
-	 */
-	m_pKeysMngr = xmlSecNssAppliedKeysMngrCreate( slot , handler ) ;
-	if( m_pKeysMngr == NULL )
-		throw RuntimeException() ;
-
-	/*-
-	 * Adopt symmetric key into keys manager
-	 */
-	for( i = 0 ; ( symKey = pSecEnv->getSymKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecNssAppliedKeysMngrSymKeyLoad( m_pKeysMngr, symKey ) < 0 ) {
-			throw RuntimeException() ;
-		}
-	}
-
-	/*-
-	 * Adopt asymmetric public key into keys manager
-	 */
-	for( i = 0 ; ( pubKey = pSecEnv->getPubKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecNssAppliedKeysMngrPubKeyLoad( m_pKeysMngr, pubKey ) < 0 ) {
-			throw RuntimeException() ;
-		}
-	}
-
-	/*-
-	 * Adopt asymmetric private key into keys manager
-	 */
-	for( i = 0 ; ( priKey = pSecEnv->getPriKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecNssAppliedKeysMngrPriKeyLoad( m_pKeysMngr, priKey ) < 0 ) {
-			throw RuntimeException() ;
-		}
-	}
+	/* Dead path (#if 0): keys manager setup moved to
+	 * SecurityEnvironment_NssImpl::createKeysManager using stock
+	 * xmlSecNssAppDefaultKeysMngr*. */
+	(void)slot;
+	(void)handler;
+	(void)symKey;
+	(void)pubKey;
+	(void)priKey;
+	(void)i;
+	(void)pSecEnv;
 }
 
 /* XXMLSecurityContext */

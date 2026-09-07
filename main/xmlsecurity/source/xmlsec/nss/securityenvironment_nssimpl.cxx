@@ -42,10 +42,13 @@
 
 #include <sal/types.h>
 #include <xmlsec/xmlsec.h>
+#include <xmlsec/keys.h>
 #include <xmlsec/keysmngr.h>
 #include <xmlsec/crypto.h>
 #include <xmlsec/base64.h>
 #include <xmlsec/strings.h>
+#include <xmlsec/nss/app.h>
+#include <xmlsec/nss/pkikeys.h>
 
 #include <tools/string.hxx>
 #include <rtl/ustrbuf.hxx>
@@ -56,7 +59,6 @@
 #include <rtl/logfile.h>
 #include <com/sun/star/task/XInteractionHandler.hpp>
 #include <vector>
-#include "boost/scoped_array.hpp"
 
 #include "secerror.hxx"
 
@@ -1103,52 +1105,91 @@ X509Certificate_NssImpl* NssPrivKeyToXCert( SECKEYPrivateKey* priKey )
 xmlSecKeysMngrPtr SecurityEnvironment_NssImpl::createKeysManager() {
 
 	unsigned int i ;
-	CERTCertDBHandle* handler = NULL ;
-	PK11SymKey* symKey = NULL ;
 	SECKEYPublicKey* pubKey = NULL ;
 	SECKEYPrivateKey* priKey = NULL ;
 	xmlSecKeysMngrPtr pKeysMngr = NULL ;
 
-	handler = this->getCertDb() ;
-
-	/*-
-	 * The following lines is based on the private version of xmlSec-NSS
-	 * crypto engine
+	/* Stock xmlsec 1.3 AppDefaultKeysMngr (replaces AppliedKeysMngr).
+	 * X509 store comes from xmlSecNssKeysMngrInit via AppDefaultKeysMngrInit.
 	 */
-	int cSlots = m_Slots.size();
-	boost::scoped_array<PK11SlotInfo*> sarSlots(new PK11SlotInfo*[cSlots]);
-	PK11SlotInfo**  slots = sarSlots.get();
-	int count = 0;
-	for (CIT_SLOTS islots = m_Slots.begin();islots != m_Slots.end(); islots++, count++)
-		slots[count] = *islots;
-
-	pKeysMngr = xmlSecNssAppliedKeysMngrCreate(slots, cSlots, handler ) ;
+	pKeysMngr = xmlSecKeysMngrCreate() ;
 	if( pKeysMngr == NULL )
 		throw RuntimeException() ;
 
-	/*-
-	 * Adopt symmetric key into keys manager
-	 */
-	for( i = 0 ; ( symKey = this->getSymKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecNssAppliedKeysMngrSymKeyLoad( pKeysMngr, symKey ) < 0 ) {
-			throw RuntimeException() ;
-		}
+	if( xmlSecNssAppDefaultKeysMngrInit( pKeysMngr ) < 0 ) {
+		xmlSecKeysMngrDestroy( pKeysMngr ) ;
+		throw RuntimeException() ;
 	}
 
-	/*-
-	 * Adopt asymmetric public key into keys manager
-	 */
+	/* Symmetric PK11SymKey adopt lived only in the removed customkeymanage
+	 * patch (xmlSecNssSymKeyDataKeyAdopt). Stock 1.3 has no equivalent; skip. */
+
+	/* Adopt asymmetric public keys */
 	for( i = 0 ; ( pubKey = this->getPubKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecNssAppliedKeysMngrPubKeyLoad( pKeysMngr, pubKey ) < 0 ) {
+		SECKEYPublicKey* pubCopy = SECKEY_CopyPublicKey( pubKey ) ;
+		xmlSecKeyDataPtr data ;
+		xmlSecKeyPtr key ;
+
+		if( pubCopy == NULL ) {
+			xmlSecKeysMngrDestroy( pKeysMngr ) ;
+			throw RuntimeException() ;
+		}
+		data = xmlSecNssPKIAdoptKey( NULL, pubCopy ) ;
+		if( data == NULL ) {
+			SECKEY_DestroyPublicKey( pubCopy ) ;
+			xmlSecKeysMngrDestroy( pKeysMngr ) ;
+			throw RuntimeException() ;
+		}
+		key = xmlSecKeyCreate() ;
+		if( key == NULL ) {
+			xmlSecKeyDataDestroy( data ) ;
+			xmlSecKeysMngrDestroy( pKeysMngr ) ;
+			throw RuntimeException() ;
+		}
+		if( xmlSecKeySetValue( key, data ) < 0 ) {
+			xmlSecKeyDestroy( key ) ;
+			xmlSecKeyDataDestroy( data ) ;
+			xmlSecKeysMngrDestroy( pKeysMngr ) ;
+			throw RuntimeException() ;
+		}
+		if( xmlSecNssAppDefaultKeysMngrAdoptKey( pKeysMngr, key ) < 0 ) {
+			xmlSecKeyDestroy( key ) ;
+			xmlSecKeysMngrDestroy( pKeysMngr ) ;
 			throw RuntimeException() ;
 		}
 	}
 
-	/*-
-	 * Adopt asymmetric private key into keys manager
-	 */
+	/* Adopt asymmetric private keys */
 	for( i = 0 ; ( priKey = this->getPriKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecNssAppliedKeysMngrPriKeyLoad( pKeysMngr, priKey ) < 0 ) {
+		SECKEYPrivateKey* priCopy = SECKEY_CopyPrivateKey( priKey ) ;
+		xmlSecKeyDataPtr data ;
+		xmlSecKeyPtr key ;
+
+		if( priCopy == NULL ) {
+			xmlSecKeysMngrDestroy( pKeysMngr ) ;
+			throw RuntimeException() ;
+		}
+		data = xmlSecNssPKIAdoptKey( priCopy, NULL ) ;
+		if( data == NULL ) {
+			SECKEY_DestroyPrivateKey( priCopy ) ;
+			xmlSecKeysMngrDestroy( pKeysMngr ) ;
+			throw RuntimeException() ;
+		}
+		key = xmlSecKeyCreate() ;
+		if( key == NULL ) {
+			xmlSecKeyDataDestroy( data ) ;
+			xmlSecKeysMngrDestroy( pKeysMngr ) ;
+			throw RuntimeException() ;
+		}
+		if( xmlSecKeySetValue( key, data ) < 0 ) {
+			xmlSecKeyDestroy( key ) ;
+			xmlSecKeyDataDestroy( data ) ;
+			xmlSecKeysMngrDestroy( pKeysMngr ) ;
+			throw RuntimeException() ;
+		}
+		if( xmlSecNssAppDefaultKeysMngrAdoptKey( pKeysMngr, key ) < 0 ) {
+			xmlSecKeyDestroy( key ) ;
+			xmlSecKeysMngrDestroy( pKeysMngr ) ;
 			throw RuntimeException() ;
 		}
 	}

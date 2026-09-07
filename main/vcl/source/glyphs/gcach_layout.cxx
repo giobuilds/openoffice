@@ -24,7 +24,9 @@
 // MARKER(update_precomp.py): autogen include statement, do not remove
 #include "precompiled_vcl.hxx"
 
-#define ENABLE_ICU_LAYOUT
+// ICU Layout Engine (libicule) was removed in ICU 58. Keep the
+// #ifdef ENABLE_ICU_LAYOUT blocks compiled out; SimpleLayoutEngine
+// is used until a HarfBuzz port lands.
 #include <gcach_ftyp.hxx>
 #include <sallayout.hxx>
 #include <salgdi.hxx>

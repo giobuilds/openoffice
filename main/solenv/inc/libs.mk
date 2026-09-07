@@ -35,17 +35,17 @@ AVMEDIALIB=-lavmedia$(DLLPOSTFIX)
 .IF "$(GUI)$(COM)"=="WNTGCC"
 .INCLUDE .IGNORE : icuversion.mk
 ICUINLIB=-licuin$(ICU_MAJOR)$(ICU_MINOR)
-ICULELIB=-licule$(ICU_MAJOR)$(ICU_MINOR)
+ICULELIB=# libicule removed (ICU 58+)
 ICUUCLIB=-licuuc$(ICU_MAJOR)$(ICU_MINOR)
 ICUDATALIB=-licudt$(ICU_MAJOR)$(ICU_MINOR)
 .ELIF "$(GUI)"=="OS2"
 ICUINLIB=-licuin
-ICULELIB=-licule
+ICULELIB=# libicule removed (ICU 58+)
 ICUUCLIB=-licuuc
 ICUDATALIB=-licudt
 .ELSE			# "$(GUI)$(COM)"=="WNTGCC"
 ICUINLIB=-licui18n
-ICULELIB=-licule
+ICULELIB=# libicule removed (ICU 58+)
 ICUUCLIB=-licuuc
 ICUDATALIB=-licudata
 .ENDIF			# "$(GUI)$(COM)"=="WNTGCC"
@@ -365,7 +365,7 @@ XMLREADERLIB=-lxmlreader
 AWTLIB*=jawt.lib
 AVMEDIALIB=iavmedia.lib
 ICUINLIB=icuin.lib
-ICULELIB=icule.lib
+ICULELIB=# libicule removed (ICU 58+)
 ICUUCLIB=icuuc.lib
 ICUDATALIB=icudata.lib
 I18NUTILLIB=ii18nutil.lib
