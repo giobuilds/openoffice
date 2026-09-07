@@ -357,6 +357,13 @@ if (ENABLE_CATEGORY_B==YES && SYSTEM_GRAPHITE!=YES && ENABLE_GRAPHITE==TRUE)
     URL1 = https://sourceforge.net/projects/silgraphite/files/silgraphite/2.3.1/$(name)
     URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
 
+if (ENABLE_HARFBUZZ==TRUE && SYSTEM_HARFBUZZ!=YES)
+    MD5 = 9bfe1a9767a6b3eb54a3c23f4cea129e
+    name = harfbuzz-14.4.0.tar.xz
+    URL1 = https://github.com/harfbuzz/harfbuzz/releases/download/14.4.0/$(name)
+    URL2 = $(OOO_EXTRAS)$(MD5)-$(name)
+    SHA256 = 2357ed966c6ced7bfa720b0640c0231065af01158fbea215093ffa15aed44371
+
 if (ENABLE_CATEGORY_B==YES && SYSTEM_CAIRO!=YES && ENABLE_CAIRO==TRUE)
     MD5 = 4ea70ea87b47e92d318d4e7f5b940f47
     name = cairo-1.8.0.tar.gz

@@ -56,6 +56,12 @@ AC_ARG_ENABLE(graphite,
 AC_ARG_WITH(system-graphite,
 [  --with-system-graphite    use graphite library already installed on system
 ],,)
+AC_ARG_ENABLE(harfbuzz,
+[  --enable-harfbuzz       Enables HarfBuzz complex text layout (default: yes on Linux with FreeType)
+],,)
+AC_ARG_WITH(system-harfbuzz,
+[  --with-system-harfbuzz    use harfbuzz library already installed on system
+],,)
 AC_ARG_WITH(system-apache-commons,
 [  --with-system-apache-commons    use apache-commons jar files already installed on system
 ],,)
@@ -5579,6 +5585,56 @@ AC_SUBST(ENABLE_GRAPHITE)
 AC_SUBST(SYSTEM_GRAPHITE)
 AC_SUBST(GRAPHITE_LIBS)
 AC_SUBST(GRAPHITE_CFLAGS)
+
+
+dnl ===================================================================
+dnl HarfBuzz
+dnl ===================================================================
+
+ENABLE_HARFBUZZ="FALSE"
+SYSTEM_HARFBUZZ=NO
+HARFBUZZ_CFLAGS=
+HARFBUZZ_LIBS=
+dnl Default: enable on Linux with FreeType when system HarfBuzz is present.
+dnl Internal/bundled builds require explicit --enable-harfbuzz without
+dnl --with-system-harfbuzz (so CI without meson is not forced to build it).
+if test -z "$enable_harfbuzz"; then
+    if test "$_os" = "Linux" -a "$test_freetype" = "yes" && \
+        pkg-config --exists 'harfbuzz >= 2.6'; then
+        enable_harfbuzz=yes
+        if test -z "$with_system_harfbuzz"; then
+            with_system_harfbuzz=yes
+        fi
+    else
+        enable_harfbuzz=no
+    fi
+fi
+AC_MSG_CHECKING([whether to enable HarfBuzz support])
+if test "x$enable_harfbuzz" = "xyes"; then
+    if test "$test_freetype" != "yes"; then
+        AC_MSG_ERROR([HarfBuzz requires FreeType])
+    fi
+    AC_MSG_RESULT([yes])
+    ENABLE_HARFBUZZ="TRUE"
+    AC_MSG_CHECKING([which HarfBuzz to use])
+    if test -n "$with_system_harfbuzz" -o -n "$with_system_libs" && \
+        test "$with_system_harfbuzz" != "no"; then
+        AC_MSG_RESULT([external])
+        SYSTEM_HARFBUZZ=YES
+        PKG_CHECK_MODULES(HARFBUZZ, harfbuzz >= 2.6)
+    else
+        AC_MSG_RESULT([internal])
+        SYSTEM_HARFBUZZ=NO
+        BUILD_TYPE="$BUILD_TYPE HARFBUZZ"
+    fi
+else
+    AC_MSG_RESULT([no])
+    ENABLE_HARFBUZZ="FALSE"
+fi
+AC_SUBST(ENABLE_HARFBUZZ)
+AC_SUBST(SYSTEM_HARFBUZZ)
+AC_SUBST(HARFBUZZ_CFLAGS)
+AC_SUBST(HARFBUZZ_LIBS)
 
 
 dnl ===================================================================

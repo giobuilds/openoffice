@@ -25,8 +25,8 @@
 #include "precompiled_vcl.hxx"
 
 // ICU Layout Engine (libicule) was removed in ICU 58. Keep the
-// #ifdef ENABLE_ICU_LAYOUT blocks compiled out; SimpleLayoutEngine
-// is used until a HarfBuzz port lands.
+// #ifdef ENABLE_ICU_LAYOUT blocks compiled out. Complex text uses
+// HarfBuzz when ENABLE_HARFBUZZ is set, otherwise SimpleLayoutEngine.
 #include <gcach_ftyp.hxx>
 #include <sallayout.hxx>
 #include <salgdi.hxx>
@@ -39,6 +39,13 @@
 #include <cstdio>
 #endif
 #include <rtl/instance.hxx>
+
+#ifdef ENABLE_HARFBUZZ
+#include <hb.h>
+#include <hb-ft.h>
+#include <hb-ot.h>
+#include <unicode/uscript.h>
+#endif
 
 namespace { struct SimpleLayoutEngine : public rtl::Static< ServerFontLayoutEngine, SimpleLayoutEngine > {}; }
 
@@ -655,14 +662,195 @@ bool IcuLayoutEngine::operator()( ServerFontLayout& rLayout, ImplLayoutArgs& rAr
 #endif // ENABLE_ICU_LAYOUT
 
 // =======================================================================
+// HarfBuzz layout engine
+// =======================================================================
+
+#ifdef ENABLE_HARFBUZZ
+
+namespace {
+
+static bool lcl_HbCharIsJoiner( sal_Unicode cChar )
+{
+    return (cChar == 0x200C) || (cChar == 0x200D);
+}
+
+static hb_script_t lcl_HbScriptFromUScript( UScriptCode eScript )
+{
+    // Map via ISO 15924 short name to avoid a harfbuzz-icu link dependency.
+    const char* pTag = uscript_getShortName( eScript );
+    if( !pTag || !*pTag )
+        return HB_SCRIPT_COMMON;
+    return hb_script_from_string( pTag, -1 );
+}
+
+} // namespace
+
+class HbLayoutEngine : public ServerFontLayoutEngine
+{
+private:
+    UScriptCode             meScriptCode;
+
+public:
+                            HbLayoutEngine( FreetypeServerFont& );
+    virtual                 ~HbLayoutEngine();
+
+    virtual bool            operator()( ServerFontLayout&, ImplLayoutArgs& );
+};
+
+HbLayoutEngine::HbLayoutEngine( FreetypeServerFont& /*rServerFont*/ )
+:   meScriptCode( USCRIPT_INVALID_CODE )
+{}
+
+HbLayoutEngine::~HbLayoutEngine()
+{}
+
+bool HbLayoutEngine::operator()( ServerFontLayout& rLayout, ImplLayoutArgs& rArgs )
+{
+    FreetypeServerFont& rFont = static_cast<FreetypeServerFont&>(rLayout.GetServerFont());
+    FT_Face pFace = static_cast<FT_Face>( rFont.GetFtFace() );
+    if( !pFace )
+        return false;
+
+    // Do not destroy the FT_Face; ownership stays with FreetypeServerFont.
+    hb_font_t* pHbFont = hb_ft_font_create( pFace, NULL );
+    if( !pHbFont )
+        return false;
+
+    Point aNewPos( 0, 0 );
+    for(;;)
+    {
+        int nMinRunPos, nEndRunPos;
+        bool bRightToLeft;
+        if( !rArgs.GetNextRun( &nMinRunPos, &nEndRunPos, &bRightToLeft ) )
+            break;
+
+        const int nRunLen = nEndRunPos - nMinRunPos;
+
+        // Prefer a non-Latin script in the run when present.
+        UScriptCode eScriptCode = USCRIPT_INVALID_CODE;
+        for( int i = nMinRunPos; i < nEndRunPos; ++i )
+        {
+            UErrorCode rcI18n = U_ZERO_ERROR;
+            UScriptCode eNextScriptCode = uscript_getScript( rArgs.mpStr[i], &rcI18n );
+            if( eNextScriptCode > USCRIPT_INHERITED )
+            {
+                eScriptCode = eNextScriptCode;
+                if( eNextScriptCode != USCRIPT_LATIN )
+                    break;
+            }
+        }
+        if( eScriptCode < 0 )
+            eScriptCode = USCRIPT_LATIN;
+        meScriptCode = eScriptCode;
+
+        hb_buffer_t* pHbBuffer = hb_buffer_create();
+        if( !pHbBuffer || !hb_buffer_allocation_successful( pHbBuffer ) )
+        {
+            if( pHbBuffer )
+                hb_buffer_destroy( pHbBuffer );
+            continue;
+        }
+
+        hb_buffer_set_direction( pHbBuffer,
+            bRightToLeft ? HB_DIRECTION_RTL : HB_DIRECTION_LTR );
+        hb_buffer_set_script( pHbBuffer, lcl_HbScriptFromUScript( eScriptCode ) );
+        hb_buffer_set_language( pHbBuffer, HB_LANGUAGE_INVALID );
+        hb_buffer_add_utf16( pHbBuffer,
+            reinterpret_cast<const uint16_t*>( rArgs.mpStr ),
+            rArgs.mnLength, nMinRunPos, nRunLen );
+
+        hb_shape( pHbFont, pHbBuffer, NULL, 0 );
+
+        const unsigned int nRunGlyphCount = hb_buffer_get_length( pHbBuffer );
+        hb_glyph_info_t* pHbGlyphInfos = hb_buffer_get_glyph_infos( pHbBuffer, NULL );
+        hb_glyph_position_t* pHbPositions = hb_buffer_get_glyph_positions( pHbBuffer, NULL );
+        if( !pHbGlyphInfos || !pHbPositions )
+        {
+            hb_buffer_destroy( pHbBuffer );
+            continue;
+        }
+
+        int nLastCluster = -1;
+        for( unsigned int i = 0; i < nRunGlyphCount; ++i )
+        {
+            sal_GlyphId nGlyphIndex = static_cast<sal_GlyphId>( pHbGlyphInfos[i].codepoint );
+            const int nCluster = static_cast<int>( pHbGlyphInfos[i].cluster );
+            int nCharPos = nCluster;
+
+            if( !nGlyphIndex )
+            {
+                if( nCharPos >= 0 )
+                {
+                    rArgs.NeedFallback( nCharPos, bRightToLeft );
+                    if( (nCharPos > 0) && lcl_HbCharIsJoiner( rArgs.mpStr[nCharPos-1] ) )
+                        rArgs.NeedFallback( nCharPos-1, bRightToLeft );
+                    else if( (nCharPos + 1 < nEndRunPos)
+                          && lcl_HbCharIsJoiner( rArgs.mpStr[nCharPos+1] ) )
+                        rArgs.NeedFallback( nCharPos+1, bRightToLeft );
+                }
+                if( SAL_LAYOUT_FOR_FALLBACK & rArgs.mnFlags )
+                    continue;
+            }
+
+            if( nCharPos >= 0 && nCharPos < rArgs.mnLength )
+            {
+                sal_UCS4 aChar = rArgs.mpStr[ nCharPos ];
+                nGlyphIndex = rFont.FixupGlyphIndex( nGlyphIndex, aChar );
+            }
+
+            const int nXOffset = pHbPositions[i].x_offset / 64;
+            const int nYOffset = pHbPositions[i].y_offset / 64;
+            const int nXAdvance = pHbPositions[i].x_advance / 64;
+            const int nYAdvance = pHbPositions[i].y_advance / 64;
+
+            long nGlyphFlags = 0;
+            if( bRightToLeft )
+                nGlyphFlags |= GlyphItem::IS_RTL_GLYPH;
+            if( nCluster == nLastCluster )
+                nGlyphFlags |= GlyphItem::IS_IN_CLUSTER;
+            nLastCluster = nCluster;
+            if( pHbPositions[i].x_advance == 0 )
+                nGlyphFlags |= GlyphItem::IS_DIACRITIC;
+
+            Point aGlyphPos( aNewPos.X() + nXOffset, aNewPos.Y() - nYOffset );
+            const int nGlyphWidth = nXAdvance;
+            GlyphItem aGI( nCharPos, nGlyphIndex, aGlyphPos, nGlyphFlags, nGlyphWidth );
+            if( i + 1 < nRunGlyphCount )
+                aGI.mnNewWidth = nGlyphWidth + (pHbPositions[i + 1].x_offset / 64);
+            rLayout.AppendGlyph( aGI );
+
+            aNewPos.X() += nXAdvance;
+            aNewPos.Y() += nYAdvance;
+        }
+
+        hb_buffer_destroy( pHbBuffer );
+    }
+
+    hb_font_destroy( pHbFont );
+
+    rLayout.SortGlyphItems();
+
+    if( (rArgs.mpDXArray || rArgs.mnLayoutWidth)
+    &&  ((meScriptCode == USCRIPT_ARABIC) || (meScriptCode == USCRIPT_SYRIAC)) )
+        rArgs.mnFlags |= SAL_LAYOUT_KASHIDA_JUSTIFICATON;
+
+    return true;
+}
+
+#endif // ENABLE_HARFBUZZ
+
+// =======================================================================
 
 ServerFontLayoutEngine* FreetypeServerFont::GetLayoutEngine()
 {
     // find best layout engine for font, platform, script and language
-#ifdef ENABLE_ICU_LAYOUT
+#ifdef ENABLE_HARFBUZZ
+    if( !mpLayoutEngine && FT_IS_SFNT( maFaceFT ) )
+        mpLayoutEngine = new HbLayoutEngine( *this );
+#elif defined ENABLE_ICU_LAYOUT
     if( !mpLayoutEngine && FT_IS_SFNT( maFaceFT ) )
         mpLayoutEngine = new IcuLayoutEngine( *this );
-#endif // ENABLE_ICU_LAYOUT
+#endif
 
     return mpLayoutEngine;
 }

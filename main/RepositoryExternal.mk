@@ -324,6 +324,34 @@ endef
 endif # SYSTEM_GRAPHITE
 
 
+ifeq ($(SYSTEM_HARFBUZZ),YES)
+
+define gb_LinkTarget__use_harfbuzz
+$(call gb_LinkTarget_set_include,$(1),\
+	$$(INCLUDE) \
+	$(HARFBUZZ_CFLAGS) \
+)
+$(call gb_LinkTarget_add_libs,$(1),$(HARFBUZZ_LIBS))
+endef
+
+else # !SYSTEM_HARFBUZZ
+
+$(eval $(call gb_Helper_register_static_libraries,PLAINLIBS, \
+	harfbuzz \
+))
+define gb_LinkTarget__use_harfbuzz
+$(call gb_LinkTarget_set_include,$(1),\
+	$$(INCLUDE) \
+	-I$(OUTDIR)/inc/harfbuzz \
+)
+$(call gb_LinkTarget_add_linked_static_libs,$(1),\
+	harfbuzz \
+)
+endef
+
+endif # SYSTEM_HARFBUZZ
+
+
 ifeq ($(SYSTEM_ICU),YES)
 
 define gb_LinkTarget__use_icudata
