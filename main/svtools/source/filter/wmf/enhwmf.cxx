@@ -889,7 +889,8 @@ sal_Bool EnhWMFReader::ReadEnhWMF()
 				else
 				{
 					sal_uInt32 nSize = cbBmiSrc + cbBitsSrc + 14;
-					if ( nSize <= ( nEndPos - nStartPos ) )
+					// Also cap reconstructed BMP size to 64M.
+					if ( nSize <= ( nEndPos - nStartPos ) && nSize <= ( 64UL * 1024UL * 1024UL ) )
 					{
 						char* pBuf = new char[ nSize ];
 						SvMemoryStream aTmp( pBuf, nSize, STREAM_READ | STREAM_WRITE );
@@ -951,7 +952,8 @@ sal_Bool EnhWMFReader::ReadEnhWMF()
 				else
 				{
 					sal_uInt32 nSize = cbBmiSrc + cbBitsSrc + 14;
-					if ( nSize <= ( nEndPos - nStartPos ) )
+					// Also cap reconstructed BMP size to 64M.
+					if ( nSize <= ( nEndPos - nStartPos ) && nSize <= ( 64UL * 1024UL * 1024UL ) )
 					{
 						char* pBuf = new char[ nSize ];
 						SvMemoryStream aTmp( pBuf, nSize, STREAM_READ | STREAM_WRITE );
@@ -1005,7 +1007,8 @@ sal_Bool EnhWMFReader::ReadEnhWMF()
 				else
 				{
 					sal_uInt32 nSize = cbBmiSrc + cbBitsSrc + 14;
-					if ( nSize <= ( nEndPos - nStartPos ) )
+					// Also cap reconstructed BMP size to 64M.
+					if ( nSize <= ( nEndPos - nStartPos ) && nSize <= ( 64UL * 1024UL * 1024UL ) )
 					{
 						char* pBuf = new char[ nSize ];
 						SvMemoryStream aTmp( pBuf, nSize, STREAM_READ | STREAM_WRITE );
@@ -1099,7 +1102,8 @@ sal_Bool EnhWMFReader::ReadEnhWMF()
 				DBG_ASSERT( ( nOptions & ( ETO_PDY | ETO_GLYPH_INDEX ) ) == 0, "SJ: ETO_PDY || ETO_GLYPH_INDEX in EMF" );
 
 				Point aPos( ptlReferenceX, ptlReferenceY );
-				if ( nLen && ( nLen < SAL_MAX_UINT32 / sizeof(sal_Int32) ) )
+				// nLen is attacker-controlled. Cap to 64M; remain is checked below.
+				if ( nLen && ( nLen <= ( 64UL * 1024UL * 1024UL ) ) && ( nLen < SAL_MAX_UINT32 / sizeof(sal_Int32) ) )
 				{
 					if ( offDx && (( nCurPos + offDx + nLen * 4 ) <= nNextPos ) )
 					{
@@ -1116,7 +1120,8 @@ sal_Bool EnhWMFReader::ReadEnhWMF()
 					String aText;
 					if ( bFlag )
 					{
-						if ( nLen <= ( nEndPos - pWMF->Tell() ) )
+						// ANSI path casts to sal_uInt16; reject lengths that would truncate.
+						if ( nLen <= 0xFFFF && nLen <= ( nEndPos - pWMF->Tell() ) )
 						{
 							sal_Char* pBuf = new sal_Char[ nLen ];
 							pWMF->Read( pBuf, nLen );

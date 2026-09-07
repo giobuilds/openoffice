@@ -140,6 +140,13 @@ void OP_Label( SvStream& r, sal_uInt16 n )
 
     n -= (n > 5) ? 5 : n;
 
+    // n is attacker-controlled. Require alloc size fits remaining stream.
+    sal_Size nPos = r.Tell();
+    sal_Size nEnd = r.Seek( STREAM_SEEK_TO_END );
+    r.Seek( nPos );
+    if ( nEnd < nPos || static_cast<sal_Size>( n ) + 1 > nEnd - nPos )
+        return;
+
     sal_Char* pText = new sal_Char[n + 1];
     r.Read( pText, n );
     pText[n] = 0;
@@ -380,6 +387,13 @@ void OP_Label123( SvStream& r, sal_uInt16 n )
 	r >> nRow >> nTab >> nCol;
     n -= (n > 4) ? 4 : n;
 
+	// n is attacker-controlled. Require alloc size fits remaining stream.
+	sal_Size nPos = r.Tell();
+	sal_Size nEnd = r.Seek( STREAM_SEEK_TO_END );
+	r.Seek( nPos );
+	if ( nEnd < nPos || static_cast<sal_Size>( n ) + 1 > nEnd - nPos )
+		return;
+
 	sal_Char* pText = new sal_Char[n + 1];
 	r.Read( pText, n );
 	pText[ n ] = 0;
@@ -453,6 +467,13 @@ void OP_Note123( SvStream& r, sal_uInt16 n)
     sal_uInt16    nRow;
     r >> nRow >> nTab >> nCol;
     n -= (n > 4) ? 4 : n;
+
+    // n is attacker-controlled. Require alloc size fits remaining stream.
+    sal_Size nPos = r.Tell();
+    sal_Size nEnd = r.Seek( STREAM_SEEK_TO_END );
+    r.Seek( nPos );
+    if ( nEnd < nPos || static_cast<sal_Size>( n ) + 1 > nEnd - nPos )
+        return;
 
     sal_Char* pText = new sal_Char[n + 1];
     r.Read( pText, n );

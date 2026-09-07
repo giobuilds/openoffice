@@ -228,6 +228,13 @@ bool ScQProReader::nextRecord()
 
 void ScQProReader::readString( String &rString, sal_uInt16 nLength )
 {
+    // nLength is attacker-controlled. Require alloc size fits remaining stream.
+    sal_Size nPos = mpStream->Tell();
+    sal_Size nEnd = mpStream->Seek( STREAM_SEEK_TO_END );
+    mpStream->Seek( nPos );
+    if ( nEnd < nPos || static_cast<sal_Size>( nLength ) + 1 > nEnd - nPos )
+        return;
+
     sal_Char* pText = new sal_Char[ nLength + 1 ];
     mpStream->Read( pText, nLength );
     pText[ nLength ] = 0;

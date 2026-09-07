@@ -407,8 +407,12 @@ void WMFReader::ReadRecordParams( sal_uInt16 nFunc )
 			*pWMF >> nLength;
 			if ( nLength )
 			{
-				char*	pChar = new char[ ( nLength + 1 ) &~ 1 ];
-				pWMF->Read( pChar, ( nLength + 1 ) &~ 1 );
+				sal_uInt32 nPadLen = ( nLength + 1 ) &~ 1;
+				// nLength is attacker-controlled. Cap padded read to remaining stream.
+				if ( nPadLen > ( nEndPos - pWMF->Tell() ) )
+					break;
+				char*	pChar = new char[ nPadLen ];
+				pWMF->Read( pChar, nPadLen );
 				String aText( pChar, nLength, pOut->GetCharSet() );
 				delete[] pChar;
 				Point aPosition( ReadYX() );
@@ -449,8 +453,12 @@ void WMFReader::ReadRecordParams( sal_uInt16 nFunc )
 					const Point aPt2( ReadPoint() );
 					aRect = Rectangle( aPt1, aPt2 );
 				}
-				char* pChar = new char[ ( nOriginalTextLen + 1 ) &~ 1 ];
-				pWMF->Read( pChar, ( nOriginalTextLen + 1 ) &~ 1 );
+				sal_uInt32 nPadLen = ( nOriginalTextLen + 1 ) &~ 1;
+				// nLen is attacker-controlled. Cap padded read to remaining stream.
+				if ( nPadLen > ( nEndPos - pWMF->Tell() ) )
+					break;
+				char* pChar = new char[ nPadLen ];
+				pWMF->Read( pChar, nPadLen );
 				String aText( pChar, (sal_uInt16)nOriginalTextLen, pOut->GetCharSet() );// after this conversion the text may contain
 				nNewTextLen = aText.Len();										        // less character (japanese version), so the
 				delete[] pChar;													        // dxAry will not fit
@@ -938,9 +946,15 @@ void WMFReader::ReadRecordParams( sal_uInt16 nFunc )
                         {
                             if( !nEMFRec )
                             {   // first EMF comment
-                                nEMFRecCount    = nComRecCount;
-                                nEMFSize        = nEMFTotalSize;
-                                pEMFStream = new SvMemoryStream( nEMFSize );
+                                // nEMFTotalSize is attacker-controlled. Reject empty / oversize payload.
+                                if( !nEMFTotalSize || nEMFTotalSize > ( 64UL * 1024UL * 1024UL ) )
+                                    nEMFRecCount = 0xFFFFFFFF;
+                                else
+                                {
+                                    nEMFRecCount    = nComRecCount;
+                                    nEMFSize        = nEMFTotalSize;
+                                    pEMFStream = new SvMemoryStream( nEMFSize );
+                                }
                             }
                             else if( ( nEMFRecCount != nComRecCount ) || ( nEMFSize != nEMFTotalSize ) ) // add additional checks here
                             {

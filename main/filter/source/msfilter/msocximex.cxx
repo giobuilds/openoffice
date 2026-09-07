@@ -360,12 +360,15 @@ void lclReadCharArray( SvStorageStream& rStrm, char*& rpcCharArr, sal_uInt32 nLe
     DBG_ASSERT( nBufSize <= 0xFFFF, "lclReadCharArray - possible read error: char array is too big" );
     if( nBufSize && nBufSize <= 0xFFFF )
     {
+        ReadAlign( &rStrm, nPos, 4 );
+        sal_Size nCur = rStrm.Tell();
+        sal_Size nEnd = rStrm.Seek( STREAM_SEEK_TO_END );
+        rStrm.Seek( nCur );
+        if ( nEnd < nCur || nBufSize > nEnd - nCur )
+            return;
         rpcCharArr = new char[ nBufSize ];
         if( rpcCharArr )
-        {
-            ReadAlign( &rStrm, nPos, 4 );
             rStrm.Read( rpcCharArr, nBufSize );
-        }
     }
 }
 

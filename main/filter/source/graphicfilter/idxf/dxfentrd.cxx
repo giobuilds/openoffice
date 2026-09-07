@@ -434,7 +434,9 @@ void DXFLWPolyLineEntity::EvaluateGroup( DXFGroupReader & rDGR )
 		case 90 :
 		{
 			nCount = rDGR.GetI();
-			if ( rDGR.GetStatus() && nCount >= 0 )
+			// tools::Polygon is indexed by sal_uInt16. Reject before
+			// allocating (same as HATCH / CVE-2026-6039).
+			if ( rDGR.GetStatus() && nCount >= 0 && nCount <= 0xFFFF )
 			{
 				try
 				{
@@ -934,20 +936,22 @@ void DXFSplineEntity::EvaluateGroup(DXFGroupReader & rDGR)
 		case 71: nDegree = rDGR.GetI(); break;
 		case 72:
 			nKnotCount = rDGR.GetI();
-			if ( rDGR.GetStatus() && nKnotCount > 0 ) {
+			// Cap knot array to 16-bit before allocating (same as HATCH).
+			if ( rDGR.GetStatus() && nKnotCount > 0 && nKnotCount <= 0xFFFF ) {
 				try { pfKnots = new double[nKnotCount]; }
 				catch (::std::bad_alloc) { rDGR.SetError(); }
 			}
-			else if ( nKnotCount < 0 )
+			else if ( nKnotCount < 0 || nKnotCount > 0xFFFF )
 				rDGR.SetError();
 			break;
 		case 73:
 			nCtrlCount = rDGR.GetI();
-			if ( rDGR.GetStatus() && nCtrlCount > 0 ) {
+			// Cap control-point array to 16-bit before allocating (same as HATCH).
+			if ( rDGR.GetStatus() && nCtrlCount > 0 && nCtrlCount <= 0xFFFF ) {
 				try { pControlPts = new DXFVector[nCtrlCount]; }
 				catch (::std::bad_alloc) { rDGR.SetError(); }
 			}
-			else if ( nCtrlCount < 0 )
+			else if ( nCtrlCount < 0 || nCtrlCount > 0xFFFF )
 				rDGR.SetError();
 			break;
 		case 74: nFitCount = rDGR.GetI(); break;

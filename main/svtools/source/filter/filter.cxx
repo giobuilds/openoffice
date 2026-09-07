@@ -1609,7 +1609,8 @@ sal_uInt16 GraphicFilter::ImportGraphic( Graphic& rGraphic, const String& rPath,
             const sal_uInt32 nStmLen(rIStream.Seek(STREAM_SEEK_TO_END) - nStmPos);
             bool bOkay(false);
 
-            if(nStmLen)
+            // Native SVG blob length is stream-derived; reject empty / over 64M.
+            if(nStmLen && nStmLen <= ( 64UL * 1024UL * 1024UL ))
             {
                 SvgDataArray aNewData(new sal_uInt8[nStmLen]);
 
