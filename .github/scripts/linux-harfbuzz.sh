@@ -104,9 +104,17 @@ SMOKE="${ROOT}/.github/scripts/harfbuzz-smoke.cxx"
 /tmp/harfbuzz-smoke
 
 # Also build the bundled module (meson) to prove the internal path.
-# Reconfigure is heavy; invoke meson directly on the tarball like the module.
-HB_TAR="${ROOT}/ext_sources/9bfe1a9767a6b3eb54a3c23f4cea129e-harfbuzz-14.4.0.tar.xz"
-test -f "${HB_TAR}"
+HB_MD5=9bfe1a9767a6b3eb54a3c23f4cea129e
+HB_NAME=harfbuzz-14.4.0.tar.xz
+HB_SHA=2357ed966c6ced7bfa720b0640c0231065af01158fbea215093ffa15aed44371
+HB_TAR="${ROOT}/ext_sources/${HB_MD5}-${HB_NAME}"
+mkdir -p "${ROOT}/ext_sources"
+if test ! -f "${HB_TAR}"; then
+  echo "===== download ${HB_NAME} ====="
+  curl -fL -o "${HB_TAR}" \
+    "https://github.com/harfbuzz/harfbuzz/releases/download/14.4.0/${HB_NAME}"
+fi
+echo "${HB_SHA}  ${HB_TAR}" | sha256sum -c -
 HB_BUILD="${ROOT}/.hb-ci-build"
 rm -rf "${HB_BUILD}"
 mkdir -p "${HB_BUILD}"
