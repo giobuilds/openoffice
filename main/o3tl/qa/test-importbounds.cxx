@@ -54,7 +54,8 @@
 //   main/sw/source/filter/ww8/ww8par2.cxx              (WW8 SPRM length)
 //   main/sw/source/filter/ww8/ww8scan.hxx              (WW8 SPRM walk)
 //   main/sw/source/filter/ww8/ww8scan.cxx              (WW8 font table / FIB blobs)
-//   main/sw/source/filter/ww8/ww8par.cxx               (WW8 macro cmds)
+//   main/sw/source/filter/ww8/ww8par.cxx               (WW8 macro cmds / SttbfAssoc)
+//   main/sw/source/filter/ww8/WW8Sttbf.cxx             (WW8Struct remaining stream)
 //   main/filter/source/msfilter/msdffimp.cxx           (DFF ZString)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
@@ -610,7 +611,8 @@ bool ww8FibBlobFitsStream(long nLen, unsigned nRemain)
 
 TEST(ImportBounds, Ww8FibBlobFitsRemainingStream)
 {
-    // lcbCmds is signed; negative wraps new sal_uInt8[n].
+    // lcbCmds / lcbSttbfAssoc are signed; negative wraps new sal_uInt8[n].
+    // WW8Struct applies the same remain check after Seek(fc).
     EXPECT_FALSE(ww8FibBlobFitsStream(0, 100));
     EXPECT_FALSE(ww8FibBlobFitsStream(-1, 100));
     EXPECT_TRUE(ww8FibBlobFitsStream(1, 100));

@@ -4297,8 +4297,15 @@ sal_uLong SwWW8ImplReader::CoreLoad(WW8Glossary *pGloss, const SwPosition &rPos)
 
     rDoc.setExternalData(::sw::FIB, pExternalFibData);
 
-    ::sw::tExternalDataPointer pSttbfAsoc
-          (new ::ww8::WW8Sttb<ww8::WW8Struct>(*pTableStream, pWwFib->fcSttbfAssoc, pWwFib->lcbSttbfAssoc));
+    // lcbSttbfAssoc is signed; a negative length wraps sal_uInt32 and
+    // allocates past EOF. Reject non-positive; WW8Struct also caps to the
+    // remaining table stream.
+    sal_uInt32 nSttbfAssoc = 0;
+    if (pWwFib->lcbSttbfAssoc > 0)
+        nSttbfAssoc = static_cast<sal_uInt32>(pWwFib->lcbSttbfAssoc);
+    ::sw::tExternalDataPointer pSttbfAsoc(
+        new ::ww8::WW8Sttb<ww8::WW8Struct>(
+            *pTableStream, pWwFib->fcSttbfAssoc, nSttbfAssoc));
 
     rDoc.setExternalData(::sw::STTBF_ASSOC, pSttbfAsoc);
 

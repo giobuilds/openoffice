@@ -29,10 +29,21 @@
 namespace ww8
 {
     WW8Struct::WW8Struct(SvStream& rSt, sal_uInt32 nPos, sal_uInt32 nSize)
-    : mn_offset(0), mn_size(nSize)
+    : mn_offset(0), mn_size(0)
     {
-        rSt.Seek(nPos);
+        // FIB lcb* values are signed and cast to sal_uInt32. A negative
+        // length wraps to a huge alloc; also reject a blob past EOF.
+        if (nSize == 0)
+            return;
 
+        rSt.Seek(nPos);
+        const sal_uInt32 nTell = rSt.Tell();
+        const sal_uInt32 nEnd = rSt.Seek(STREAM_SEEK_TO_END);
+        rSt.Seek(nTell);
+        if (nEnd < nTell || nSize > nEnd - nTell)
+            return;
+
+        mn_size = nSize;
         mp_data.reset(new sal_uInt8[nSize]);
         rSt.Read(mp_data.get(), nSize);
     }
