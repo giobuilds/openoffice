@@ -52,8 +52,8 @@ TARFILE_MD5=9bfe1a9767a6b3eb54a3c23f4cea129e
 
 # Static lib with FreeType; no glib/cairo/icu/graphite2/tests/utils.
 # Meson/ninja path is for Linux GCC/Clang (and compatible Unix toolchains).
-CONFIGURE_ACTION=bash -c
-CONFIGURE_FLAGS='meson setup build --default-library=static -Dtests=disabled -Ddocs=disabled -Dutilities=disabled -Dfreetype=enabled -Dglib=disabled -Dcairo=disabled -Dicu=disabled -Dgraphite2=disabled -Dgobject=disabled' 
+CONFIGURE_ACTION=bash -c 'meson setup build --default-library=static -Dtests=disabled -Ddocs=disabled -Dutilities=disabled -Dfreetype=enabled -Dglib=disabled -Dcairo=disabled -Dicu=disabled -Dgraphite2=disabled -Dgobject=disabled'
+CONFIGURE_FLAGS=
 
 # Stage public headers (plus generated hb-features.h / hb-version.h) for deliver.
 BUILD_ACTION=bash -c 'ninja -C build && mkdir -p stage/harfbuzz && cp -f src/hb.h src/hb-*.h build/src/hb-features.h build/src/hb-version.h stage/harfbuzz/'
