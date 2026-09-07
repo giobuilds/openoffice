@@ -479,6 +479,14 @@ endif
 $(call gb_Library_use_external,vcl,graphite)
 endif
 
+## handle HarfBuzz
+ifeq ($(ENABLE_HARFBUZZ),TRUE)
+$(eval $(call gb_Library_add_defs,vcl,\
+	-DENABLE_HARFBUZZ \
+))
+$(call gb_Library_use_external,vcl,harfbuzz)
+endif
+
 ifeq ($(OS),LINUX)
 $(eval $(call gb_Library_add_linked_libs,vcl,\
 	dl \

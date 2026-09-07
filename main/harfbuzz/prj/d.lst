@@ -1,0 +1,4 @@
+mkdir: %_DEST%\inc%_EXT%\harfbuzz
+..\%__SRC%\stage\harfbuzz\*.h %_DEST%\inc%_EXT%\harfbuzz\*.h
+
+..\%__SRC%\lib\libharfbuzz.a %_DEST%\lib%_EXT%\libharfbuzz.a
