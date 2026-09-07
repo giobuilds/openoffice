@@ -33,8 +33,9 @@ export CCACHE_MAXSIZE="${CCACHE_MAXSIZE:-2G}"
 if test -d /usr/lib/ccache; then
     export PATH="/usr/lib/ccache:${PATH}"
 fi
-export CC="${CC:-ccache gcc}"
-export CXX="${CXX:-ccache g++}"
+# Prefer /usr/lib/ccache wrappers (g++, gcc) so "$CXX" is a single token.
+export CC="${CC:-gcc}"
+export CXX="${CXX:-g++}"
 export verbose="${verbose:-TRUE}"
 
 echo "nproc=${NPROC} CC=${CC} CXX=${CXX}"
