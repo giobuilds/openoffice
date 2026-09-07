@@ -59,6 +59,7 @@
 //   main/sw/source/filter/ww8/WW8Sttbf.cxx             (WW8Struct remaining stream)
 //   main/filter/source/msfilter/msdffimp.cxx           (DFF ZString / client / OLE10)
 //   main/filter/source/graphicfilter/idxf/dxf2mtf.cxx  (DXF POLYLINE)
+//   main/filter/source/graphicfilter/idxf/dxfentrd.cxx (DXF HATCH points)
 //   main/sc/source/core/tool/compiler.cxx              (formula FunctionStack)
 //   main/sc/source/core/tool/chgtrack.cxx              (tracked-changes ids)
 
@@ -257,6 +258,26 @@ TEST(ImportBounds, DxfPolylineRejectsCountThatDoesNotFitPolygon)
     // 16-bit wrap of the old nPolySize++ counter: 65536 -> 0, 65538 -> 2.
     EXPECT_EQ(0u, dxfPolylineCountWrapsTo(0x10000));
     EXPECT_EQ(2u, dxfPolylineCountWrapsTo(0x10002));
+}
+
+namespace {
+
+// Spec of DXF HATCH boundary polyline / path counts vs tools::Polygon
+// (CVE-2026-6039 class). Keep in sync with EvaluateGroup in
+//   main/filter/source/graphicfilter/idxf/dxfentrd.cxx
+bool dxfHatchCountFits16(unsigned nCount)
+{
+    return nCount <= 0xFFFFu;
+}
+
+}
+
+TEST(ImportBounds, DxfHatchRejectsCountThatDoesNotFit16Bit)
+{
+    EXPECT_TRUE(dxfHatchCountFits16(0));
+    EXPECT_TRUE(dxfHatchCountFits16(0xFFFF));
+    EXPECT_FALSE(dxfHatchCountFits16(0x10000));
+    EXPECT_FALSE(dxfHatchCountFits16(0x10001));
 }
 
 // Spec of CGM polyline/polygon/polybezier vs tools::Polygon (CVE-2026-6039
