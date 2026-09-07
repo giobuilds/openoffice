@@ -105,7 +105,7 @@ CONFIGURE_FLAGS=
 BUILD_DIR=$(CONFIGURE_DIR)
 BUILD_ACTION=$(AUGMENT_LIBRARY_PATH) $(GNUMAKE) -j$(EXTMAXPROCESS)
 # 78 soname is libicuuc.so.78.3 + libicuuc.so.78 (MAJOR.MINOR, not MAJORMINOR).
-# No libicule (layout removed in ICU 58).
+# No libicule (layout removed in ICU 58). VCL no longer links it; HarfBuzz is a separate follow-up.
 OUT2LIB= \
 	$(BUILD_DIR)$/lib$/libicudata$(DLLPOST).$(ICU_MAJOR).$(ICU_MINOR) \
 	$(BUILD_DIR)$/lib$/libicudata$(DLLPOST).$(ICU_MAJOR) \

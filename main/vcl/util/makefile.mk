@@ -176,7 +176,6 @@ SHL1STDLIBS+=\
             $(BASEGFXLIB)		\
             $(ICUUCLIB)			\
 			$(ICUDATALIB)		\
-            $(ICULELIB)			\
 			$(JVMACCESSLIB)
 
 .IF "$(GUI)" == "UNX"

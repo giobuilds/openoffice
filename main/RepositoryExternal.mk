@@ -341,11 +341,7 @@ $(call gb_LinkTarget_set_include,$(1),\
 $(call gb_LinkTarget_add_libs,$(1),-licui18n)
 endef
 define gb_LinkTarget__use_icule
-$(call gb_LinkTarget_set_include,$(1),\
-	$$(INCLUDE) \
-	$(ICU_CFLAGS) \
-)
-$(call gb_LinkTarget_add_libs,$(1),-licule)
+# libicule removed with ICU 58+; no-op until HarfBuzz.
 endef
 define gb_LinkTarget__use_icuuc
 $(call gb_LinkTarget_set_include,$(1),\
@@ -382,13 +378,7 @@ endif
 endef
 
 define gb_LinkTarget__use_icule
-ifeq ($(OS)$(COM),WNTMSC)
-$(call gb_LinkTarget_add_libs,$(1),icule.lib)
-else ifeq ($(OS)$(COM),WNTGCC)
-$(call gb_LinkTarget_add_libs,$(1),-licule40)
-else
-$(call gb_LinkTarget_add_libs,$(1),-licule)
-endif
+# libicule removed with ICU 58+; no-op until HarfBuzz.
 endef
 
 define gb_LinkTarget__use_icuuc

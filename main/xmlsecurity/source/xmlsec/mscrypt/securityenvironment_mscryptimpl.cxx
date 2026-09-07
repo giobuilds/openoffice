@@ -49,7 +49,7 @@
 #include <xmlsecurity/biginteger.hxx>
 
 #include "xmlsec/keysmngr.h"
-#include "xmlsec/mscrypto/akmngr.h"
+#include "xmlsec/mscrypto/app.h"
 
 //CP : added by CP
 #include <rtl/locale.h>
@@ -1235,45 +1235,20 @@ X509Certificate_MSCryptImpl* MswcryCertContextToXCert( PCCERT_CONTEXT cert )
 /* Native methods */
 xmlSecKeysMngrPtr SecurityEnvironment_MSCryptImpl :: createKeysManager() {
 
-	unsigned int i ;
-	HCRYPTKEY symKey ;
-	HCRYPTKEY pubKey ;
-	HCRYPTKEY priKey ;
 	xmlSecKeysMngrPtr pKeysMngr = NULL ;
 
-	/*-
-	 * The following lines is based on the of xmlsec-mscrypto crypto engine
-	 */
-	pKeysMngr = xmlSecMSCryptoAppliedKeysMngrCreate( m_hKeyStore , m_hCertStore ) ;
+	/* Stock xmlsec 1.3 AppDefaultKeysMngr (replaces AppliedKeysMngr). */
+	pKeysMngr = xmlSecKeysMngrCreate() ;
 	if( pKeysMngr == NULL )
 		throw RuntimeException() ;
 
-	/*-
-	 * Adopt symmetric key into keys manager
-	 */
-	for( i = 0 ; ( symKey = getSymKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecMSCryptoAppliedKeysMngrSymKeyLoad( pKeysMngr, symKey ) < 0 ) {
-			throw RuntimeException() ;
-		}
+	if( xmlSecMSCryptoAppDefaultKeysMngrInit( pKeysMngr ) < 0 ) {
+		xmlSecKeysMngrDestroy( pKeysMngr ) ;
+		throw RuntimeException() ;
 	}
 
-	/*-
-	 * Adopt asymmetric public key into keys manager
-	 */
-	for( i = 0 ; ( pubKey = getPubKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecMSCryptoAppliedKeysMngrPubKeyLoad( pKeysMngr, pubKey ) < 0 ) {
-			throw RuntimeException() ;
-		}
-	}
-
-	/*-
-	 * Adopt asymmetric private key into keys manager
-	 */
-	for( i = 0 ; ( priKey = getPriKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecMSCryptoAppliedKeysMngrPriKeyLoad( pKeysMngr, priKey ) < 0 ) {
-			throw RuntimeException() ;
-		}
-	}
+	/* Stock SymKeyLoad/PublicKeyLoad/PrivateKeyLoad are no-ops (not
+	 * implemented). Old AppliedKeys variants were also stubs. Skip. */
 
 	/*-
 	 * Adopt system default certificate store.
@@ -1282,9 +1257,10 @@ xmlSecKeysMngrPtr SecurityEnvironment_MSCryptImpl :: createKeysManager() {
 		//Add system key store into the keys manager.
 		m_hMySystemStore = CertOpenSystemStore( 0, "MY" ) ;
 		if( m_hMySystemStore != NULL ) {
-			if( xmlSecMSCryptoAppliedKeysMngrAdoptKeyStore( pKeysMngr, m_hMySystemStore ) < 0 ) {
+			if( xmlSecMSCryptoAppDefaultKeysMngrAdoptKeyStore( pKeysMngr, m_hMySystemStore ) < 0 ) {
 				CertCloseStore( m_hMySystemStore, CERT_CLOSE_STORE_CHECK_FLAG ) ;
 				m_hMySystemStore = NULL;
+				xmlSecKeysMngrDestroy( pKeysMngr ) ;
 				throw RuntimeException() ;
 			}
 		}
@@ -1292,9 +1268,10 @@ xmlSecKeysMngrPtr SecurityEnvironment_MSCryptImpl :: createKeysManager() {
 		//Add system root store into the keys manager.
 		m_hRootSystemStore = CertOpenSystemStore( 0, "Root" ) ;
 		if( m_hRootSystemStore != NULL ) {
-			if( xmlSecMSCryptoAppliedKeysMngrAdoptTrustedStore( pKeysMngr, m_hRootSystemStore ) < 0 ) {
+			if( xmlSecMSCryptoAppDefaultKeysMngrAdoptTrustedStore( pKeysMngr, m_hRootSystemStore ) < 0 ) {
 				CertCloseStore( m_hRootSystemStore, CERT_CLOSE_STORE_CHECK_FLAG ) ;
 				m_hRootSystemStore = NULL;
+				xmlSecKeysMngrDestroy( pKeysMngr ) ;
 				throw RuntimeException() ;
 			}
 		}
@@ -1302,9 +1279,10 @@ xmlSecKeysMngrPtr SecurityEnvironment_MSCryptImpl :: createKeysManager() {
 		//Add system trusted store into the keys manager.
 		m_hTrustSystemStore = CertOpenSystemStore( 0, "Trust" ) ;
 		if( m_hTrustSystemStore != NULL ) {
-			if( xmlSecMSCryptoAppliedKeysMngrAdoptUntrustedStore( pKeysMngr, m_hTrustSystemStore ) < 0 ) {
+			if( xmlSecMSCryptoAppDefaultKeysMngrAdoptUntrustedStore( pKeysMngr, m_hTrustSystemStore ) < 0 ) {
 				CertCloseStore( m_hTrustSystemStore, CERT_CLOSE_STORE_CHECK_FLAG ) ;
 				m_hTrustSystemStore = NULL;
+				xmlSecKeysMngrDestroy( pKeysMngr ) ;
 				throw RuntimeException() ;
 			}
 		}
@@ -1312,9 +1290,10 @@ xmlSecKeysMngrPtr SecurityEnvironment_MSCryptImpl :: createKeysManager() {
 		//Add system CA store into the keys manager.
 		m_hCaSystemStore = CertOpenSystemStore( 0, "CA" ) ;
 		if( m_hCaSystemStore != NULL ) {
-			if( xmlSecMSCryptoAppliedKeysMngrAdoptUntrustedStore( pKeysMngr, m_hCaSystemStore ) < 0 ) {
+			if( xmlSecMSCryptoAppDefaultKeysMngrAdoptUntrustedStore( pKeysMngr, m_hCaSystemStore ) < 0 ) {
 				CertCloseStore( m_hCaSystemStore, CERT_CLOSE_STORE_CHECK_FLAG ) ;
 				m_hCaSystemStore = NULL;
+				xmlSecKeysMngrDestroy( pKeysMngr ) ;
 				throw RuntimeException() ;
 			}
 		}

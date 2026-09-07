@@ -47,7 +47,7 @@ TARFILE_MD5=d5f31478d4d7bd782424a02239edb48d
 # --disable-apps replaces xmlsec1-configure.patch (skip xmlsec1 binary).
 # xmlsec1-noverify.patch is replaced by XMLSEC_KEYINFO_FLAGS_X509DATA_DONT_VERIFY_CERTS
 # in xmlsecurity (1.3.x extracts the key even when that flag is set).
-# Custom AppliedKeysMngr (akmngr) is a follow-up; it is 1.2.14-only source.
+# AppliedKeysMngr callers use stock 1.3 AppDefaultKeysMngr (see readme.txt).
 PATCH_FILES=none
 
 .IF "$(GUI)"=="WNT"

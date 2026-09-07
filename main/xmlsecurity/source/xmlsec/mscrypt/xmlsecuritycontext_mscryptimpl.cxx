@@ -35,7 +35,6 @@
 #include "xmlsec/xmlsec.h"
 #include "xmlsec/keysmngr.h"
 #include "xmlsec/crypto.h"
-#include "xmlsec/mscrypto/akmngr.h"
 
 using namespace ::com::sun::star::uno ;
 using namespace ::com::sun::star::lang ;
@@ -157,82 +156,16 @@ void SAL_CALL XMLSecurityContext_MSCryptImpl :: setSecurityEnvironment( const Re
 	hkeyStore = pSecEnv->getCryptoSlot() ;
 	hCertStore = pSecEnv->getCertDb() ;
 
-	/*-
-	 * The following lines is based on the of xmlsec-mscrypto crypto engine
-	 */
-	m_pKeysMngr = xmlSecMSCryptoAppliedKeysMngrCreate( hkeyStore , hCertStore ) ;
-	if( m_pKeysMngr == NULL )
-		throw RuntimeException() ;
-
-	/*-
-	 * Adopt symmetric key into keys manager
-	 */
-	for( i = 0 ; ( symKey = pSecEnv->getSymKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecMSCryptoAppliedKeysMngrSymKeyLoad( m_pKeysMngr, symKey ) < 0 ) {
-			throw RuntimeException() ;
-		}
-	}
-
-	/*-
-	 * Adopt asymmetric public key into keys manager
-	 */
-	for( i = 0 ; ( pubKey = pSecEnv->getPubKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecMSCryptoAppliedKeysMngrPubKeyLoad( m_pKeysMngr, pubKey ) < 0 ) {
-			throw RuntimeException() ;
-		}
-	}
-
-	/*-
-	 * Adopt asymmetric private key into keys manager
-	 */
-	for( i = 0 ; ( priKey = pSecEnv->getPriKey( i ) ) != NULL ; i ++ ) {
-		if( xmlSecMSCryptoAppliedKeysMngrPriKeyLoad( m_pKeysMngr, priKey ) < 0 ) {
-			throw RuntimeException() ;
-		}
-	}
-
-	/*-
-	 * Adopt system default certificate store.
-	 */
-	if( pSecEnv->defaultEnabled() ) {
-		HCERTSTORE hSystemStore ;
-
-		//Add system key store into the keys manager.
-		hSystemStore = CertOpenSystemStore( 0, "MY" ) ;
-		if( hSystemStore != NULL ) {
-			if( xmlSecMSCryptoAppliedKeysMngrAdoptKeyStore( m_pKeysMngr, hSystemStore ) < 0 ) {
-				CertCloseStore( hSystemStore, CERT_CLOSE_STORE_CHECK_FLAG ) ;
-				throw RuntimeException() ;
-			}
-		}
-
-		//Add system root store into the keys manager.
-		hSystemStore = CertOpenSystemStore( 0, "Root" ) ;
-		if( hSystemStore != NULL ) {
-			if( xmlSecMSCryptoAppliedKeysMngrAdoptTrustedStore( m_pKeysMngr, hSystemStore ) < 0 ) {
-				CertCloseStore( hSystemStore, CERT_CLOSE_STORE_CHECK_FLAG ) ;
-				throw RuntimeException() ;
-			}
-		}
-
-		//Add system trusted store into the keys manager.
-		hSystemStore = CertOpenSystemStore( 0, "Trust" ) ;
-		if( hSystemStore != NULL ) {
-			if( xmlSecMSCryptoAppliedKeysMngrAdoptUntrustedStore( m_pKeysMngr, hSystemStore ) < 0 ) {
-				CertCloseStore( hSystemStore, CERT_CLOSE_STORE_CHECK_FLAG ) ;
-				throw RuntimeException() ;
-			}
-		}
-
-		//Add system CA store into the keys manager.
-		hSystemStore = CertOpenSystemStore( 0, "CA" ) ;
-		if( hSystemStore != NULL ) {
-			if( xmlSecMSCryptoAppliedKeysMngrAdoptUntrustedStore( m_pKeysMngr, hSystemStore ) < 0 ) {
-				CertCloseStore( hSystemStore, CERT_CLOSE_STORE_CHECK_FLAG ) ;
-				throw RuntimeException() ;
-			}
-		}
-	}
+	/* Dead path (#if 0): keys manager setup moved to
+	 * SecurityEnvironment_MSCryptImpl::createKeysManager using stock
+	 * xmlSecMSCryptoAppDefaultKeysMngr*. */
+	(void)hkeyStore;
+	(void)hCertStore;
+	(void)symKey;
+	(void)pubKey;
+	(void)priKey;
+	(void)i;
+	(void)pSecEnv;
 }
 
 /* XXMLSecurityContext */
