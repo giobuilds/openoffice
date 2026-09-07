@@ -5320,14 +5320,12 @@ sal_Bool OCX_Image::Read(SotStorageStream *pS)
         sal_uInt32 nImageLen = 0;
         *pS >> nImageLen;
 
-        long imagePos = pS->Tell();
-
-        pS->Seek( imagePos );
-
         sImageUrl =  C2U("vnd.sun.star.expand:${$OOO_BASE_DIR/program/") + C2U( SAL_CONFIGFILE( "bootstrap" ) ) + C2U("::UserInstallation}/user/temp/") + sName;
 
-        sal_uInt8* pImage = new sal_uInt8[ nImageLen ];
-        pS->Read(pImage, nImageLen);
+        // Same remain/64M cap as picture/icon paths (lclReadCountedBytes).
+        sal_uInt8* pImage = 0;
+        if ( !lclReadCountedBytes( pS, pImage, nImageLen ) )
+            return sal_False;
         bool result = storePictureInFileSystem( sImageUrl, pImage, nImageLen );
         OUString pictName = sImageUrl.copy( sImageUrl.lastIndexOf('/') + 1 );
         result = storePictureInDoc( pDocSh, pictName, pImage, nImageLen );
