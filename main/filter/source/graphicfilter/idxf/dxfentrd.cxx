@@ -635,7 +635,10 @@ sal_Bool DXFBoundaryPathData::EvaluateGroup( DXFGroupReader & rDGR )
 			case 93 :
 			{
 				nPointCount = rDGR.GetI();
-				if ( rDGR.GetStatus() && nPointCount >= 0 )
+				// tools::Polygon is indexed by sal_uInt16. Reject a hatch
+				// polyline that does not fit before allocating (same class
+				// as DXF POLYLINE / CVE-2026-6039).
+				if ( rDGR.GetStatus() && nPointCount >= 0 && nPointCount <= 0xFFFF )
 				{
 					try
 					{
@@ -730,7 +733,9 @@ void DXFHatchEntity::EvaluateGroup( DXFGroupReader & rDGR )
 		{
 			bIsInBoundaryPathContext = sal_True;
 			nBoundaryPathCount = rDGR.GetI();
-			if ( rDGR.GetStatus() && nBoundaryPathCount >= 0 )
+			// PolyPolygon path count is also 16-bit-bounded in practice;
+			// reject a huge path array before allocating.
+			if ( rDGR.GetStatus() && nBoundaryPathCount >= 0 && nBoundaryPathCount <= 0xFFFF )
 			{
 				try
 				{
