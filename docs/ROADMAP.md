@@ -81,8 +81,9 @@ changes. This phase is small and unblocks everything.
   the result. Expect multi-hour runtimes; use ccache and the existing tarball cache.
 - **Nightly installers** (`.deb`, `.rpm`, archive) published as workflow artifacts so features can
   be tried without a local build.
-- **Smoke run.** Start the installed office headless, load and re-save one document per
-  application, exit cleanly. This catches the crash class that the bounds work protects against.
+- **Smoke run.** The same job starts the installed office headless and converts a text file to
+  ODT, a CSV to ODS, a layout template to ODP, and the new ODT to PDF, then checks the ODF
+  containers. This catches the crash class that the bounds work protects against. *In progress.*
 - **Fidelity harness skeleton** (see §4) so measurement starts before any filter work.
 - **Windows and macOS** builds follow, using `win10-msvc/README.md` as the starting point.
 

@@ -104,6 +104,10 @@ prebuilt (no `main/solver`, no `*.Set.sh` present). Prefer the slim per-module p
   full build: `linux-sal-gtest` (soltools, xml2cmp, stlport, gtest, sal, o3tl, salhelper),
   `linux-icu`, `linux-libxml2`, `linux-xmlsec`, `linux-harfbuzz`, `pre-commit`. Run a script
   locally with `bash .github/scripts/linux-sal-gtest.sh` to reproduce CI exactly.
+- **Full build** – `linux-full-build` (nightly, on demand, and on PRs that touch it) runs
+  `.github/scripts/linux-full-build.sh`: configure with `--with-package-format=installed`,
+  `build --all` from `instsetoo_native`, a headless one-document-per-app smoke, and uploads the
+  installed tree as an artifact. Stages: `build`, `smoke`, `all`.
 
 ### Lint
 

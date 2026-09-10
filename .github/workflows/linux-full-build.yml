@@ -1,0 +1,150 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Roadmap Phase 0: full Linux office build, headless smoke, and an
+# installable tree as an artifact. Runs nightly and on demand, and on
+# pull requests that change this job itself. It takes hours, so it is
+# not part of the per-PR check set.
+
+name: linux-full-build
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/linux-full-build.yml'
+      - '.github/scripts/linux-full-build.sh'
+      - '.github/scripts/smoke_roundtrip.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  full-build:
+    name: full office build + smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - name: Check Out
+        uses: actions/checkout@v6
+
+      - name: Free runner disk
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/powershell /usr/share/swift
+          sudo docker image prune --all --force || true
+          df -h /
+
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            autoconf \
+            bison \
+            ca-certificates \
+            ccache \
+            flex \
+            g++ \
+            gcc \
+            gperf \
+            libarchive-zip-perl \
+            libboost-dev \
+            libcurl4-openssl-dev \
+            libdigest-sha-perl \
+            libexpat1-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libjpeg-dev \
+            libpng-dev \
+            libxml2-dev \
+            libxslt1-dev \
+            liblwp-protocol-https-perl \
+            libpam0g-dev \
+            libssl-dev \
+            libwww-perl \
+            libx11-dev \
+            libxaw7-dev \
+            libxext-dev \
+            libxinerama-dev \
+            libxml-parser-perl \
+            libxrandr-dev \
+            libxrender-dev \
+            libxt-dev \
+            make \
+            patch \
+            pkg-config \
+            python3-dev \
+            unzip \
+            wget \
+            xsltproc \
+            zip \
+            zlib1g-dev \
+            zstd
+
+      - name: Cache ccache
+        uses: actions/cache@v5
+        with:
+          path: ~/.ccache
+          key: ccache-full-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-full-${{ runner.os }}-
+
+      - name: Cache external tarballs
+        uses: actions/cache@v5
+        with:
+          path: ext_sources
+          key: ext-tarballs-${{ hashFiles('main/external_deps.lst') }}
+          restore-keys: |
+            ext-tarballs-
+
+      - name: Configure, bootstrap, build --all
+        run: bash .github/scripts/linux-full-build.sh build
+
+      - name: Headless smoke
+        run: bash .github/scripts/linux-full-build.sh smoke
+
+      - name: Pack installed office
+        if: success()
+        run: |
+          office="$(ls -d main/instsetoo_native/*/Apache_OpenOffice/installed/install/en-US/*/ | head -n 1)"
+          echo "office=${office}"
+          tar -C "$(dirname "${office}")" -I 'zstd -T0 -3' -cf work-linux-x86_64.tar.zst "$(basename "${office}")"
+          ls -lh work-linux-x86_64.tar.zst
+
+      - name: Upload installed office
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: work-linux-x86_64-installed
+          path: work-linux-x86_64.tar.zst
+          retention-days: 7
+
+      - name: Upload smoke outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-outputs
+          path: .smoke/out
+          if-no-files-found: ignore
+          retention-days: 7
