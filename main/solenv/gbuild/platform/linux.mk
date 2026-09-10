@@ -98,6 +98,7 @@ gb_CXXFLAGS := \
 	-fvisibility-inlines-hidden \
 	-fvisibility=hidden \
 	-std=gnu++17 \
+	-fno-devirtualize \
 	-pipe \
 
 ifneq ($(EXTERNAL_WARNINGS_NOT_ERRORS),TRUE)
