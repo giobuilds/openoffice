@@ -26,9 +26,12 @@
 #   build  configure + bootstrap + build --all (default when omitted: all)
 #   smoke  headless round-trip against an existing installed tree
 #
-# Known narrowing, to be lifted in later phases: no Java (so no Keep
-# embedded HSQLDB, wizards or report builder), no category-B components,
-# no GTK plugin, no bundled fonts, en-US only.
+# A JDK is a hard build dependency of this tree even with --without-java:
+# gbuild defines SOLAR_JAVA unconditionally and jvmfwk/ridljar have no
+# Java gate, so the first run failed on jni.h and Ant. Build with Java.
+#
+# Known narrowing, to be lifted in later phases: no category-B
+# components, no GTK plugin, no bundled fonts, en-US only.
 
 set -euo pipefail
 
@@ -48,8 +51,25 @@ export CC="${CC:-gcc}"
 export CXX="${CXX:-g++}"
 export verbose="${verbose:-TRUE}"
 
+find_jdk() {
+    local c
+    for c in "${JDK_HOME:-}" "${JAVA_HOME_17_X64:-}" "${JAVA_HOME_11_X64:-}" "${JAVA_HOME_8_X64:-}" "${JAVA_HOME:-}"; do
+        if test -n "${c}" -a -x "${c}/bin/javac"; then
+            echo "${c}"
+            return 0
+        fi
+    done
+    echo "no JDK found (set JDK_HOME)" >&2
+    return 1
+}
+
 configure_and_bootstrap() {
-    echo "nproc=${NPROC} CC=${CC} CXX=${CXX}"
+    local jdk ant
+    jdk="$(find_jdk)"
+    ant="${ANT_HOME:-/usr/share/ant}"
+    echo "nproc=${NPROC} CC=${CC} CXX=${CXX} jdk=${jdk} ant=${ant}"
+    "${jdk}/bin/javac" -version
+    test -x "${ant}/bin/ant"
     ccache -s || true
     df -h . || true
 
@@ -59,7 +79,8 @@ configure_and_bootstrap() {
     # instsetoo_native skips packaging entirely when EPM=NO, and configure
     # does not need an epm binary for the "installed" format.
     ./configure \
-        --without-java \
+        --with-jdk-home="${jdk}" \
+        --with-ant-home="${ant}" \
         --without-junit \
         --disable-odk \
         --disable-gtk \
