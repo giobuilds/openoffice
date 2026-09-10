@@ -90,39 +90,6 @@ $ATermEx $CloseEx* $SpEx* $NotLettersEx* $Lower;
 
 ## -------------------------------------------------
 
-!!reverse;
-
-$SpEx_R       = ($Extend | $Format)* $Sp;
-$ATermEx_R    = ($Extend | $Format)* $ATerm;
-$STermEx_R    = ($Extend | $Format)* $STerm;
-$CloseEx_R    = ($Extend | $Format)* $Close;
-
-#
-#  Reverse rules.
-#     For now, use the old style inexact reverse rules, which are easier
-#     to write, but less efficient.
-#     TODO:  exact reverse rules.  It appears that exact reverse rules
-#            may require improving support for look-ahead breaks in the
-#            builder.  Needs more investigation.
-#
-
-[{bof}] (.? | $LF $CR) [^$Sep]* [$Sep {eof}] ($SpEx_R* $CloseEx_R* ($STermEx_R | $ATermEx_R))*;
-#.*;
-
-# Explanation for this rule:
-#
-#    It needs to back over
-#        The $Sep at which we probably begin
-#        All of the non $Sep chars leading to the preceding $Sep
-#        The preceding $Sep, which will be the second one that the rule matches.
-#        Any immediately preceding STerm or ATerm sequences.  We need to see these
-#              to get the correct rule status when moving forwards again.
-#        
-# [{bof}]           inhibit rule chaining.  Without this, rule would loop on itself and match
-#                   the entire string.
-#
-# (.? | $LF $CR)    Match one $Sep instance.  Use .? rather than $Sep because position might be
-#                   at the beginning of the string at this point, and we don't want to fail.
-#                   Can only use {eof} once, and it is used later.
-#
-
+# Reverse rules removed: since ICU 60 the rule builder derives backward
+# iteration from the forward rules and no longer accepts the old inexact
+# reverse rules (the [{bof}] set fails with U_BRK_RULE_EMPTY_SET).
