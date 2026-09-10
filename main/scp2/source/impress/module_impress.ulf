@@ -23,19 +23,19 @@
 
 
 [STR_NAME_MODULE_PRG_IMPRESS]
-en-US = "%PRODUCTNAME Impress"
+en-US = "%PRODUCTNAME Show"
 
 [STR_DESC_MODULE_PRG_IMPRESS]
-en-US = "Create and edit presentations for slideshows, meeting and Web pages by using %PRODUCTNAME Impress."
+en-US = "Create and edit presentations for slideshows, meeting and Web pages by using %PRODUCTNAME Show."
 
 [STR_NAME_MODULE_PRG_IMPRESS_BIN]
 en-US = "Program Module"
 
 [STR_DESC_MODULE_PRG_IMPRESS_BIN]
-en-US = "The application %PRODUCTNAME Impress"
+en-US = "The application %PRODUCTNAME Show"
 
 [STR_NAME_MODULE_PRG_IMPRESS_HELP]
-en-US = "%PRODUCTNAME Impress Help"
+en-US = "%PRODUCTNAME Show Help"
 
 [STR_DESC_MODULE_PRG_IMPRESS_HELP]
-en-US = "Help about %PRODUCTNAME Impress"
+en-US = "Help about %PRODUCTNAME Show"

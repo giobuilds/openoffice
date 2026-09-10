@@ -22,19 +22,19 @@
 
 
 [STR_NAME_MODULE_PRG_BASE]
-en-US = "%PRODUCTNAME Base"
+en-US = "%PRODUCTNAME Keep"
 
 [STR_DESC_MODULE_PRG_BASE]
-en-US = "Create and edit databases by using %PRODUCTNAME Base."
+en-US = "Create and edit databases by using %PRODUCTNAME Keep."
 
 [STR_NAME_MODULE_PRG_BASE_BIN]
 en-US = "Program Module"
 
 [STR_DESC_MODULE_PRG_BASE_BIN]
-en-US = "The application %PRODUCTNAME Base"
+en-US = "The application %PRODUCTNAME Keep"
 
 [STR_NAME_MODULE_PRG_BASE_HELP]
-en-US = "%PRODUCTNAME Base Help"
+en-US = "%PRODUCTNAME Keep Help"
 
 [STR_DESC_MODULE_PRG_BASE_HELP]
-en-US = "Help about %PRODUCTNAME Base"
+en-US = "Help about %PRODUCTNAME Keep"

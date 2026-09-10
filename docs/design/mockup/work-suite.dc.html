@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/organic-e155d3ea-ee94-438f-a644-8fc1f3d68e37/styles.css">
+<script src="_ds/organic-e155d3ea-ee94-438f-a644-8fc1f3d68e37/_ds_bundle.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:var(--color-accent);text-decoration:none}
+a:hover{color:var(--color-accent-600)}
+.wk[data-theme="dark"]{
+--color-bg:#211e1a;--color-surface:#2c2822;--color-text:#f3e8d6;
+--color-divider:color-mix(in srgb,#f3e8d6 18%,transparent);
+--color-neutral-100:#2c2822;--color-neutral-200:#37322a;--color-neutral-300:#463f34;
+--color-neutral-400:#6d6455;--color-neutral-500:#8d8371;--color-neutral-600:#b3a894;
+--color-neutral-700:#d3c7b1;--color-accent:#e2905a;--color-accent-100:#3a291f;
+--color-accent-200:#4b3324;--color-accent-300:#6a452c;--color-accent-600:#f0a973;
+--color-accent-700:#f4c19a;--color-accent-2:#a4b57f;--color-accent-2-100:#2b3125;
+--color-accent-2-200:#39422c;--color-accent-2-300:#4b5739;
+--color-accent-2-700:#c9d8a8;--color-accent-2-800:#d5e2b6;
+--color-neutral-800:#e6dac6;--color-neutral-900:#f6ecdb;
+--color-accent-800:#f4c19a;--color-accent-900:#f9dcc2;
+}
+.wk-cell:hover{background:color-mix(in srgb,var(--color-accent) 10%,transparent)}
+.wk-row:hover{background:color-mix(in srgb,var(--color-accent) 8%,transparent)}
+.wk-pill:hover{background:color-mix(in srgb,var(--color-text) 8%,transparent)}
+.wk-tile:hover{transform:translateY(-3px)}
+</style>
+</helmet>
+<div class="wk" data-theme="{{ theme }}" style="min-height:100vh;width:max-content;margin-inline:auto;padding:26px 22px 40px;background:var(--color-bg);font-family:var(--font-body);color:var(--color-text);display:flex;flex-direction:column;align-items:center;gap:16px">
+
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;padding:8px 12px;border:1px dashed var(--color-divider);border-radius:999px;background:color-mix(in srgb, var(--color-surface) 55%, transparent)">
+    <span style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);padding:0 6px">Mockup controls</span>
+    <div style="display:flex;gap:4px;padding:3px;border-radius:999px;background:color-mix(in srgb, var(--color-text) 7%, transparent)">
+      <sc-for list="{{ chromeSeg }}" as="o" hint-placeholder-count="2">
+        <button class="wk-pill" onClick="{{ o.on }}" style="border:0;cursor:pointer;font-family:var(--font-body);font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:{{ o.bg }};color:{{ o.fg }}">{{ o.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:4px;padding:3px;border-radius:999px;background:color-mix(in srgb, var(--color-text) 7%, transparent)">
+      <sc-for list="{{ modeSeg }}" as="o" hint-placeholder-count="2">
+        <button class="wk-pill" onClick="{{ o.on }}" style="border:0;cursor:pointer;font-family:var(--font-body);font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:{{ o.bg }};color:{{ o.fg }}">{{ o.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:4px;padding:3px;border-radius:999px;background:color-mix(in srgb, var(--color-text) 7%, transparent)">
+      <sc-for list="{{ themeSeg }}" as="o" hint-placeholder-count="2">
+        <button class="wk-pill" onClick="{{ o.on }}" style="border:0;cursor:pointer;font-family:var(--font-body);font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:{{ o.bg }};color:{{ o.fg }}">{{ o.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position:relative;width:1340px;height:862px;border-radius:var(--radius-lg);overflow:hidden;background:var(--color-bg);border:1px solid var(--color-divider);box-shadow:var(--shadow-lg);display:flex;flex-direction:column">
+
+    <div style="height:46px;flex:none;display:flex;align-items:center;gap:14px;padding:0 16px;background:var(--color-surface);border-bottom:1px solid var(--color-divider)">
+      <div style="display:flex;gap:7px">
+        <span style="width:11px;height:11px;border-radius:999px;background:var(--color-accent-500)"></span>
+        <span style="width:11px;height:11px;border-radius:999px;background:var(--color-accent-2-400)"></span>
+        <span style="width:11px;height:11px;border-radius:999px;background:var(--color-neutral-400)"></span>
+      </div>
+      <div style="flex:1;text-align:center;font-size:12.5px;font-weight:600;color:color-mix(in srgb, var(--color-text) 70%, transparent)">{{ windowTitle }}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;color:var(--color-neutral-600)">Saved 2 min ago</span>
+        <span style="width:26px;height:26px;border-radius:999px;background:var(--color-accent-2-300);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:11px;color:var(--color-accent-2-900)">RB</span>
+      </div>
+    </div>
+
+    <div style="flex:1;display:flex;min-height:0">
+
+      <div style="width:78px;flex:none;background:var(--color-surface);border-right:1px solid var(--color-divider);display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 0">
+        <div style="width:34px;height:34px;border-radius:999px;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:16px;margin-bottom:8px">W</div>
+        <sc-for list="{{ rail }}" as="r" hint-placeholder-count="5">
+          <button onClick="{{ r.on }}" title="{{ r.label }}" style="width:58px;border:0;cursor:pointer;background:{{ r.bg }};border-radius:var(--radius-md);padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:5px;color:{{ r.fg }}">
+            <span style="width:26px;height:26px;display:flex;align-items:center;justify-content:center" dangerouslySetInnerHTML="{{ r.icon }}"></span>
+            <span style="font-family:var(--font-body);font-size:10px;font-weight:600;letter-spacing:.01em">{{ r.label }}</span>
+          </button>
+        </sc-for>
+        <div style="flex:1"></div>
+        <button class="wk-pill" onClick="{{ openSave }}" style="width:58px;border:0;cursor:pointer;background:transparent;border-radius:var(--radius-md);padding:8px 0;color:var(--color-neutral-600);font-family:var(--font-body);font-size:10px;font-weight:600">Save as</button>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+
+        <sc-if value="{{ notStart }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:none;background:var(--color-surface);border-bottom:1px solid var(--color-divider)">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 16px 0">
+              <sc-for list="{{ docTabs }}" as="t" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px 14px 0 0;background:{{ t.bg }};color:{{ t.fg }};font-size:12.5px;font-weight:600;border:1px solid {{ t.bd }};border-bottom:0">{{ t.name }}<span style="color:var(--color-neutral-500);font-size:13px">×</span></div>
+              </sc-for>
+              <button class="wk-pill" style="border:0;background:transparent;cursor:pointer;color:var(--color-neutral-600);font-size:15px;padding:2px 8px;border-radius:999px">+</button>
+              <div style="flex:1"></div>
+              <span style="font-size:11px;color:var(--color-neutral-600);padding-bottom:6px">{{ appTagline }}</span>
+            </div>
+          </div>
+
+          <sc-if value="{{ isRibbon }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:none;background:var(--color-bg);border-bottom:1px solid var(--color-divider)">
+              <div style="display:flex;gap:2px;padding:8px 16px 0">
+                <sc-for list="{{ ribbonTabs }}" as="t" hint-placeholder-count="5">
+                  <button onClick="{{ t.on }}" style="border:0;cursor:pointer;font-family:var(--font-body);font-size:12px;font-weight:600;padding:7px 14px;border-radius:999px;background:{{ t.bg }};color:{{ t.fg }}">{{ t.name }}</button>
+                </sc-for>
+              </div>
+              <div style="display:flex;align-items:stretch;gap:0;padding:10px 16px 12px;overflow:hidden">
+                <sc-for list="{{ ribbonGroups }}" as="g" hint-placeholder-count="4">
+                  <div style="display:flex;flex-direction:column;gap:7px;padding:0 18px;border-right:1px solid var(--color-divider)">
+                    <div style="display:flex;gap:6px;align-items:center">
+                      <sc-for list="{{ g.items }}" as="i" hint-placeholder-count="3">
+                        <button class="wk-pill" style="border:1px solid var(--color-divider);cursor:pointer;background:color-mix(in srgb, var(--color-surface) 60%, transparent);border-radius:999px;padding:7px 13px;font-family:{{ i.font }};font-size:12.5px;font-weight:600;font-style:{{ i.style }};color:var(--color-text);white-space:nowrap">{{ i.label }}</button>
+                      </sc-for>
+                    </div>
+                    <span style="font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--color-neutral-500);padding-left:2px">{{ g.name }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isMinimal }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:none;display:flex;align-items:center;gap:8px;padding:11px 16px;background:var(--color-bg);border-bottom:1px solid var(--color-divider)">
+              <span style="font-family:var(--font-heading);font-size:16px;margin-right:6px">{{ docTitle }}</span>
+              <sc-for list="{{ quickBar }}" as="i" hint-placeholder-count="4">
+                <button class="wk-pill" style="border:0;cursor:pointer;background:transparent;border-radius:999px;padding:6px 12px;font-family:{{ i.font }};font-size:12.5px;font-weight:600;font-style:{{ i.style }};color:color-mix(in srgb, var(--color-text) 78%, transparent);white-space:nowrap">{{ i.label }}</button>
+              </sc-for>
+              <div style="flex:1"></div>
+              <button class="wk-pill" style="border:1px solid var(--color-divider);cursor:pointer;background:transparent;border-radius:999px;padding:6px 14px;font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--color-text)">⌘K  Commands</button>
+              <button onClick="{{ primaryAction }}" style="border:0;cursor:pointer;background:var(--color-accent);color:var(--color-bg);border-radius:999px;padding:7px 16px;font-family:var(--font-heading);font-size:12.5px">{{ primaryLabel }}</button>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <div style="flex:1;display:flex;min-height:0">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;background:var(--color-bg)">
+
+            <sc-if value="{{ isStart }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;display:flex;min-height:0">
+                <div style="flex:1;padding:38px 44px;overflow:hidden">
+                  <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-600)">Bramble Bakehouse · 4 seats</div>
+                  <h1 style="font-family:var(--font-heading);font-size:40px;margin:8px 0 4px">Good morning, Rosa</h1>
+                  <p style="max-width:520px;color:color-mix(in srgb, var(--color-text) 62%, transparent);font-size:14px">Month end is Friday. Two invoices are overdue and the wholesale review is not written yet.</p>
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:26px 0 30px">
+                    <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="4">
+                      <button class="wk-tile" onClick="{{ t.on }}" style="transition:transform .16s ease;text-align:left;cursor:pointer;border:1px solid var(--color-divider);background:{{ t.bg }};border-radius:var(--radius-lg);padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px;color:var(--color-text)">
+                        <span style="width:44px;height:44px;border-radius:999px;background:{{ t.dot }};color:{{ t.ink }};display:flex;align-items:center;justify-content:center" dangerouslySetInnerHTML="{{ t.icon }}"></span>
+                        <span style="font-family:var(--font-heading);font-size:20px">{{ t.name }}</span>
+                        <span style="font-size:12px;color:color-mix(in srgb, var(--color-text) 60%, transparent);line-height:1.35">{{ t.blurb }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:10px">
+                    <h3 style="font-family:var(--font-heading);font-size:18px;margin:0">Pick up where you left off</h3>
+                    <span style="font-size:11px;color:var(--color-neutral-600)">This week</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column">
+                    <sc-for list="{{ recents }}" as="r" hint-placeholder-count="5">
+                      <button class="wk-row" onClick="{{ r.on }}" style="text-align:left;cursor:pointer;border:0;border-bottom:1px solid var(--color-divider);background:transparent;display:flex;align-items:center;gap:14px;padding:11px 8px;color:var(--color-text)">
+                        <span style="width:8px;height:8px;border-radius:999px;background:{{ r.dot }};flex:none"></span>
+                        <span style="flex:1;font-size:13.5px;font-weight:600">{{ r.name }}</span>
+                        <span style="width:96px;font-size:11.5px;color:var(--color-neutral-600)">{{ r.app }}</span>
+                        <span style="width:110px;font-size:11.5px;color:var(--color-neutral-600);text-align:right">{{ r.when }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="width:296px;flex:none;border-left:1px solid var(--color-divider);background:var(--color-surface);padding:34px 26px;display:flex;flex-direction:column;gap:22px">
+                  <div>
+                    <div style="font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:10px">Needs you</div>
+                    <div style="display:flex;flex-direction:column;gap:9px">
+                      <sc-for list="{{ todos }}" as="t" hint-placeholder-count="3">
+                        <div style="background:var(--color-bg);border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:11px 13px">
+                          <div style="font-size:12.5px;font-weight:600;margin-bottom:3px">{{ t.title }}</div>
+                          <div style="font-size:11px;color:var(--color-neutral-600)">{{ t.meta }}</div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:10px">Start something</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:7px">
+                      <sc-for list="{{ startChips }}" as="c" hint-placeholder-count="4">
+                        <span class="tag tag-outline" style="font-size:11.5px">{{ c }}</span>
+                      </sc-for>
+                    </div>
+                  </div>
+                  <div style="margin-top:auto;font-size:11px;color:var(--color-neutral-600);line-height:1.5">Work keeps files on your own disk. <a href="#">Where things are saved →</a></div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isNewDoc }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:40px">
+                <div style="text-align:center;max-width:520px">
+                  <div style="width:60px;height:60px;border-radius:999px;margin:0 auto 16px;background:{{ appTint }};color:{{ appInk }};display:flex;align-items:center;justify-content:center" dangerouslySetInnerHTML="{{ appIcon }}"></div>
+                  <h2 style="font-family:var(--font-heading);font-size:30px;margin:0 0 6px">{{ emptyTitle }}</h2>
+                  <p style="font-size:13.5px;color:color-mix(in srgb, var(--color-text) 60%, transparent);margin:0">{{ emptyBlurb }}</p>
+                </div>
+                <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;max-width:820px">
+                  <sc-for list="{{ templates }}" as="t" hint-placeholder-count="4">
+                    <button onClick="{{ t.on }}" style="cursor:pointer;text-align:left;width:186px;border:1px solid var(--color-divider);background:var(--color-surface);border-radius:var(--radius-md);padding:0;overflow:hidden;color:var(--color-text)">
+                      <span style="display:block;height:104px;background:var(--color-bg);border-bottom:1px solid var(--color-divider);padding:14px;display:flex;flex-direction:column;gap:6px;justify-content:center">
+                        <sc-for list="{{ t.lines }}" as="l" hint-placeholder-count="3">
+                          <span style="display:block;height:7px;border-radius:999px;width:{{ l.w }};background:{{ l.c }}"></span>
+                        </sc-for>
+                      </span>
+                      <span style="display:block;padding:11px 13px">
+                        <span style="display:block;font-size:12.5px;font-weight:600">{{ t.name }}</span>
+                        <span style="display:block;font-size:11px;color:var(--color-neutral-600);margin-top:2px">{{ t.meta }}</span>
+                      </span>
+                    </button>
+                  </sc-for>
+                </div>
+                <button onClick="{{ toWork }}" class="btn btn-secondary" style="font-size:13px">Open the one I was writing instead</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isWriteDoc }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;display:flex;min-height:0">
+                <div style="width:212px;flex:none;border-right:1px solid var(--color-divider);padding:18px 14px;overflow:hidden">
+                  <div style="font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:10px">Navigator</div>
+                  <div style="display:flex;flex-direction:column;gap:2px">
+                    <sc-for list="{{ outline }}" as="o" hint-placeholder-count="5">
+                      <div style="font-size:12px;font-weight:{{ o.weight }};padding:6px 9px;border-radius:10px;background:{{ o.bg }};color:{{ o.fg }};padding-left:{{ o.indent }}">{{ o.name }}</div>
+                    </sc-for>
+                  </div>
+                  <div style="margin-top:20px;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:8px">Pages</div>
+                  <div style="display:flex;gap:8px">
+                    <div style="width:52px;height:70px;border-radius:6px;background:var(--color-neutral-100);border:2px solid var(--color-accent)"></div>
+                    <div style="width:52px;height:70px;border-radius:6px;background:var(--color-neutral-100);border:1px solid var(--color-divider)"></div>
+                  </div>
+                </div>
+                <div style="flex:1;overflow:hidden;background:var(--color-neutral-200);padding:26px 0;display:flex;justify-content:center">
+                  <div style="width:660px;background:var(--color-neutral-100);box-shadow:var(--shadow-md);border-radius:4px;padding:52px 62px;color:var(--color-neutral-900)">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:30px">
+                      <span style="width:30px;height:30px;border-radius:999px;background:var(--color-accent-200)"></span>
+                      <span style="font-family:var(--font-heading);font-size:15px;color:var(--color-accent-700)">Bramble Bakehouse</span>
+                      <span style="flex:1"></span>
+                      <span style="font-size:10.5px;color:var(--color-neutral-600)">Ashburton · est. 2019</span>
+                    </div>
+                    <h1 style="font-family:var(--font-heading);font-size:31px;line-height:1.1;margin:0 0 4px">Wholesale terms for 2026</h1>
+                    <div style="font-size:11.5px;color:var(--color-neutral-600);margin-bottom:22px">Draft · to go out with January invoices</div>
+                    <p style="font-size:13.5px;line-height:1.75;text-wrap:pretty;margin:0 0 13px">Dear friends — after three years of holding our prices, the cost of flour and butter has moved further than we can absorb. From <strong>1 February</strong> our wholesale sheet rises by an average of 6%, and we are changing two things about how we invoice.</p>
+                    <p style="font-size:13.5px;line-height:1.75;text-wrap:pretty;margin:0 0 13px">Standing orders placed before the 20th of the month keep the old rate for a further quarter. Accounts settled within fourteen days keep the 2% early-settlement discount; accounts beyond thirty days will move to prepay, which we would rather not do to anybody.</p>
+                    <div style="border-left:3px solid var(--color-accent-300);padding:2px 0 2px 14px;margin:18px 0;font-size:13px;line-height:1.65;color:var(--color-neutral-800)">We are a bakery of four people. Every rise here is a cost we have already paid — none of it is margin.</div>
+                    <p style="font-size:13.5px;line-height:1.75;margin:0">The full sheet is attached, and Rosa will ring each of you through the week to walk</p>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isAccounts }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+                <div style="flex:none;display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--color-divider);background:var(--color-bg)">
+                  <span style="font-size:11.5px;font-weight:700;font-family:var(--font-body);padding:5px 12px;border:1px solid var(--color-divider);border-radius:999px;min-width:52px;text-align:center">{{ cellRef }}</span>
+                  <span style="font-size:13px;color:var(--color-neutral-600)">ƒx</span>
+                  <span style="flex:1;font-size:13px;font-family:ui-monospace,Menlo,monospace">{{ cellFormula }}</span>
+                </div>
+                <div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+                  <div style="display:flex;background:var(--color-surface);border-bottom:1px solid var(--color-divider)">
+                    <span style="width:38px;flex:none;border-right:1px solid var(--color-divider)"></span>
+                    <sc-for list="{{ cols }}" as="c" hint-placeholder-count="7">
+                      <span style="width:{{ c.w }};flex:none;text-align:center;font-size:10.5px;font-weight:700;color:var(--color-neutral-600);padding:5px 0;border-right:1px solid var(--color-divider);background:{{ c.bg }}">{{ c.name }}</span>
+                    </sc-for>
+                  </div>
+                  <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+                    <div style="display:flex;border-bottom:1px solid var(--color-divider);background:{{ r.bg }}">
+                      <span style="width:38px;flex:none;text-align:center;font-size:10.5px;font-weight:700;color:var(--color-neutral-600);padding:7px 0;border-right:1px solid var(--color-divider);background:var(--color-surface)">{{ r.n }}</span>
+                      <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="7">
+                        <span class="wk-cell" onClick="{{ c.on }}" style="width:{{ c.w }};flex:none;padding:7px 9px;font-size:12.5px;font-weight:{{ c.weight }};color:{{ c.fg }};text-align:{{ c.align }};border-right:1px solid var(--color-divider);cursor:cell;font-variant-numeric:tabular-nums;outline:{{ c.sel }};outline-offset:-2px;white-space:nowrap;overflow:hidden">{{ c.v }}</span>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                  <div style="flex:1;background:color-mix(in srgb, var(--color-surface) 30%, transparent)"></div>
+                </div>
+                <div style="flex:none;display:flex;align-items:center;gap:6px;padding:7px 12px;border-top:1px solid var(--color-divider);background:var(--color-bg)">
+                  <sc-for list="{{ sheets }}" as="s" hint-placeholder-count="4">
+                    <button onClick="{{ s.on }}" style="border:1px solid {{ s.bd }};cursor:pointer;background:{{ s.bg }};color:{{ s.fg }};border-radius:999px;padding:5px 13px;font-family:var(--font-body);font-size:11.5px;font-weight:600">{{ s.name }}</button>
+                  </sc-for>
+                  <button class="wk-pill" style="border:0;background:transparent;cursor:pointer;color:var(--color-neutral-600);font-size:14px;padding:3px 9px;border-radius:999px">+</button>
+                  <div style="flex:1"></div>
+                  <button onClick="{{ openChart }}" class="btn btn-primary" style="font-size:12px;padding:6px 14px">Chart this range</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isShow }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;display:flex;min-height:0">
+                <div style="width:176px;flex:none;border-right:1px solid var(--color-divider);padding:14px 12px;display:flex;flex-direction:column;gap:9px;overflow:hidden">
+                  <sc-for list="{{ slides }}" as="s" hint-placeholder-count="6">
+                    <button onClick="{{ s.on }}" style="cursor:pointer;text-align:left;border:2px solid {{ s.bd }};background:var(--color-neutral-100);border-radius:8px;padding:8px 9px;height:80px;display:flex;flex-direction:column;gap:4px;color:var(--color-neutral-900);position:relative">
+                      <span style="position:absolute;top:5px;right:7px;font-size:9px;color:var(--color-neutral-500)">{{ s.n }}</span>
+                      <span style="font-family:var(--font-heading);font-size:9.5px;line-height:1.15;padding-right:12px">{{ s.title }}</span>
+                      <span style="display:block;height:4px;width:70%;border-radius:999px;background:var(--color-neutral-300)"></span>
+                      <span style="display:block;height:4px;width:52%;border-radius:999px;background:var(--color-neutral-300)"></span>
+                    </button>
+                  </sc-for>
+                </div>
+                <div style="flex:1;background:var(--color-neutral-200);display:flex;align-items:center;justify-content:center;padding:28px;overflow:hidden">
+                  <div style="width:100%;max-width:760px;aspect-ratio:16/9;background:var(--color-neutral-100);border-radius:10px;box-shadow:var(--shadow-md);padding:44px 50px;display:flex;flex-direction:column;color:var(--color-neutral-900)">
+                    <div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Wholesale review · H1 2026</div>
+                    <h2 style="font-family:var(--font-heading);font-size:34px;line-height:1.08;margin:8px 0 18px">{{ slideTitle }}</h2>
+                    <div style="flex:1;display:flex;gap:30px;align-items:flex-end">
+                      <div style="flex:1;display:flex;flex-direction:column;gap:11px;padding-bottom:6px">
+                        <sc-for list="{{ slideBullets }}" as="b" hint-placeholder-count="3">
+                          <div style="display:flex;gap:9px;align-items:baseline;font-size:14px;line-height:1.45">
+                            <span style="width:7px;height:7px;border-radius:999px;background:var(--color-accent);flex:none"></span>
+                            <span>{{ b }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <div style="width:250px;display:flex;align-items:flex-end;gap:9px;height:170px">
+                        <sc-for list="{{ slideBars }}" as="b" hint-placeholder-count="5">
+                          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+                            <span style="display:block;width:100%;border-radius:8px 8px 3px 3px;height:{{ b.h }};background:{{ b.c }}"></span>
+                            <span style="font-size:9.5px;color:var(--color-neutral-600)">{{ b.m }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isKeep }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;display:flex;min-height:0">
+                <div style="width:206px;flex:none;border-right:1px solid var(--color-divider);padding:18px 14px">
+                  <div style="font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:10px">Tables</div>
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <sc-for list="{{ tables }}" as="t" hint-placeholder-count="4">
+                      <button onClick="{{ t.on }}" style="cursor:pointer;text-align:left;border:0;background:{{ t.bg }};color:{{ t.fg }};border-radius:10px;padding:7px 11px;font-family:var(--font-body);font-size:12.5px;font-weight:600;display:flex;justify-content:space-between;gap:8px">{{ t.name }}<span style="font-size:11px;font-weight:400;color:var(--color-neutral-600)">{{ t.count }}</span></button>
+                    </sc-for>
+                  </div>
+                  <div style="margin-top:22px;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:10px">Saved queries</div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <sc-for list="{{ queries }}" as="q" hint-placeholder-count="3">
+                      <div style="font-size:12px;color:color-mix(in srgb, var(--color-text) 72%, transparent);padding:5px 11px;border-radius:10px;border:1px dashed var(--color-divider)">{{ q }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+                  <div style="flex:none;display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--color-divider)">
+                    <span style="font-family:var(--font-heading);font-size:17px">{{ keepTable }}</span>
+                    <span class="tag tag-neutral" style="font-size:11px">{{ keepCount }}</span>
+                    <div style="flex:1"></div>
+                    <div style="display:flex;gap:4px;padding:3px;border-radius:999px;background:color-mix(in srgb, var(--color-text) 7%, transparent)">
+                      <sc-for list="{{ keepViewSeg }}" as="o" hint-placeholder-count="2">
+                        <button onClick="{{ o.on }}" style="border:0;cursor:pointer;font-family:var(--font-body);font-size:11.5px;font-weight:600;padding:5px 13px;border-radius:999px;background:{{ o.bg }};color:{{ o.fg }}">{{ o.label }}</button>
+                      </sc-for>
+                    </div>
+                  </div>
+                  <sc-if value="{{ keepGrid }}" hint-placeholder-val="{{ true }}">
+                    <div style="flex:1;overflow:hidden;padding:0 6px">
+                      <table class="table" style="width:100%;font-size:12.5px">
+                        <thead>
+                          <tr>
+                            <sc-for list="{{ keepCols }}" as="c" hint-placeholder-count="5">
+                              <th style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap">{{ c }}</th>
+                            </sc-for>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <sc-for list="{{ records }}" as="r" hint-placeholder-count="7">
+                            <tr class="wk-row">
+                              <td style="font-weight:600">{{ r.name }}</td>
+                              <td>{{ r.town }}</td>
+                              <td>{{ r.terms }}</td>
+                              <td style="font-variant-numeric:tabular-nums">{{ r.bal }}</td>
+                              <td><span class="tag {{ r.tagClass }}" style="font-size:10.5px">{{ r.status }}</span></td>
+                            </tr>
+                          </sc-for>
+                        </tbody>
+                      </table>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ keepForm }}" hint-placeholder-val="{{ true }}">
+                    <div style="flex:1;overflow:hidden;padding:26px 34px;display:flex;gap:34px">
+                      <div style="flex:1;max-width:420px;display:flex;flex-direction:column;gap:14px">
+                        <sc-for list="{{ formFields }}" as="f" hint-placeholder-count="5">
+                          <label class="field" style="display:flex;flex-direction:column;gap:5px">
+                            <span style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600)">{{ f.label }}</span>
+                            <input class="input" value="{{ f.value }}" readOnly="{{ true }}" style="font-size:13px">
+                          </label>
+                        </sc-for>
+                        <div style="display:flex;gap:9px;margin-top:6px">
+                          <button class="btn btn-primary" style="font-size:12.5px">Save record</button>
+                          <button class="btn btn-secondary" style="font-size:12.5px">New order for this customer</button>
+                        </div>
+                      </div>
+                      <div style="width:250px;border-left:1px solid var(--color-divider);padding-left:26px">
+                        <div style="font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:10px">Linked orders</div>
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                          <sc-for list="{{ linkedOrders }}" as="o" hint-placeholder-count="3">
+                            <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:10px 12px">
+                              <div style="font-size:12px;font-weight:600">{{ o.ref }}</div>
+                              <div style="font-size:11px;color:var(--color-neutral-600)">{{ o.meta }}</div>
+                            </div>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+
+          <sc-if value="{{ showPanel }}" hint-placeholder-val="{{ true }}">
+            <div style="width:262px;flex:none;border-left:1px solid var(--color-divider);background:var(--color-surface);padding:20px 18px;display:flex;flex-direction:column;gap:18px;overflow:hidden">
+              <div>
+                <div style="font-family:var(--font-heading);font-size:15px;margin-bottom:3px">{{ panelTitle }}</div>
+                <div style="font-size:11px;color:var(--color-neutral-600)">{{ panelSub }}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <sc-for list="{{ panelFields }}" as="f" hint-placeholder-count="4">
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    <span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600)">{{ f.label }}</span>
+                    <div style="background:var(--color-bg);border:1px solid var(--color-divider);border-radius:999px;padding:7px 13px;font-size:12.5px;display:flex;justify-content:space-between;gap:8px">{{ f.value }}<span style="color:var(--color-neutral-500);font-size:10px">▾</span></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div>
+                <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:8px">{{ panelChipTitle }}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px">
+                  <sc-for list="{{ panelChips }}" as="c" hint-placeholder-count="3">
+                    <span class="tag tag-accent" style="font-size:11px">{{ c }}</span>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="margin-top:auto;border-top:1px solid var(--color-divider);padding-top:14px;font-size:11px;color:var(--color-neutral-600);line-height:1.5">{{ panelFoot }}</div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="flex:none;height:32px;display:flex;align-items:center;gap:16px;padding:0 16px;border-top:1px solid var(--color-divider);background:var(--color-surface);font-size:11px;color:color-mix(in srgb, var(--color-text) 66%, transparent)">
+          <sc-for list="{{ statusItems }}" as="s" hint-placeholder-count="3">
+            <span>{{ s }}</span>
+          </sc-for>
+          <div style="flex:1"></div>
+          <span>{{ statusRight }}</span>
+          <span style="display:flex;align-items:center;gap:6px">100%<span style="width:64px;height:4px;border-radius:999px;background:var(--color-neutral-300);display:block;position:relative"><span style="position:absolute;left:50%;top:-3px;width:10px;height:10px;border-radius:999px;background:var(--color-accent)"></span></span></span>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ dialogOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeDialog }}" style="position:absolute;inset:0;background:color-mix(in srgb, #2e2b25 42%, transparent);display:flex;align-items:center;justify-content:center;padding:40px">
+        <div style="width:520px;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);border:1px solid var(--color-divider);padding:26px 28px">
+          <h3 style="font-family:var(--font-heading);font-size:22px;margin:0 0 4px">{{ dialogTitle }}</h3>
+          <p style="font-size:12.5px;color:color-mix(in srgb, var(--color-text) 62%, transparent);margin:0 0 18px">{{ dialogSub }}</p>
+          <div style="display:flex;flex-direction:column;gap:13px">
+            <sc-for list="{{ dialogFields }}" as="f" hint-placeholder-count="3">
+              <label style="display:flex;flex-direction:column;gap:5px">
+                <span style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600)">{{ f.label }}</span>
+                <input class="input" value="{{ f.value }}" readOnly="{{ true }}" style="font-size:13px">
+              </label>
+            </sc-for>
+            <div style="display:flex;flex-wrap:wrap;gap:7px">
+              <sc-for list="{{ dialogChoices }}" as="c" hint-placeholder-count="4">
+                <span class="tag {{ c.cls }}" style="font-size:11.5px">{{ c.label }}</span>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:9px;margin-top:22px">
+            <button onClick="{{ closeDialog }}" class="btn btn-secondary" style="font-size:13px">Cancel</button>
+            <button onClick="{{ closeDialog }}" class="btn btn-primary" style="font-size:13px">{{ dialogConfirm }}</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="font-size:11.5px;color:var(--color-neutral-600);max-width:760px;text-align:center;line-height:1.6">Clickable: the left rail switches app, tabs and sheet/slide/table lists respond, “Chart this range” and “Save as” open dialogs. Chrome model, empty state and dark mode switch from the strip above.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;chromeModel&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ribbon&quot;,&quot;minimal&quot;],&quot;default&quot;:&quot;ribbon&quot;,&quot;tsType&quot;:&quot;'ribbon' | 'minimal'&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light' | 'dark'&quot;,&quot;section&quot;:&quot;Chrome&quot;}}">
+const ICON = {
+  start: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M4 6h6v6H4zM14 6h6v6h-6zM4 16h6v4H4zM14 16h6v4h-6z"/></svg>',
+  write: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><path d="M4 5h11M4 11h13M4 17h7"/><path d="M17 21l4-9 2 2-4 9-2.5.8z"/></svg>',
+  accounts: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M3.5 10h17M9.5 10v10M15 10v10"/></svg>',
+  show: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="12" rx="3"/><path d="M12 16.5V20M8 20h8"/></svg>',
+  keep: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6M4.5 12v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/></svg>'
+};
+const APPS = {
+  write:    { label: 'Write',    tint: 'var(--color-accent-200)',   ink: 'var(--color-accent-800)',   doc: 'Wholesale terms 2026' },
+  accounts: { label: 'Accounts', tint: 'var(--color-accent-2-200)', ink: 'var(--color-accent-2-800)', doc: 'Cash flow 2026' },
+  show:     { label: 'Show',     tint: 'var(--color-accent-300)',   ink: 'var(--color-accent-900)',   doc: 'Wholesale review' },
+  keep:     { label: 'Keep',     tint: 'var(--color-neutral-300)',  ink: 'var(--color-neutral-900)',  doc: 'Bakehouse.keep' }
+};
+const RIBBON = {
+  write: [
+    { name: 'Text', items: [{ label: 'B', font: 'var(--font-heading)' }, { label: 'I', style: 'italic' }, { label: 'U' }] },
+    { name: 'Paragraph', items: [{ label: 'Flush left' }, { label: 'List' }, { label: 'Spacing' }] },
+    { name: 'Insert', items: [{ label: 'Table' }, { label: 'Image' }, { label: 'Comment' }] },
+    { name: 'Styles', items: [{ label: 'Body' }, { label: 'Heading', font: 'var(--font-heading)' }, { label: 'Pull quote' }] }
+  ],
+  accounts: [
+    { name: 'Number', items: [{ label: '£' }, { label: '%' }, { label: '0.00' }] },
+    { name: 'Formula', items: [{ label: 'Σ Sum' }, { label: 'Average' }, { label: 'Lookup' }] },
+    { name: 'Insert', items: [{ label: 'Chart' }, { label: 'Rows' }, { label: 'Pivot' }] },
+    { name: 'Review', items: [{ label: 'Freeze' }, { label: 'Trace' }] }
+  ],
+  show: [
+    { name: 'Slide', items: [{ label: 'New' }, { label: 'Layout' }, { label: 'Duplicate' }] },
+    { name: 'Insert', items: [{ label: 'Image' }, { label: 'Chart' }, { label: 'Shape' }] },
+    { name: 'Transition', items: [{ label: 'Fade' }, { label: 'None' }] },
+    { name: 'Present', items: [{ label: 'From start' }, { label: 'Notes' }] }
+  ],
+  keep: [
+    { name: 'Record', items: [{ label: 'New' }, { label: 'Duplicate' }, { label: 'Delete' }] },
+    { name: 'Table', items: [{ label: 'Fields' }, { label: 'Relations' }, { label: 'Index' }] },
+    { name: 'Query', items: [{ label: 'Filter' }, { label: 'Sort' }, { label: 'Report' }] }
+  ]
+};
+const QUICK = {
+  write: [{ label: 'B', font: 'var(--font-heading)' }, { label: 'I', style: 'italic' }, { label: 'Styles' }, { label: 'Comment' }],
+  accounts: [{ label: 'Σ Sum' }, { label: '£' }, { label: 'Chart' }, { label: 'Freeze' }],
+  show: [{ label: 'New slide' }, { label: 'Layout' }, { label: 'Notes' }],
+  keep: [{ label: 'Filter' }, { label: 'Sort' }, { label: 'Fields' }]
+};
+const PANEL = {
+  write: { title: 'Paragraph', sub: 'Body · 13.5 / 1.75', fields: [{ label: 'Style', value: 'Body' }, { label: 'Face', value: 'Figtree 13.5' }, { label: 'Line height', value: '1.75' }, { label: 'Space after', value: '13 px' }], chipTitle: 'Recent styles', chips: ['Heading', 'Pull quote', 'Address'], foot: 'Changing a style updates every paragraph using it.' },
+  accounts: { title: 'Cell format', sub: 'G9 · sum of five months', fields: [{ label: 'Number', value: 'Currency £, no pence' }, { label: 'Alignment', value: 'Right' }, { label: 'Fill', value: 'Sage tint' }, { label: 'Border', value: 'Top rule' }], chipTitle: 'Named ranges', chips: ['Revenue', 'Costs', 'Net'], foot: 'Named ranges can be used in Show and in Keep reports.' },
+  show: { title: 'Slide layout', sub: 'Bullets + chart', fields: [{ label: 'Layout', value: 'Two column' }, { label: 'Palette', value: 'Bakehouse warm' }, { label: 'Title face', value: 'Caprasimo 34' }, { label: 'Transition', value: 'Fade, 200 ms' }], chipTitle: 'Data source', chips: ['Accounts · Cash flow', 'Live link'], foot: 'The bars follow the linked range; re-open to refresh.' },
+  keep: { title: 'Field properties', sub: 'Customers · Terms', fields: [{ label: 'Type', value: 'Choice' }, { label: 'Choices', value: 'Prepay / 14 / 30 / 45' }, { label: 'Required', value: 'Yes' }, { label: 'Default', value: 'Net 14' }], chipTitle: 'Used in', chips: ['Overdue query', 'Statement report'], foot: 'Keep stores one file per table on your disk.' }
+};
+const EMPTY = {
+  write: { title: 'A blank page, or a start', blurb: 'Templates carry the Bakehouse letterhead, terms and signature block already set.', templates: [['Blank', 'A4 · Body 13.5'], ['Customer letter', 'Letterhead + signature'], ['Quote', 'Line items + totals'], ['Terms sheet', 'Two columns']] },
+  accounts: { title: 'A new book', blurb: 'Start empty, or from a sheet that already knows how a four-person bakery counts money.', templates: [['Blank book', '1 sheet'], ['Cash flow', '12 months + net'], ['Payroll', '4 people, monthly'], ['Invoice tracker', 'Ageing built in']] },
+  show: { title: 'A new deck', blurb: 'Layouts and palette come from the Bakehouse theme, so slides match the letterhead.', templates: [['Blank deck', '16:9'], ['Wholesale review', '9 slides'], ['Supplier pitch', '6 slides'], ['Team update', '5 slides']] },
+  keep: { title: 'A new store', blurb: 'Keep is a plain file on your disk. Tables, forms and reports, no server to run.', templates: [['Blank store', '1 table'], ['Customers & orders', '3 tables, linked'], ['Stock', '2 tables'], ['Suppliers', '1 table']] }
+};
+const ROWS = [
+  { cells: ['Cash flow — first half', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'H1'], head: true },
+  { cells: ['Wholesale orders', '18,400', '19,250', '21,100', '20,480', '23,900', '103,130'] },
+  { cells: ['Market stall', '6,120', '5,880', '7,340', '8,010', '9,450', '36,800'] },
+  { cells: ['Café accounts', '4,300', '4,300', '4,730', '5,160', '5,590', '24,080'] },
+  { cells: ['Revenue', '28,820', '29,430', '33,170', '33,650', '38,940', '164,010'], tint: 'accent' },
+  { cells: ['Flour & butter', '−9,240', '−9,410', '−10,880', '−10,510', '−12,300', '−52,340'] },
+  { cells: ['Wages', '−11,600', '−11,600', '−12,400', '−12,400', '−13,900', '−61,900'] },
+  { cells: ['Rent & utilities', '−3,850', '−3,850', '−3,850', '−3,850', '−3,850', '−19,250'] },
+  { cells: ['Net', '4,130', '4,570', '6,040', '6,890', '8,890', '30,520'], tint: 'sage' },
+  { cells: ['', '', '', '', '', '', ''] },
+  { cells: ['Cover ratio', '1.17', '1.18', '1.22', '1.26', '1.30', '1.23'] }
+];
+const COLW = ['232px', '112px', '112px', '112px', '112px', '112px', '126px'];
+const RECORDS = [
+  { name: 'Rowan & Fig Café', town: 'Totnes', terms: 'Net 14', bal: '£1,240', status: 'Current' },
+  { name: 'Harbourside Deli', town: 'Brixham', terms: 'Net 30', bal: '£3,880', status: 'Current' },
+  { name: 'The Milk Round', town: 'Newton Abbot', terms: 'Net 30', bal: '£640', status: 'Overdue' },
+  { name: 'Kestrel Kitchen', town: 'Exeter', terms: 'Prepay', bal: '£0', status: 'Current' },
+  { name: 'Two Sisters Bakery', town: 'Ashburton', terms: 'Net 14', bal: '£2,105', status: 'Watch' },
+  { name: 'Quay Street Hotel', town: 'Dartmouth', terms: 'Net 45', bal: '£5,410', status: 'Current' },
+  { name: 'Lark Provisions', town: 'Buckfastleigh', terms: 'Net 14', bal: '£312', status: 'Overdue' }
+];
+const SLIDES = [
+  { title: 'Where the bakehouse stands', bullets: ['Revenue up 19% on H1 2025, on the same four pairs of hands.', 'Wholesale is now 63% of the loaf.', 'Two accounts carry a third of the risk.'] },
+  { title: 'Wholesale, six months', bullets: ['May was our first £38k month.', 'Standing orders grew every month but February.', 'Café accounts are flat — worth a phone call each.'] },
+  { title: 'Costs, and what moved', bullets: ['Butter is up 14% since October.', 'Wages held; one Saturday hire in April.', 'Rent fixed until 2027.'] },
+  { title: 'What we ask of Q4', bullets: ['Hold the 6% rise, no exceptions.', 'Move two slow payers to prepay.', 'One new hotel account.'] },
+  { title: 'Three accounts to win', bullets: ['Quay Street group — four kitchens.', 'The Milk Round — if terms tighten.', 'Lark Provisions — seasonal.'] },
+  { title: 'Thank you', bullets: ['Questions, and a loaf each on the way out.'] }
+];
+const BARS = [['Jan', 46], ['Feb', 52], ['Mar', 66], ['Apr', 71], ['May', 96]];
+
+class Component extends DCLogic {
+  state = {
+    app: 'start', chrome: null, theme: null, mode: 'work',
+    ribbonTab: 'Home', sheet: 'Cash flow', slide: 1,
+    keepTable: 'Customers', keepView: 'grid', cell: [8, 6], dialog: null
+  };
+  get chrome() { return this.state.chrome || this.props.chromeModel || 'ribbon'; }
+  get theme() { return this.state.theme || this.props.theme || 'light'; }
+  seg(list, cur, set) {
+    return list.map(o => ({
+      label: o[0], on: () => set(o[1]),
+      bg: cur === o[1] ? 'var(--color-accent)' : 'transparent',
+      fg: cur === o[1] ? 'var(--color-bg)' : 'color-mix(in srgb, var(--color-text) 62%, transparent)'
+    }));
+  }
+  renderVals() {
+    const app = this.state.app, isStart = app === 'start', meta = APPS[app] || APPS.write;
+    const empty = this.state.mode === 'new' && !isStart;
+    const set = (k) => (v) => this.setState({ [k]: v });
+    const go = (a) => () => this.setState({ app: a });
+    const sel = this.state.cell;
+
+    const rows = ROWS.map((r, i) => ({
+      n: i + 1,
+      bg: r.tint === 'accent' ? 'var(--color-accent-100)' : r.tint === 'sage' ? 'var(--color-accent-2-100)' : 'transparent',
+      cells: r.cells.map((v, j) => ({
+        v, w: COLW[j],
+        align: j === 0 ? 'left' : 'right',
+        weight: r.head || r.tint || j === 0 ? 600 : 400,
+        fg: r.head ? 'var(--color-neutral-600)' : String(v).startsWith('−') ? 'var(--color-accent-700)' : 'var(--color-text)',
+        sel: sel[0] === i && sel[1] === j ? '2px solid var(--color-accent)' : 'none',
+        on: () => this.setState({ cell: [i, j] })
+      }))
+    }));
+    const cellRef = 'ABCDEFG'[sel[1]] + (sel[0] + 1);
+    const rawCell = ROWS[sel[0]].cells[sel[1]];
+    const cellFormula = sel[1] === 6 && sel[0] > 0 ? '=SUM(B' + (sel[0] + 1) + ':F' + (sel[0] + 1) + ')'
+      : sel[0] === 4 ? '=SUM(' + 'ABCDEFG'[sel[1]] + '2:' + 'ABCDEFG'[sel[1]] + '4)'
+      : sel[0] === 8 ? '=' + 'ABCDEFG'[sel[1]] + '5-SUM(' + 'ABCDEFG'[sel[1]] + '6:' + 'ABCDEFG'[sel[1]] + '8)'
+      : rawCell || '';
+
+    const slide = SLIDES[this.state.slide];
+    const status = {
+      start: ['Bramble Bakehouse', '9 files on this machine', 'Backup ran 06:00'],
+      write: ['Page 1 of 2', '412 words', 'English (UK)', 'Draft'],
+      accounts: [cellRef + ' selected', 'Sum 30,520', 'Sheet 1 of 4'],
+      show: ['Slide ' + (this.state.slide + 1) + ' of 6', 'Bakehouse warm theme', 'Notes: 2 lines'],
+      keep: [this.state.keepTable + ' · ' + RECORDS.length + ' records', 'No filter', 'File 1.4 MB']
+    }[app];
+
+    const dialog = this.state.dialog;
+    const dialogSpec = dialog === 'chart'
+      ? { title: 'Chart this range', sub: 'B5:F5 and B9:F9 · five months', fields: [{ label: 'Range', value: 'Cash flow!B5:F9' }, { label: 'Title', value: 'Revenue against net, H1' }], choices: [['Columns', 'tag-accent'], ['Line', 'tag-outline'], ['Stacked', 'tag-outline'], ['Send to Show', 'tag-accent-2']], confirm: 'Insert chart' }
+      : { title: 'Save a copy', sub: meta.doc + ' · Documents / Bramble Bakehouse', fields: [{ label: 'Name', value: meta.doc }, { label: 'Where', value: 'Documents / Bramble Bakehouse / 2026' }], choices: [['Work format', 'tag-accent'], ['Open format', 'tag-outline'], ['PDF', 'tag-outline'], ['Send to accountant', 'tag-accent-2']], confirm: 'Save' };
+
+    return {
+      theme: this.theme,
+      isStart, notStart: !isStart,
+      isRibbon: !isStart && this.chrome === 'ribbon',
+      isMinimal: !isStart && this.chrome === 'minimal',
+      isNewDoc: empty,
+      isWriteDoc: app === 'write' && !empty,
+      isAccounts: app === 'accounts' && !empty,
+      isShow: app === 'show' && !empty,
+      isKeep: app === 'keep' && !empty,
+      showPanel: !isStart && !empty && this.chrome === 'minimal',
+      windowTitle: isStart ? 'Work — Start' : meta.doc + ' — ' + meta.label,
+      docTitle: meta.doc,
+      appTagline: { write: 'Write · documents', accounts: 'Accounts · books and numbers', show: 'Show · slides', keep: 'Keep · records' }[app] || '',
+      appTint: meta.tint, appInk: meta.ink, appIcon: { __html: ICON[app] || ICON.write },
+
+      chromeSeg: this.seg([['Ribbon', 'ribbon'], ['Minimal + panel', 'minimal']], this.chrome, v => this.setState({ chrome: v })),
+      modeSeg: this.seg([['Mid-work', 'work'], ['Empty state', 'new']], this.state.mode, set('mode')),
+      themeSeg: this.seg([['Light', 'light'], ['Dark', 'dark']], this.theme, v => this.setState({ theme: v })),
+
+      rail: [['start', 'Start'], ['write', 'Write'], ['accounts', 'Accounts'], ['show', 'Show'], ['keep', 'Keep']].map(([k, label]) => ({
+        label, on: go(k), icon: { __html: ICON[k] },
+        bg: app === k ? 'var(--color-bg)' : 'transparent',
+        fg: app === k ? 'var(--color-accent-700)' : 'color-mix(in srgb, var(--color-text) 60%, transparent)'
+      })),
+      docTabs: [{ name: meta.doc, active: true }, { name: app === 'accounts' ? 'Payroll Jan' : 'Notes', active: false }].map(t => ({
+        name: t.name,
+        bg: t.active ? 'var(--color-bg)' : 'transparent',
+        fg: t.active ? 'var(--color-text)' : 'color-mix(in srgb, var(--color-text) 55%, transparent)',
+        bd: t.active ? 'var(--color-divider)' : 'transparent'
+      })),
+      ribbonTabs: ['Home', 'Insert', 'Layout', 'Review', 'View'].map(n => ({
+        name: n, on: () => this.setState({ ribbonTab: n }),
+        bg: this.state.ribbonTab === n ? 'var(--color-accent-200)' : 'transparent',
+        fg: this.state.ribbonTab === n ? 'var(--color-accent-800)' : 'color-mix(in srgb, var(--color-text) 62%, transparent)'
+      })),
+      ribbonGroups: (RIBBON[app] || RIBBON.write).map(g => ({
+        name: g.name,
+        items: g.items.map(i => ({ label: i.label, font: i.font || 'var(--font-body)', style: i.style || 'normal' }))
+      })),
+      quickBar: (QUICK[app] || QUICK.write).map(i => ({ label: i.label, font: i.font || 'var(--font-body)', style: i.style || 'normal' })),
+      primaryLabel: { write: 'Share draft', accounts: 'Chart range', show: 'Present', keep: 'New record' }[app] || 'Share',
+      primaryAction: app === 'accounts' ? () => this.setState({ dialog: 'chart' }) : () => this.setState({ dialog: 'save' }),
+
+      tiles: [
+        ['write', 'Write', 'Letters, terms, anything that has to read well.'],
+        ['accounts', 'Accounts', 'Books, cash flow and the payroll sheet.'],
+        ['show', 'Show', 'Slides for the bank and the wholesale review.'],
+        ['keep', 'Keep', 'Customers, orders and suppliers in one file.']
+      ].map(([k, name, blurb]) => ({
+        name, blurb, on: go(k), icon: { __html: ICON[k] },
+        bg: 'var(--color-surface)', dot: APPS[k].tint, ink: APPS[k].ink
+      })),
+      recents: [
+        ['Wholesale terms 2026 — draft', 'Write', 'Today, 08:14', 'write'],
+        ['Cash flow 2026', 'Accounts', 'Yesterday', 'accounts'],
+        ['Wholesale review H1', 'Show', 'Yesterday', 'show'],
+        ['Bakehouse.keep', 'Keep', 'Monday', 'keep'],
+        ['Payroll — January', 'Accounts', 'Last week', 'accounts']
+      ].map(([name, a, when, k]) => ({ name, app: a, when, on: go(k), dot: APPS[k].tint })),
+      todos: [
+        { title: '2 invoices past 30 days', meta: 'The Milk Round · Lark Provisions' },
+        { title: 'Terms letter not sent', meta: 'Goes out with January invoices' },
+        { title: 'VAT quarter closes Friday', meta: 'Accounts · Invoices sheet' }
+      ],
+      startChips: ['Customer letter', 'Quote', 'Cash flow', 'Payroll', 'Deck', 'Stock table'],
+
+      emptyTitle: (EMPTY[app] || EMPTY.write).title,
+      emptyBlurb: (EMPTY[app] || EMPTY.write).blurb,
+      templates: (EMPTY[app] || EMPTY.write).templates.map(([name, meta2], i) => ({
+        name, meta: meta2, on: () => this.setState({ mode: 'work' }),
+        lines: [{ w: '64%', c: i === 0 ? 'var(--color-neutral-300)' : 'var(--color-accent-300)' }, { w: '92%', c: 'var(--color-neutral-300)' }, { w: '78%', c: 'var(--color-neutral-300)' }, { w: '44%', c: 'var(--color-neutral-300)' }]
+      })),
+      toWork: () => this.setState({ mode: 'work' }),
+
+      outline: [
+        ['Wholesale terms for 2026', 0, 700],
+        ['Why prices move', 1, 500],
+        ['What changes on 1 February', 1, 500],
+        ['Standing orders', 2, 400],
+        ['Settlement discount', 2, 400],
+        ['The attached sheet', 1, 500]
+      ].map(([name, d, weight], i) => ({
+        name, weight, indent: (9 + d * 12) + 'px',
+        bg: i === 2 ? 'var(--color-accent-100)' : 'transparent',
+        fg: i === 2 ? 'var(--color-accent-800)' : 'color-mix(in srgb, var(--color-text) 74%, transparent)'
+      })),
+
+      cols: ['A', 'B', 'C', 'D', 'E', 'F', 'G'].map((name, j) => ({
+        name, w: COLW[j],
+        bg: sel[1] === j ? 'var(--color-accent-200)' : 'transparent'
+      })),
+      rows, cellRef, cellFormula,
+      sheets: ['Cash flow', 'Payroll', 'Invoices', 'Prices'].map(name => ({
+        name, on: () => this.setState({ sheet: name }),
+        bg: this.state.sheet === name ? 'var(--color-accent-2-200)' : 'transparent',
+        fg: this.state.sheet === name ? 'var(--color-accent-2-800)' : 'color-mix(in srgb, var(--color-text) 62%, transparent)',
+        bd: this.state.sheet === name ? 'transparent' : 'var(--color-divider)'
+      })),
+      openChart: () => this.setState({ dialog: 'chart' }),
+      openSave: () => this.setState({ dialog: 'save' }),
+
+      slides: SLIDES.map((s, i) => ({
+        n: i + 1, title: s.title, on: () => this.setState({ slide: i }),
+        bd: this.state.slide === i ? 'var(--color-accent)' : 'var(--color-divider)'
+      })),
+      slideTitle: slide.title,
+      slideBullets: slide.bullets,
+      slideBars: BARS.map(([m, h], i) => ({ m, h: h + 'px', c: i === BARS.length - 1 ? 'var(--color-accent)' : 'var(--color-accent-300)' })),
+
+      tables: [['Customers', RECORDS.length], ['Orders', 214], ['Suppliers', 11], ['Products', 38]].map(([name, count]) => ({
+        name, count, on: () => this.setState({ keepTable: name }),
+        bg: this.state.keepTable === name ? 'var(--color-accent-100)' : 'transparent',
+        fg: this.state.keepTable === name ? 'var(--color-accent-800)' : 'color-mix(in srgb, var(--color-text) 76%, transparent)'
+      })),
+      queries: ['Overdue over 30 days', 'Standing orders by town', 'Margin by product'],
+      keepTable: this.state.keepTable,
+      keepCount: RECORDS.length + ' records',
+      keepViewSeg: this.seg([['Grid', 'grid'], ['Form', 'form']], this.state.keepView, set('keepView')),
+      keepGrid: this.state.keepView === 'grid',
+      keepForm: this.state.keepView === 'form',
+      keepCols: ['Customer', 'Town', 'Terms', 'Balance', 'Status'],
+      records: RECORDS.map(r => ({
+        ...r,
+        tagClass: r.status === 'Overdue' ? 'tag-accent' : r.status === 'Watch' ? 'tag-outline' : 'tag-accent-2'
+      })),
+      formFields: [
+        { label: 'Customer', value: 'Rowan & Fig Café' },
+        { label: 'Contact', value: 'Nell Hartley' },
+        { label: 'Town', value: 'Totnes' },
+        { label: 'Terms', value: 'Net 14' },
+        { label: 'Standing order', value: 'Tue & Fri · 24 sourdough, 40 rolls' }
+      ],
+      linkedOrders: [
+        { ref: 'ORD-2026-118', meta: '12 Jan · £412 · paid' },
+        { ref: 'ORD-2026-131', meta: '19 Jan · £398 · paid' },
+        { ref: 'ORD-2026-144', meta: '26 Jan · £430 · open' }
+      ],
+
+      panelTitle: (PANEL[app] || PANEL.write).title,
+      panelSub: (PANEL[app] || PANEL.write).sub,
+      panelFields: (PANEL[app] || PANEL.write).fields,
+      panelChipTitle: (PANEL[app] || PANEL.write).chipTitle,
+      panelChips: (PANEL[app] || PANEL.write).chips,
+      panelFoot: (PANEL[app] || PANEL.write).foot,
+
+      statusItems: status,
+      statusRight: isStart ? 'Work 1.0' : this.chrome === 'ribbon' ? 'Ribbon chrome' : 'Minimal chrome',
+
+      dialogOpen: !!dialog,
+      dialogTitle: dialogSpec.title,
+      dialogSub: dialogSpec.sub,
+      dialogFields: dialogSpec.fields,
+      dialogChoices: dialogSpec.choices.map(([label, cls]) => ({ label, cls })),
+      dialogConfirm: dialogSpec.confirm,
+      closeDialog: () => this.setState({ dialog: null })
+    };
+  }
+}
+</script>
+</body>
+</html>
