@@ -93,6 +93,7 @@ gb_CXXFLAGS := \
 	-fvisibility-inlines-hidden \
 	-fvisibility=hidden \
 	-std=gnu++17 \
+	-fno-devirtualize \
 	-pipe
 ifeq ($(COM),CLANG)
 gb_CXXFLAGS += -DHAVE_STL_INCLUDE_PATH

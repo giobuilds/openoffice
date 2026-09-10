@@ -102,6 +102,11 @@ gb_CXXFLAGS := \
 	-pipe \
 
 ifneq ($(EXTERNAL_WARNINGS_NOT_ERRORS),TRUE)
+# -fno-devirtualize: with -fvisibility-inlines-hidden, GCC 13 devirtualizes
+# calls such as acquire() on a cppu::WeakImplHelper subclass from another
+# library into a direct call to the non-virtual thunk of the inline
+# implementation, which that library does not export (undefined reference to
+# `non-virtual thunk to cppu::WeakImplHelper1<...>::acquire()' in sot).
 # gnu++17 is required by the bundled ICU 78 headers. Deprecation/narrowing
 # warnings (std::auto_ptr, throw(), braced-init narrowing) must not be fatal.
 # Mirrors macosx.mk.

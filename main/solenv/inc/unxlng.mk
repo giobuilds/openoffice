@@ -95,11 +95,12 @@ CFLAGSEXCEPTIONS=-fexceptions -fno-enforce-eh-specs
 CFLAGS_NO_EXCEPTIONS=-fno-exceptions
 
 # -fpermissive should be removed as soon as possible
+# -fno-devirtualize: see solenv/gbuild/platform/linux.mk.
 # gnu++17 is required by the bundled ICU 78 headers. Dynamic exception
 # specifications were removed from the sources for it; std::auto_ptr and the
 # other C++11 deprecations are kept non-fatal via -Wno-error= below.  The
 # compiler floor is GCC 7 (first release with C++17 support).
-CFLAGSCXX= -pipe $(ARCH_FLAGS) -std=gnu++17 -fstack-protector-strong
+CFLAGSCXX= -pipe $(ARCH_FLAGS) -std=gnu++17 -fno-devirtualize -fstack-protector-strong
 .IF "$(HAVE_GCC_VISIBILITY_FEATURE)" == "TRUE"
 CFLAGSCXX += -fvisibility-inlines-hidden
 .ENDIF # "$(HAVE_GCC_VISIBILITY_FEATURE)" == "TRUE"
