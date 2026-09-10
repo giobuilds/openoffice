@@ -52,8 +52,11 @@ export CXX="${CXX:-g++}"
 export verbose="${verbose:-TRUE}"
 
 find_jdk() {
+    # JDK 8 first: set_soenv.in and libs.mk look for libjawt and the JVM
+    # under $JAVA_HOME/jre/lib/amd64, a layout JDK 9+ no longer has, so
+    # the bean module fails to link against a newer JDK.
     local c
-    for c in "${JDK_HOME:-}" "${JAVA_HOME_17_X64:-}" "${JAVA_HOME_11_X64:-}" "${JAVA_HOME_8_X64:-}" "${JAVA_HOME:-}"; do
+    for c in "${JDK_HOME:-}" "${JAVA_HOME_8_X64:-}" "${JAVA_HOME_11_X64:-}" "${JAVA_HOME_17_X64:-}" "${JAVA_HOME:-}"; do
         if test -n "${c}" -a -x "${c}/bin/javac"; then
             echo "${c}"
             return 0
