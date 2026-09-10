@@ -284,7 +284,7 @@ public:
 
 /*
 	// Methoden von XInterface
-	virtual sal_Bool	SAL_CALL queryInterface( const Uik & rUik, Any & ifc ) throw( RuntimeException );
+	virtual sal_Bool	SAL_CALL queryInterface( const Uik & rUik, Any & ifc );
 	virtual void		SAL_CALL acquire() throw() { OWeakObject::acquire(); }
 	virtual void		SAL_CALL release() throw() { OWeakObject::release(); }
 	//ALT: sal_Bool queryInterface( Uik aUik, Reference<XInterface> & rOut );
@@ -294,16 +294,15 @@ public:
     virtual Sequence< Property > SAL_CALL getProperties(  );
     virtual Property SAL_CALL getPropertyByName( const OUString& aName );
     virtual sal_Bool SAL_CALL hasPropertyByName( const OUString& Name );
-    //virtual Sequence< Property > SAL_CALL getProperties(void) throw( RuntimeException );
-    //virtual Property SAL_CALL getPropertyByName(const OUString& Name) throw( RuntimeException );
-    //virtual sal_Bool SAL_CALL hasPropertyByName(const OUString& Name) throw( RuntimeException );
+    //virtual Sequence< Property > SAL_CALL getProperties(void);
+    //virtual Property SAL_CALL getPropertyByName(const OUString& Name);
+    //virtual sal_Bool SAL_CALL hasPropertyByName(const OUString& Name);
 };
 
 
 /*
 // Methoden von XInterface
 sal_Bool SAL_CALL ImplPropertySetInfo::queryInterface( const Uik & rUik, Any & ifc )
-	throw( RuntimeException )
 {
 	// PropertySet-Implementation
 	if( com::sun::star::uno::queryInterface( rUik, ifc,

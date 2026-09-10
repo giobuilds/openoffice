@@ -61,7 +61,7 @@ namespace sd { namespace framework {
     not have a factory, it asks the ModuleController to provide one.  The
     ModuleController looks up the service name registered for the URL of the
     resource and instantiates this service.  The service is expected to
-    register on its creation a factory for the resource in question.
+    on its creation a factory for the resource in question.
 
     2. The ModuleController reads on its creation
     org.openoffice.Office.Impress/MultiPaneGUI/Framework/StartupServices

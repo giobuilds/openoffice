@@ -239,7 +239,6 @@ sal_Bool SAL_CALL SdUnoSlideView::convertFastPropertyValue(
     ::com::sun::star::uno::Any & ,
     sal_Int32 ,
     const ::com::sun::star::uno::Any&  )
-    throw (::com::sun::star::lang::IllegalArgumentException)
 {
     return sal_False;
 }
@@ -250,7 +249,6 @@ sal_Bool SAL_CALL SdUnoSlideView::convertFastPropertyValue(
 void SAL_CALL SdUnoSlideView::setFastPropertyValue_NoBroadcast(
     sal_Int32 ,
     const ::com::sun::star::uno::Any&  )
-    throw (::com::sun::star::uno::Exception)
 {
 }
 

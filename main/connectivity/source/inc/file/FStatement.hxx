@@ -157,7 +157,7 @@ namespace connectivity
 			// OComponentHelper
 			virtual void SAL_CALL disposing(void);
 			// XInterface
-            //      virtual void SAL_CALL release() throw(::com::sun::star::uno::RuntimeException) = 0;
+            //      virtual void SAL_CALL release() = 0;
 			virtual void SAL_CALL acquire() throw();
 			// XInterface
             virtual ::com::sun::star::uno::Any SAL_CALL queryInterface( const ::com::sun::star::uno::Type & rType );

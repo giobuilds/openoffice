@@ -689,18 +689,17 @@ void PlottingPositionHelper::AllowShiftZAxisPos( bool bAllowShift )
 // ____ XTransformation ____
 uno::Sequence< double > SAL_CALL PolarPlottingPositionHelper::transform(
                         const uno::Sequence< double >& rSourceValues )
-            throw (uno::RuntimeException, lang::IllegalArgumentException)
 {
     uno::Sequence< double > aSourceValues(3);
     return aSourceValues;
 }
 
-sal_Int32 SAL_CALL PolarPlottingPositionHelper::getSourceDimension() throw (uno::RuntimeException)
+sal_Int32 SAL_CALL PolarPlottingPositionHelper::getSourceDimension()
 {
     return 3;
 }
 
-sal_Int32 SAL_CALL PolarPlottingPositionHelper::getTargetDimension() throw (uno::RuntimeException)
+sal_Int32 SAL_CALL PolarPlottingPositionHelper::getTargetDimension()
 {
     return 3;
 }

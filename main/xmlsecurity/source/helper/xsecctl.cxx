@@ -1364,11 +1364,6 @@ SignatureInformations XSecController::getSignatureInformations() const
 void SAL_CALL XSecController::setFastPropertyValue(
 	sal_Int32 nHandle,
 	const cssu::Any& aValue )
-	throw (	cssb::UnknownPropertyException,
-		cssb::PropertyVetoException,
-		cssl::IllegalArgumentException,
-		cssl::WrappedTargetException,
-		cssu::RuntimeException)
 {
 	sal_Int32 nIndex = getFastPropertyIndex(nHandle);
 	if (nIndex == -1)
@@ -1384,10 +1379,6 @@ void SAL_CALL XSecController::setFastPropertyValue(
 
 cssu::Any SAL_CALL XSecController::getFastPropertyValue(
 	sal_Int32 nHandle )
-	throw (
-		cssb::UnknownPropertyException,
-		cssl::WrappedTargetException,
-		cssu::RuntimeException)
 {
 	cssu::Any aValue;
 

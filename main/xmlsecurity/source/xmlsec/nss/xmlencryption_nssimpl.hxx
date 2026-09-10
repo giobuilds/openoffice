@@ -59,7 +59,7 @@ class XMLEncryption_NssImpl : public ::cppu::WeakImplHelper3<
 		virtual ::com::sun::star::uno::Reference< ::com::sun::star::xml::crypto::XXMLEncryptionTemplate > SAL_CALL encrypt(
 			const ::com::sun::star::uno::Reference< ::com::sun::star::xml::crypto::XXMLEncryptionTemplate >& aTemplate ,
 			const ::com::sun::star::uno::Reference< ::com::sun::star::xml::crypto::XSecurityEnvironment >& aEnvironment)
-			// ) throw( ::com::sun::star::uno::Exception , ::com::sun::star::uno::RuntimeException ) ;
+			// ) ;
 			;
 
 		virtual ::com::sun::star::uno::Reference< ::com::sun::star::xml::crypto::XXMLEncryptionTemplate > SAL_CALL decrypt(

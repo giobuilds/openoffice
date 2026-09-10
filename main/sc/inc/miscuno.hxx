@@ -112,12 +112,12 @@ public:
 //UNUSED2008-05
 //UNUSED2008-05                              // XEnumerationAccess
 //UNUSED2008-05      virtual ::com::sun::star::uno::Reference< ::com::sun::star::container::XEnumeration > SAL_CALL
-//UNUSED2008-05                              createEnumeration() throw(::com::sun::star::uno::RuntimeException);
+//UNUSED2008-05                              createEnumeration();
 //UNUSED2008-05
 //UNUSED2008-05                              // XElementAccess
 //UNUSED2008-05      virtual ::com::sun::star::uno::Type SAL_CALL getElementType()
 //UNUSED2008-05                                  throw(::com::sun::star::uno::RuntimeException);
-//UNUSED2008-05      virtual sal_Bool SAL_CALL hasElements() throw(::com::sun::star::uno::RuntimeException);
+//UNUSED2008-05      virtual sal_Bool SAL_CALL hasElements();
 //UNUSED2008-05
 //UNUSED2008-05                              // XServiceInfo
 //UNUSED2008-05      virtual ::rtl::OUString SAL_CALL getImplementationName(  )
@@ -137,7 +137,7 @@ public:
 //UNUSED2008-05      virtual                 ~ScEmptyEnumeration();
 //UNUSED2008-05
 //UNUSED2008-05                              // XEnumeration
-//UNUSED2008-05      virtual sal_Bool SAL_CALL hasMoreElements() throw(::com::sun::star::uno::RuntimeException);
+//UNUSED2008-05      virtual sal_Bool SAL_CALL hasMoreElements();
 //UNUSED2008-05      virtual ::com::sun::star::uno::Any SAL_CALL nextElement()
 //UNUSED2008-05                                  throw(::com::sun::star::container::NoSuchElementException,
 //UNUSED2008-05                                          ::com::sun::star::lang::WrappedTargetException,

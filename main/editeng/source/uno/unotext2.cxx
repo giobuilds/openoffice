@@ -331,18 +331,17 @@ uno::Sequence< uno::Any > SAL_CALL SvxUnoTextContent::getPropertyValues( const u
 }
 
 /*// XTolerantMultiPropertySet
-uno::Sequence< beans::SetPropertyTolerantFailed > SAL_CALL SvxUnoTextContent::setPropertyValuesTolerant( const uno::Sequence< ::rtl::OUString >& aPropertyNames, const uno::Sequence< uno::Any >& aValues ) throw (lang::IllegalArgumentException, uno::RuntimeException)
+uno::Sequence< beans::SetPropertyTolerantFailed > SAL_CALL SvxUnoTextContent::setPropertyValuesTolerant( const uno::Sequence< ::rtl::OUString >& aPropertyNames, const uno::Sequence< uno::Any >& aValues )
 {
     return _setPropertyValuesTolerant(aPropertyNames, aValues, mnParagraph);
 }
 
-uno::Sequence< beans::GetPropertyTolerantResult > SAL_CALL SvxUnoTextContent::getPropertyValuesTolerant( const uno::Sequence< ::rtl::OUString >& aPropertyNames ) throw (uno::RuntimeException)
+uno::Sequence< beans::GetPropertyTolerantResult > SAL_CALL SvxUnoTextContent::getPropertyValuesTolerant( const uno::Sequence< ::rtl::OUString >& aPropertyNames )
 {
     return _getPropertyValuesTolerant(aPropertyNames, mnParagraph);
 }
 
 uno::Sequence< beans::GetDirectPropertyTolerantResult > SAL_CALL SvxUnoTextContent::getDirectPropertyValuesTolerant( const uno::Sequence< ::rtl::OUString >& aPropertyNames )
-    throw (uno::RuntimeException)
 {
     return _getDirectPropertyValuesTolerant(aPropertyNames, mnParagraph);
 }*/

@@ -990,7 +990,7 @@ public:
     // XButton
     virtual void SAL_CALL addActionListener( const ::com::sun::star::uno::Reference< ::com::sun::star::awt::XActionListener >& l );
     virtual void SAL_CALL removeActionListener( const ::com::sun::star::uno::Reference< ::com::sun::star::awt::XActionListener >& l );
-    //virtual void SAL_CALL setLabel( const ::rtl::OUString& Label ) throw (::com::sun::star::uno::RuntimeException);
+    //virtual void SAL_CALL setLabel( const ::rtl::OUString& Label );
     virtual void SAL_CALL setActionCommand( const ::rtl::OUString& Command );
 
 protected:

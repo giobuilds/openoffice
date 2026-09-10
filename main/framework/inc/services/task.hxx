@@ -448,7 +448,7 @@ class Task  :   public css::frame::XTask    ,   // => XFrame => XComponent
 		virtual sal_Bool SAL_CALL convertFastPropertyValue(			css::uno::Any&		aConvertedValue	,
 								  									css::uno::Any&		aOldValue		,
 																	sal_Int32			nHandle			,
-															const	css::uno::Any&		aValue			) throw( css::lang::IllegalArgumentException );
+															const	css::uno::Any&		aValue			);
 */
 		/*-****************************************************************************************************//**
 			@short		set value of a transient property
@@ -468,7 +468,7 @@ class Task  :   public css::frame::XTask    ,   // => XFrame => XComponent
 		*//*-*****************************************************************************************************/
 /*
 		virtual void SAL_CALL setFastPropertyValue_NoBroadcast(			sal_Int32		nHandle	,
-							  									const	css::uno::Any&	aValue	) throw( css::uno::Exception );
+							  									const	css::uno::Any&	aValue	);
 */
 		/*-****************************************************************************************************//**
 			@short		get value of a transient property
@@ -535,19 +535,19 @@ class Task  :   public css::frame::XTask    ,   // => XFrame => XComponent
 /*		sal_Bool impl_tryToChangeProperty(			sal_Bool			bProperty		,
 											const	css::uno::Any&		aValue			,
 													css::uno::Any&		aOldValue		,
-													css::uno::Any&		aConvertedValue	) throw( css::lang::IllegalArgumentException );
+													css::uno::Any&		aConvertedValue	);
 		sal_Bool impl_tryToChangeProperty(	const	::rtl::OUString&	sProperty		,
 											const	css::uno::Any&		aValue			,
 													css::uno::Any&		aOldValue		,
-													css::uno::Any&		aConvertedValue	) throw( css::lang::IllegalArgumentException );
+													css::uno::Any&		aConvertedValue	);
 		sal_Bool impl_tryToChangeProperty(	const	css::awt::Point&	aProperty		,
 											const	css::uno::Any&		aValue			,
 													css::uno::Any&		aOldValue		,
-													css::uno::Any&		aConvertedValue	) throw( css::lang::IllegalArgumentException );
+													css::uno::Any&		aConvertedValue	);
 		sal_Bool impl_tryToChangeProperty(	const	css::awt::Size&		aProperty		,
 											const	css::uno::Any&		aValue			,
 													css::uno::Any&		aOldValue		,
-													css::uno::Any&		aConvertedValue	) throw( css::lang::IllegalArgumentException );
+													css::uno::Any&		aConvertedValue	);
 
 		static const css::uno::Sequence< css::beans::Property > impl_getStaticPropertyDescriptor();
 */

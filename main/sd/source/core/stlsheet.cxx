@@ -769,7 +769,7 @@ SdStyleSheet* SdStyleSheet::CreateEmptyUserStyle( SfxStyleSheetBasePool& rPool, 
 // --------------------------------------------------------------------
 
 /*
-Any SAL_CALL SdStyleSheet::queryInterface( const ::com::sun::star::uno::Type& aType ) throw (RuntimeException)
+Any SAL_CALL SdStyleSheet::queryInterface( const ::com::sun::star::uno::Type& aType )
 {
 	return SdStyleSheetBase::queryInterface( aType );
 }
@@ -809,7 +809,7 @@ void SAL_CALL SdStyleSheet::release(  ) throw ()
 // XWeak
 // --------------------------------------------------------------------
 /*
-Reference< XAdapter > SAL_CALL SdStyleSheet::queryAdapter(  ) throw (RuntimeException)
+Reference< XAdapter > SAL_CALL SdStyleSheet::queryAdapter(  )
 {
 	return SdStyleSheetBase::queryAdapter();
 }
@@ -818,14 +818,14 @@ Reference< XAdapter > SAL_CALL SdStyleSheet::queryAdapter(  ) throw (RuntimeExce
 // XTypeProvider
 // --------------------------------------------------------------------
 
-Sequence< Type > SAL_CALL SdStyleSheet::getTypes(  ) throw (RuntimeException)
+Sequence< Type > SAL_CALL SdStyleSheet::getTypes(  )
 {
 	return SdStyleSheetBase::getTypes();
 }
 
 // --------------------------------------------------------------------
 
-Sequence< ::sal_Int8 > SAL_CALL SdStyleSheet::getImplementationId(  ) throw (RuntimeException)
+Sequence< ::sal_Int8 > SAL_CALL SdStyleSheet::getImplementationId(  )
 {
 	return SdStyleSheetBase::getImplementationId();
 }

@@ -95,12 +95,11 @@ CFLAGSEXCEPTIONS=-fexceptions -fno-enforce-eh-specs
 CFLAGS_NO_EXCEPTIONS=-fno-exceptions
 
 # -fpermissive should be removed as soon as possible
-# C++11 is the lowest supported standard (matches the macOS floor).  Our old
-# code base still uses constructs deprecated in C++11 (notably std::auto_ptr and
-# dynamic exception specifications); those remain valid until C++17 and are kept
-# non-fatal via -Wno-error= below.  The compiler floor is GCC 4.8.5 (CentOS 7),
-# which fully supports gnu++11.
-CFLAGSCXX= -pipe $(ARCH_FLAGS) -std=gnu++11 -fstack-protector-strong
+# gnu++17 is required by the bundled ICU 78 headers. Dynamic exception
+# specifications were removed from the sources for it; std::auto_ptr and the
+# other C++11 deprecations are kept non-fatal via -Wno-error= below.  The
+# compiler floor is GCC 7 (first release with C++17 support).
+CFLAGSCXX= -pipe $(ARCH_FLAGS) -std=gnu++17 -fstack-protector-strong
 .IF "$(HAVE_GCC_VISIBILITY_FEATURE)" == "TRUE"
 CFLAGSCXX += -fvisibility-inlines-hidden
 .ENDIF # "$(HAVE_GCC_VISIBILITY_FEATURE)" == "TRUE"
@@ -140,9 +139,9 @@ CFLAGSWARNCXX=$(CFLAGSWARNCC) -Wshadow -Wno-ctor-dtor-privacy \
     -Wno-non-virtual-dtor
 CFLAGSWALLCC=$(CFLAGSWARNCC)
 CFLAGSWALLCXX=$(CFLAGSWARNCXX)
-# Keep -Werror, but do not let the C++11 dialect's deprecation/narrowing
-# warnings (std::auto_ptr, dynamic exception specs, braced-init narrowing) break
-# the build.  Mirrors the macOS handling in unxmacc.mk.
+# Keep -Werror, but do not let deprecation/narrowing warnings (std::auto_ptr,
+# throw(), braced-init narrowing) break the build.  Mirrors the macOS handling
+# in unxmacc.mk.
 CFLAGSWERRCC=-Werror -Wno-error=deprecated -Wno-error=deprecated-declarations -Wno-error=narrowing
 
 # Once all modules on this platform compile without warnings, set

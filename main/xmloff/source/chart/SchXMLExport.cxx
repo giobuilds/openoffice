@@ -3994,7 +3994,7 @@ Reference< uno::XInterface > SAL_CALL SchXMLExport_Oasis_Content_createInstance(
 // 	return OUString( RTL_CONSTASCII_USTRINGPARAM( "SchXMLExport.Meta" ));
 // }
 
-// Reference< uno::XInterface > SAL_CALL SchXMLExport_Meta_createInstance(const Reference< lang::XMultiServiceFactory > & rSMgr) throw( uno::Exception )
+// Reference< uno::XInterface > SAL_CALL SchXMLExport_Meta_createInstance(const Reference< lang::XMultiServiceFactory > & rSMgr)
 // {
 // 	return (cppu::OWeakObject*)new SchXMLExport( EXPORT_META );
 // }

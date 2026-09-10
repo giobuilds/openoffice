@@ -142,7 +142,7 @@ Sequence< Type > SAL_CALL OCommonStatement::getTypes(  )
 }
 // -------------------------------------------------------------------------
 
-//void SAL_CALL OCommonStatement::cancel(  ) throw(RuntimeException)
+//void SAL_CALL OCommonStatement::cancel(  )
 //{
 //::osl::MutexGuard aGuard( m_aMutex );
 //checkDisposed(OCommonStatement_IBase::rBHelper.bDisposed);

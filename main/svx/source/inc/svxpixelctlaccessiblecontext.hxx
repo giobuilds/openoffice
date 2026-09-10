@@ -276,64 +276,50 @@ public:
 /*
 	// XAccessibleTable -------------------------------------------------------
     /-** @return  The number of used rows in the table (0 = empty table). *-/
-    virtual sal_Int32 SAL_CALL getAccessibleRowCount() throw ( ::com::sun::star::uno::RuntimeException );
+    virtual sal_Int32 SAL_CALL getAccessibleRowCount();
     /-** @return  The number of used columns in the table (0 = empty table). *-/
-    virtual sal_Int32 SAL_CALL getAccessibleColumnCount() throw ( ::com::sun::star::uno::RuntimeException );
+    virtual sal_Int32 SAL_CALL getAccessibleColumnCount();
     /-** @return  The row extent of the specified cell (always 1). *-/
-    virtual sal_Int32 SAL_CALL getAccessibleRowExtentAt( sal_Int32 nRow, sal_Int32 nColumn )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,
-                ::com::sun::star::uno::RuntimeException );
+    virtual sal_Int32 SAL_CALL getAccessibleRowExtentAt( sal_Int32 nRow, sal_Int32 nColumn );
     /-** @return  The column extent of the specified cell (always 1). *-/
-    virtual sal_Int32 SAL_CALL getAccessibleColumnExtentAt( sal_Int32 nRow, sal_Int32 nColumn )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,
-                ::com::sun::star::uno::RuntimeException );
+    virtual sal_Int32 SAL_CALL getAccessibleColumnExtentAt( sal_Int32 nRow, sal_Int32 nColumn );
     /-** @return  The caption cell of the table (not supported). *-/
     virtual ::com::sun::star::uno::Reference< ::com::sun::star::accessibility::XAccessible > SAL_CALL
-    	getAccessibleCaption() throw ( ::com::sun::star::uno::RuntimeException );
+    	getAccessibleCaption();
     /-** @return  The summary object of the table (not supported). *-/
     virtual ::com::sun::star::uno::Reference< ::com::sun::star::accessibility::XAccessible > SAL_CALL
-    	getAccessibleSummary() throw ( ::com::sun::star::uno::RuntimeException );
+    	getAccessibleSummary();
     /-** @return  The child index of the specified cell. *-/
-    virtual sal_Int32 SAL_CALL getAccessibleIndex( sal_Int32 nRow, sal_Int32 nColumn )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,::com::sun::star::uno::RuntimeException );
+    virtual sal_Int32 SAL_CALL getAccessibleIndex( sal_Int32 nRow, sal_Int32 nColumn );
     /-** @return  The row index of the specified child cell. *-/
-    virtual sal_Int32 SAL_CALL getAccessibleRow( sal_Int32 nChildIndex )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,::com::sun::star::uno::RuntimeException );
+    virtual sal_Int32 SAL_CALL getAccessibleRow( sal_Int32 nChildIndex );
     /-** @return  The column index of the specified child cell. *-/
-    virtual sal_Int32 SAL_CALL getAccessibleColumn( sal_Int32 nChildIndex )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,::com::sun::star::uno::RuntimeException );
+    virtual sal_Int32 SAL_CALL getAccessibleColumn( sal_Int32 nChildIndex );
     /-** @return  The description text of the specified row. *-/
-    virtual ::rtl::OUString SAL_CALL getAccessibleRowDescription( sal_Int32 nRow )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,::com::sun::star::uno::RuntimeException );
+    virtual ::rtl::OUString SAL_CALL getAccessibleRowDescription( sal_Int32 nRow );
     /-** @return  The description text of the specified column. *-/
-    virtual ::rtl::OUString SAL_CALL getAccessibleColumnDescription( sal_Int32 nColumn )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,::com::sun::star::uno::RuntimeException );
+    virtual ::rtl::OUString SAL_CALL getAccessibleColumnDescription( sal_Int32 nColumn );
     /-** @return  The XAccessibleTable interface of the row header bar. *-/
     virtual ::com::sun::star::uno::Reference< ::com::sun::star::accessibility::XAccessibleTable > SAL_CALL
-    	getAccessibleRowHeaders() throw ( ::com::sun::star::uno::RuntimeException );
+    	getAccessibleRowHeaders();
     /-** @return  The XAccessibleTable interface of the column header bar. *-/
     virtual ::com::sun::star::uno::Reference< ::com::sun::star::accessibility::XAccessibleTable > SAL_CALL
-    	getAccessibleColumnHeaders() throw ( ::com::sun::star::uno::RuntimeException );
+    	getAccessibleColumnHeaders();
     /-** @return  An index list of completely selected rows. *-/
     virtual ::com::sun::star::uno::Sequence< sal_Int32 > SAL_CALL
-    	getSelectedAccessibleRows() throw ( ::com::sun::star::uno::RuntimeException );
+    	getSelectedAccessibleRows();
     /-** @return  An index list of completely selected columns. *-/
     virtual ::com::sun::star::uno::Sequence< sal_Int32 > SAL_CALL
-    	getSelectedAccessibleColumns() throw ( ::com::sun::star::uno::RuntimeException );
+    	getSelectedAccessibleColumns();
     /-** @return  <TRUE/>, if the specified row is completely selected. *-/
-    virtual sal_Bool SAL_CALL isAccessibleRowSelected( sal_Int32 nRow )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,::com::sun::star::uno::RuntimeException );
+    virtual sal_Bool SAL_CALL isAccessibleRowSelected( sal_Int32 nRow );
     /-** @return  <TRUE/>, if the specified column is completely selected. *-/
-    virtual sal_Bool SAL_CALL isAccessibleColumnSelected( sal_Int32 nColumn )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,::com::sun::star::uno::RuntimeException );
+    virtual sal_Bool SAL_CALL isAccessibleColumnSelected( sal_Int32 nColumn );
     /-** @return The XAccessible interface of the cell object at the specified cell position. *-/
     virtual ::com::sun::star::uno::Reference< ::com::sun::star::accessibility::XAccessible > SAL_CALL
-    	getAccessibleCellAt( sal_Int32 nRow, sal_Int32 nColumn )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,
-                ::com::sun::star::uno::RuntimeException );
+    	getAccessibleCellAt( sal_Int32 nRow, sal_Int32 nColumn );
     /-** @return  <TRUE/>, if the specified cell is selected. *-/
-    virtual sal_Bool SAL_CALL isAccessibleSelected( sal_Int32 nRow, sal_Int32 nColumn )
-        throw ( ::com::sun::star::lang::IndexOutOfBoundsException,::com::sun::star::uno::RuntimeException );
+    virtual sal_Bool SAL_CALL isAccessibleSelected( sal_Int32 nRow, sal_Int32 nColumn );
 
 */
     //Methods for XAccessibleEventBroadcaster

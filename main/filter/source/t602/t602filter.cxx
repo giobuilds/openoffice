@@ -902,13 +902,11 @@ Reference< XInterface > SAL_CALL T602ImportFilter_createInstance( const Referenc
 }
 
 /* Reference < XInterface > SAL_CALL CreateInstance( const Reference< XMultiServiceFactory > &r)
-throw ( Exception )
 {
     return Reference< XInterface > (( OWeakObject *) new T602ImportFilter(r));
 }
 
 Sequence < OUString > getSupportedServiceNames()
-throw ( RuntimeException )
 {
     static Sequence < OUString > *pNames = 0;
     if( ! pNames ) {

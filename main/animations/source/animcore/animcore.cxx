@@ -240,8 +240,8 @@ public:
     virtual void SAL_CALL setSubtype( sal_Int16 _subtype );
     virtual sal_Bool SAL_CALL getMode();
     virtual void SAL_CALL setMode( sal_Bool _mode );
-//    virtual sal_Bool SAL_CALL getDirection() throw (RuntimeException);
-//    virtual void SAL_CALL setDirection( sal_Bool _direction ) throw (RuntimeException);
+//    virtual sal_Bool SAL_CALL getDirection();
+//    virtual void SAL_CALL setDirection( sal_Bool _direction );
     virtual sal_Int32 SAL_CALL getFadeColor();
     virtual void SAL_CALL setFadeColor( sal_Int32 _fadecolor );
 
@@ -253,8 +253,8 @@ public:
 
 
     // XCommand
-//    virtual Any SAL_CALL getTarget() throw (RuntimeException);
-//    virtual void SAL_CALL setTarget( const Any& _target ) throw (RuntimeException);
+//    virtual Any SAL_CALL getTarget();
+//    virtual void SAL_CALL setTarget( const Any& _target );
     virtual sal_Int16 SAL_CALL getCommand();
     virtual void SAL_CALL setCommand( sal_Int16 _command );
     virtual Any SAL_CALL getParameter();

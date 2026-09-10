@@ -265,8 +265,7 @@ public:
 
     // new controller API
     // XStatusListener
-	virtual void SAL_CALL statusChanged( const ::com::sun::star::frame::FeatureStateEvent& Event )
-        throw ( ::com::sun::star::uno::RuntimeException );
+	virtual void SAL_CALL statusChanged( const ::com::sun::star::frame::FeatureStateEvent& Event );
 
 	virtual Window*		CreateItemWindow( Window *pParent );
 };

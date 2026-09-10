@@ -97,12 +97,13 @@ gb_CXXFLAGS := \
 	-fuse-cxa-atexit \
 	-fvisibility-inlines-hidden \
 	-fvisibility=hidden \
-	-std=gnu++11 \
+	-std=gnu++17 \
 	-pipe \
 
 ifneq ($(EXTERNAL_WARNINGS_NOT_ERRORS),TRUE)
-# C++11 deprecation/narrowing warnings (std::auto_ptr, dynamic exception specs,
-# braced-init narrowing) must not be fatal.  Mirrors macosx.mk.
+# gnu++17 is required by the bundled ICU 78 headers. Deprecation/narrowing
+# warnings (std::auto_ptr, throw(), braced-init narrowing) must not be fatal.
+# Mirrors macosx.mk.
 gb_CFLAGS_WERROR := -Werror -Wno-error=deprecated -Wno-error=deprecated-declarations -Wno-error=narrowing
 gb_CXXFLAGS_WERROR := -Werror -Wno-error=deprecated -Wno-error=deprecated-declarations -Wno-error=narrowing
 endif
