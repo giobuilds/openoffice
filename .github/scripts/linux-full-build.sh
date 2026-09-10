@@ -96,6 +96,8 @@ configure_and_bootstrap() {
         --disable-online-update \
         --without-fonts \
         --enable-unit-tests \
+        --enable-harfbuzz \
+        --with-system-harfbuzz \
         --with-package-format=installed \
         --with-system-boost \
         --with-system-python \

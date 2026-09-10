@@ -895,6 +895,8 @@ UNOIDLDEPFLAGS=-Mdepend=$(SOLARVER)
 UNOIDLINC+=-I. -I.. -I$(PRJ) -I$(PRJ)/inc -I$(PRJ)/$(INPATH)/idl -I$(OUT)/inc -I$(SOLARIDLDIR) -I$(SOLARINCDIR)
 
 CDEFS= -D$(OS) -D$(GUI) -D$(GVER) -D$(COM) -D$(CVER) -D$(ALIGN) -D$(CPUNAME) -DCPPU_ENV=$(COMNAME)
+# ICU >= 61 keeps its C++ types in namespace icu unless told otherwise.
+CDEFS+=-DU_USING_ICU_NAMESPACE=1
 
 .IF "$(USE_STLP_DEBUG)" != "" && "$(GUI)"!="OS2"
 CDEFS+=-D_STLP_DEBUG

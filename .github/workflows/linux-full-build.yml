@@ -76,6 +76,7 @@ jobs:
             libexpat1-dev \
             libfontconfig1-dev \
             libfreetype6-dev \
+            libharfbuzz-dev \
             libjpeg-dev \
             libpng-dev \
             libxml2-dev \

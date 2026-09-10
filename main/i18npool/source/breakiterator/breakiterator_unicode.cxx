@@ -82,9 +82,12 @@ BreakIterator_Unicode::~BreakIterator_Unicode()
 */
 class OOoRuleBasedBreakIterator : public RuleBasedBreakIterator {
 	public:
+#if U_ICU_VERSION_MAJOR_NUM < 58
+		// Removed in ICU 58; the break type is part of the compiled rules.
 		inline void publicSetBreakType(int32_t type) {
 			setBreakType(type);
 		};
+#endif
 		OOoRuleBasedBreakIterator(UDataMemory* image,
 				UErrorCode &status) :
 			RuleBasedBreakIterator(image, status) { };
@@ -147,12 +150,14 @@ void SAL_CALL BreakIterator_Unicode::loadICUBreakIterator(const com::sun::star::
                 }
             }
             if (rbi) {
+#if U_ICU_VERSION_MAJOR_NUM < 58
                 switch (rBreakType) {
                     case LOAD_CHARACTER_BREAKITERATOR: rbi->publicSetBreakType(UBRK_CHARACTER); break;
                     case LOAD_WORD_BREAKITERATOR: rbi->publicSetBreakType(UBRK_WORD); break;
                     case LOAD_SENTENCE_BREAKITERATOR: rbi->publicSetBreakType(UBRK_SENTENCE); break;
                     case LOAD_LINE_BREAKITERATOR: rbi->publicSetBreakType(UBRK_LINE); break;
                 }
+#endif
                 icuBI->aBreakIterator = rbi;
             }
         }
