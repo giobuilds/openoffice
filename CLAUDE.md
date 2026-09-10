@@ -29,6 +29,11 @@ tracked in GitHub issue #1 (punch list) and issue #11; branch names follow `issu
 land via PR merges. See `SECURITY.md` for the reporting policy and `AOO-trunk.md` for a trunk vs
 AOO42X divergence analysis (trunk is Python 3.11 + native Win64 UNO bridge; AOO42X is Python 2.7).
 
+The fork is being rebranded as **Work** (Write, Accounts, Show, Keep); product direction and phase
+sequencing are in `docs/ROADMAP.md`; the visual identity and its implementation map are in
+`docs/design/WORK-UI.md`, with the design mockup checked in verbatim under `docs/design/mockup/`.
+Module directories keep their upstream names.
+
 Almost all code lives under `main/` (~200 modules). Other top-level dirs:
 
 - `ext_libraries/` – gtest, hunspell, coinmp built as extra "modules" (`build_dir ../ext_libraries/gtest`).

@@ -258,7 +258,7 @@
 					install:module="brand">
 				<node oor:name="DocColor">
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>16381165</value>
 					</prop>
 				</node>
 				<node oor:name="DocBoundaries">
@@ -266,12 +266,12 @@
 						<value>true</value>
 					</prop>
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>14472132</value>
 					</prop>
 				</node>
 				<node oor:name="AppBackground">
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>15656923</value>
 					</prop>
 				</node>
 				<node oor:name="ObjectBoundaries">
@@ -279,7 +279,7 @@
 						<value>true</value>
 					</prop>
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>14472132</value>
 					</prop>
 				</node>
 				<node oor:name="TableBoundaries">
@@ -287,12 +287,12 @@
 						<value>true</value>
 					</prop>
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>14472132</value>
 					</prop>
 				</node>
 				<node oor:name="FontColor">
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>3025701</value>
 					</prop>
 				</node>
 				<node oor:name="Links">
@@ -300,7 +300,7 @@
 						<value>false</value>
 					</prop>
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>9193754</value>
 					</prop>
 				</node>
 				<node oor:name="LinksVisited">
@@ -308,7 +308,7 @@
 						<value>false</value>
 					</prop>
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>6566674</value>
 					</prop>
 				</node>
 				<node oor:name="Anchor">
@@ -321,7 +321,7 @@
 				</node>
 				<node oor:name="Spell">
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>13005113</value>
 					</prop>
 				</node>
 				<node oor:name="SmartTags">
@@ -339,7 +339,7 @@
 						<value>true</value>
 					</prop>
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>15656923</value>
 					</prop>
 				</node>
 				<node oor:name="WriterIdxShadings">
@@ -373,7 +373,7 @@
 						<value>true</value>
 					</prop>
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>14472132</value>
 					</prop>
 				</node>
 				<node oor:name="WriterPageBreaks">
@@ -403,7 +403,7 @@
 				</node>
 				<node oor:name="CalcGrid">
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>14472132</value>
 					</prop>
 				</node>
 				<node oor:name="CalcPageBreak">
@@ -438,7 +438,7 @@
 				</node>
 				<node oor:name="CalcNotesBackground">
 					<prop oor:name="Color">
-						<value xsi:nil="true"/>
+						<value>15792865</value>
 					</prop>
 				</node>
 				<node oor:name="DrawGrid">
@@ -446,7 +446,283 @@
 						<value>true</value>
 					</prop>
 					<prop oor:name="Color">
+						<value>14472132</value>
+					</prop>
+				</node>
+				<node oor:name="DrawDrawing">
+					<prop oor:name="Color">
 						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="DrawFill">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="BASICIdentifier">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="BASICComment">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="BASICNumber">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="BASICString">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="BASICOperator">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="BASICKeyword">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="BASICError">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="SQLIdentifier">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="SQLNumber">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="SQLString">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="SQLOperator">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="SQLKeyword">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="SQLParameter">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="SQLComment">
+					<prop oor:name="Color" oor:type="xs:int">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+			</node>
+			<node oor:name="Work Dark" oor:op="replace"
+					install:module="brand">
+				<node oor:name="DocColor">
+					<prop oor:name="Color">
+						<value>2893858</value>
+					</prop>
+				</node>
+				<node oor:name="DocBoundaries">
+					<prop oor:name="IsVisible">
+						<value>true</value>
+					</prop>
+					<prop oor:name="Color">
+						<value>4603700</value>
+					</prop>
+				</node>
+				<node oor:name="AppBackground">
+					<prop oor:name="Color">
+						<value>3617322</value>
+					</prop>
+				</node>
+				<node oor:name="ObjectBoundaries">
+					<prop oor:name="IsVisible">
+						<value>true</value>
+					</prop>
+					<prop oor:name="Color">
+						<value>4603700</value>
+					</prop>
+				</node>
+				<node oor:name="TableBoundaries">
+					<prop oor:name="IsVisible">
+						<value>true</value>
+					</prop>
+					<prop oor:name="Color">
+						<value>4603700</value>
+					</prop>
+				</node>
+				<node oor:name="FontColor">
+					<prop oor:name="Color">
+						<value>16182491</value>
+					</prop>
+				</node>
+				<node oor:name="Links">
+					<prop oor:name="IsVisible">
+						<value>false</value>
+					</prop>
+					<prop oor:name="Color">
+						<value>16040346</value>
+					</prop>
+				</node>
+				<node oor:name="LinksVisited">
+					<prop oor:name="IsVisible">
+						<value>false</value>
+					</prop>
+					<prop oor:name="Color">
+						<value>16374978</value>
+					</prop>
+				</node>
+				<node oor:name="Anchor">
+					<prop oor:name="IsVisible">
+						<value>true</value>
+					</prop>
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="Spell">
+					<prop oor:name="Color">
+						<value>14848090</value>
+					</prop>
+				</node>
+				<node oor:name="SmartTags">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="WriterTextGrid">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="WriterFieldShadings">
+					<prop oor:name="IsVisible">
+						<value>true</value>
+					</prop>
+					<prop oor:name="Color">
+						<value>3617322</value>
+					</prop>
+				</node>
+				<node oor:name="WriterIdxShadings">
+					<prop oor:name="IsVisible">
+						<value>true</value>
+					</prop>
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="WriterDirectCursor">
+					<prop oor:name="IsVisible">
+						<value>true</value>
+					</prop>
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="WriterNotesIndicator">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="WriterScriptIndicator">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="WriterSectionBoundaries">
+					<prop oor:name="IsVisible">
+						<value>true</value>
+					</prop>
+					<prop oor:name="Color">
+						<value>4603700</value>
+					</prop>
+				</node>
+				<node oor:name="WriterPageBreaks">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="HTMLSGML">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="HTMLComment">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="HTMLKeyword">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="HTMLUnknown">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="CalcGrid">
+					<prop oor:name="Color">
+						<value>4603700</value>
+					</prop>
+				</node>
+				<node oor:name="CalcPageBreak">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="CalcPageBreakManual">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="CalcPageBreakAutomatic">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="CalcDetective">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="CalcDetectiveError">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="CalcReference">
+					<prop oor:name="Color">
+						<value xsi:nil="true"/>
+					</prop>
+				</node>
+				<node oor:name="CalcNotesBackground">
+					<prop oor:name="Color">
+						<value>2830629</value>
+					</prop>
+				</node>
+				<node oor:name="DrawGrid">
+					<prop oor:name="IsVisible">
+						<value>true</value>
+					</prop>
+					<prop oor:name="Color">
+						<value>4603700</value>
 					</prop>
 				</node>
 				<node oor:name="DrawDrawing">

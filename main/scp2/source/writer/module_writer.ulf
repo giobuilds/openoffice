@@ -20,25 +20,25 @@
  *************************************************************/
 
 [STR_NAME_MODULE_PRG_WRT]
-en-US = "%PRODUCTNAME Writer"
+en-US = "%PRODUCTNAME Write"
 
 [STR_DESC_MODULE_PRG_WRT]
-en-US = "Create and edit text and graphics in letters, reports, documents and Web pages by using %PRODUCTNAME Writer."
+en-US = "Create and edit text and graphics in letters, reports, documents and Web pages by using %PRODUCTNAME Write."
 
 [STR_NAME_MODULE_PRG_WRT_BIN]
 en-US = "Program Module"
 
 [STR_DESC_MODULE_PRG_WRT_BIN]
-en-US = "The application %PRODUCTNAME Writer"
+en-US = "The application %PRODUCTNAME Write"
 
 [STR_NAME_MODULE_PRG_WRT_HELP]
-en-US = "%PRODUCTNAME Writer Help"
+en-US = "%PRODUCTNAME Write Help"
 
 [STR_DESC_MODULE_PRG_WRT_HELP]
-en-US = "Help about %PRODUCTNAME Writer"
+en-US = "Help about %PRODUCTNAME Write"
 
 [STR_NAME_MODULE_PRG_WRT_WRITER2LATEX]
 en-US = "LaTeX Export"
 
 [STR_DESC_MODULE_PRG_WRT_WRITER2LATEX]
-en-US = "LaTeX export filter for Writer documents."
+en-US = "LaTeX export filter for Write documents."
