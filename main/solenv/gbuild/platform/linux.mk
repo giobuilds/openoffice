@@ -95,18 +95,17 @@ gb_CXXFLAGS := \
 	-fno-strict-aliasing \
 	-fstack-protector-strong \
 	-fuse-cxa-atexit \
-	-fvisibility-inlines-hidden \
 	-fvisibility=hidden \
 	-std=gnu++17 \
-	-fno-devirtualize \
 	-pipe \
 
 ifneq ($(EXTERNAL_WARNINGS_NOT_ERRORS),TRUE)
-# -fno-devirtualize: with -fvisibility-inlines-hidden, GCC 13 devirtualizes
-# calls such as acquire() on a cppu::WeakImplHelper subclass from another
-# library into a direct call to the non-virtual thunk of the inline
-# implementation, which that library does not export (undefined reference to
-# `non-virtual thunk to cppu::WeakImplHelper1<...>::acquire()' in sot).
+# No -fvisibility-inlines-hidden: GCC 13 resolves acquire() on an object it
+# just constructed (new utl::OOutputStreamWrapper) straight to the non-virtual
+# thunk of the inline cppu::WeakImplHelper1<...>::acquire(), which is emitted
+# with the class's vtable in the exporting library. With inline members hidden
+# that thunk is not exported and sot / filtertracer fail to link.
+# -fno-devirtualize does not prevent it (the front end does the resolution).
 # gnu++17 is required by the bundled ICU 78 headers. Deprecation/narrowing
 # warnings (std::auto_ptr, throw(), braced-init narrowing) must not be fatal.
 # Mirrors macosx.mk.
