@@ -88,7 +88,11 @@ changes. This phase is small and unblocks everything.
   with pyuno, and round-trips a text file to ODT, a CSV to ODS, a layout template to ODP, and
   the new ODT to PDF, then checks the ODF containers. **Done 2026-09-11.**
 - **Fidelity harness skeleton** (see §4) so measurement starts before any filter work.
+  *Skeleton in `test/fidelity/`, runs after the smoke in `linux-full-build` (PR pending).*
 - **Windows and macOS** builds follow, using `win10-msvc/README.md` as the starting point.
+  Decision 2026-09-11: Linux first. Windows runs on GitHub's hosted runners as a background track
+  once Phase 1 has something worth trying on a desktop (tracked in the "Windows build on hosted
+  runners" issue); macOS when a release or a self-hosted Mac runner is in reach.
 
 Exit criterion: a green nightly that produces an installable Work, and a `test/` BVT run against it.
 
@@ -105,6 +109,11 @@ binary formats), `main/sd/source/filter`.
 - **Round-trip harness.** For each document: open, save as the same format, reopen, and compare
   (a) the XML parts structurally, (b) rendered pages as images, (c) the ODF model. Score per
   feature, publish a table per nightly. This is the metric the programme is judged on.
+  **Blocker found 2026-09-11:** the tree's OOXML filters are import-only (no `.docx`/`.xlsx`/
+  `.pptx` export exists in this codebase), so the save-as-same-format step is impossible until
+  an OOXML exporter is written. The skeleton in `test/fidelity/` therefore measures **import
+  fidelity** against ground truth parsed from the OOXML package (counts and text), plus PDF
+  export and ODF round-trip stability, and reports per nightly. See `test/fidelity/README.md`.
 - **Triage by frequency.** Fix what the corpus shows breaks most, not what is easiest.
 - **Known gaps to expect first:** tracked changes and comments in Write, conditional formatting and
   structured tables in Accounts, SmartArt and animation in Show, theme colours and fonts everywhere.
@@ -166,9 +175,11 @@ local mail client.
 
 ### 5.6 Git-friendly documents
 
-Flat ODF (`.fodt`, `.fods`, `.fodp`) is single-file XML and already diffs. Ship a `git` textconv
-filter and a "save for version control" option that writes flat ODF with stable element ordering
-and no volatile metadata (timestamps, edit duration, generator string).
+Flat ODF (`.fodt`, `.fods`, `.fodp`) is single-file XML and diffs well, but **this tree has no flat
+ODF filters** (LibreOffice added them after the split), so the first step is an XML-only ODF
+export/import filter pair. Then ship a `git` textconv filter and a "save for version control"
+option that writes flat ODF with stable element ordering and no volatile metadata (timestamps,
+edit duration, generator string).
 
 ## 6. Phase 2 — Accounts engine
 

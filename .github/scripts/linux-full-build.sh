@@ -22,9 +22,10 @@
 # per application. This is the job that makes the rest of the roadmap
 # verifiable; the other linux-*.sh scripts are slim module checks.
 #
-# Usage: bash .github/scripts/linux-full-build.sh [build|smoke|all]
-#   build  configure + bootstrap + build --all (default when omitted: all)
-#   smoke  headless round-trip against an existing installed tree
+# Usage: bash .github/scripts/linux-full-build.sh [build|smoke|fidelity|all]
+#   build     configure + bootstrap + build --all (default when omitted: all)
+#   smoke     headless round-trip against an existing installed tree
+#   fidelity  OOXML import-fidelity harness (test/fidelity) against it
 #
 # A JDK is a hard build dependency of this tree even with --without-java:
 # gbuild defines SOLAR_JAVA unconditionally and jvmfwk/ridljar have no
@@ -158,6 +159,43 @@ find_office() {
     echo "${office%/}"
 }
 
+# Print the Python interpreter to use for pyuno scripts and export the
+# environment it needs. With --with-system-python there is no
+# program/python wrapper, so locate uno.py, pyuno.so and libpyuno.so in
+# the installed tree and mirror what pyuno/zipcore/python.sh sets up.
+office_pyenv() {
+    local office="$1" unopy pyunoso pyunolib
+    if test -x "${office}/program/python"; then
+        echo "${office}/program/python"
+        return 0
+    fi
+    unopy="$(find "${office}" -name uno.py | sed -n '1p')"
+    pyunoso="$(find "${office}" -name 'pyuno.so' | sed -n '1p')"
+    pyunolib="$(find "${office}" -name 'libpyuno.so' | sed -n '1p')"
+    echo "uno.py=${unopy} pyuno.so=${pyunoso} libpyuno.so=${pyunolib}" >&2
+    test -n "${unopy}" -a -n "${pyunoso}"
+    export PYTHONPATH="$(dirname "${unopy}"):$(dirname "${pyunoso}"):${office}/program${PYTHONPATH:+:${PYTHONPATH}}"
+    export URE_BOOTSTRAP="vnd.sun.star.pathname:${office}/program/fundamentalrc"
+    export LD_LIBRARY_PATH="$(dirname "${pyunoso}"):$(dirname "${pyunolib:-${office}/program/x}"):${office}/program${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+    python3 -c 'import uno, sys; print("pyuno import ok, python", sys.version.split()[0])' >&2
+    echo python3
+}
+
+fidelity() {
+    local office py out
+    office="$(find_office)"
+    out="${ROOT}/.fidelity"
+    rm -rf "${out}"
+    mkdir -p "${out}"
+    export HOME="${out}/home"
+    mkdir -p "${HOME}"
+    py="$(office_pyenv "${office}")"
+    echo "===== fidelity harness: ${office} ====="
+    timeout 1800 "${py}" "${ROOT}/test/fidelity/run.py" \
+        "${office}" "${ROOT}/test/fidelity/corpus" "${out}/out"
+    echo "linux-full-build fidelity: ok"
+}
+
 smoke() {
     local office soffice work
     office="$(find_office)"
@@ -181,27 +219,8 @@ smoke() {
     cp "${otp}" "${work}/in/show.otp"
 
     # The office has no -convert-to switch; drive it over a UNO pipe.
-    # With --with-system-python there is no program/python wrapper, and
-    # scp2 puts uno.py, pyuno.so and libpyuno.so into the URE directory
-    # (gid_Dir_Common_Ure), not program/, so locate them instead of
-    # assuming a layout. Mirrors what pyuno/zipcore/python.sh sets up.
-    local py unopy pyunoso pyunolib
-    if test -x "${office}/program/python"; then
-        py="${office}/program/python"
-    else
-        unopy="$(find "${office}" -name uno.py | sed -n '1p')"
-        pyunoso="$(find "${office}" -name 'pyuno.so' | sed -n '1p')"
-        pyunolib="$(find "${office}" -name 'libpyuno.so' | sed -n '1p')"
-        echo "uno.py=${unopy} pyuno.so=${pyunoso} libpyuno.so=${pyunolib}"
-        test -n "${unopy}" -a -n "${pyunoso}"
-        export PYTHONPATH="$(dirname "${unopy}"):$(dirname "${pyunoso}"):${office}/program${PYTHONPATH:+:${PYTHONPATH}}"
-        export URE_BOOTSTRAP="vnd.sun.star.pathname:${office}/program/fundamentalrc"
-        export LD_LIBRARY_PATH="$(dirname "${pyunoso}"):$(dirname "${pyunolib:-${office}/program/x}"):${office}/program${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-        py="python3"
-    fi
-    echo "python runner: ${py}"
-    echo "PYTHONPATH=${PYTHONPATH:-} LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}"
-    "${py}" -c 'import uno, sys; print("pyuno import ok, python", sys.version.split()[0])'
+    local py
+    py="$(office_pyenv "${office}")"
     timeout 1200 "${py}" "${ROOT}/.github/scripts/smoke_roundtrip.py" \
         "${office}" "${work}/in" "${work}/out"
 
@@ -225,11 +244,15 @@ case "${STAGE}" in
     smoke)
         smoke
         ;;
+    fidelity)
+        fidelity
+        ;;
     all)
         configure_and_bootstrap
         source_env
         build_all
         smoke
+        fidelity
         ;;
     *)
         echo "unknown stage: ${STAGE}" >&2
