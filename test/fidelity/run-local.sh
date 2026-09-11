@@ -54,6 +54,15 @@ fi
 office="${office%/}"
 echo "office: ${office}"
 
+# Pre-flight: the CI office links some libraries from the build host
+# (Ubuntu 24.04); say which ones are missing here instead of failing later.
+missing="$(ldd "${office}/program/soffice.bin" 2>/dev/null | awk '/not found/ {print $1}' | sort -u | tr '\n' ' ')"
+if test -n "${missing}"; then
+    echo "soffice.bin needs shared libraries not installed on this machine: ${missing}" >&2
+    echo "Install the distro packages providing them, or build the artifact with bundled libraries." >&2
+    exit 3
+fi
+
 pyunoso="$(find "${office}" -name 'pyuno.so' | sed -n '1p')"
 unopy="$(find "${office}" -name uno.py | sed -n '1p')"
 pyunolib="$(find "${office}" -name 'libpyuno.so' | sed -n '1p')"
