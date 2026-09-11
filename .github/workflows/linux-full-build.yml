@@ -66,6 +66,8 @@ jobs:
             ca-certificates \
             ccache \
             flex \
+            fonts-dejavu-core \
+            fonts-liberation \
             g++ \
             gcc \
             gperf \
