@@ -126,6 +126,10 @@ the slim per-module path used by CI; for a full build, use the `linux-full-build
   `build --all` from `instsetoo_native`, a headless one-document-per-app smoke, and uploads the
   installed tree (`work-linux-x86_64-installed`) and `build.log` as artifacts. Stages: `build`,
   `smoke`, `all`. GitHub's log endpoints cannot serve this job's output; use the artifact.
+- **Fidelity harness** – `test/fidelity/run.py` runs after the smoke in the same job (stage
+  `fidelity`): OOXML *import* fidelity against ground truth parsed from the package (the tree has
+  no OOXML export), PDF export, ODF round trip; scores in the `fidelity-report` artifact and the
+  job summary. Corpus in `test/fidelity/corpus`; synthetic files from `make_synthetic.py`.
 
 ### Lint
 

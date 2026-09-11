@@ -31,6 +31,7 @@ on:
       - '.github/workflows/linux-full-build.yml'
       - '.github/scripts/linux-full-build.sh'
       - '.github/scripts/smoke_roundtrip.py'
+      - 'test/fidelity/**'
 
 permissions:
   contents: read
@@ -99,6 +100,7 @@ jobs:
             make \
             patch \
             pkg-config \
+            poppler-utils \
             python3-dev \
             rpm \
             unzip \
@@ -132,6 +134,18 @@ jobs:
 
       - name: Headless smoke
         run: bash .github/scripts/linux-full-build.sh smoke
+
+      - name: OOXML fidelity harness
+        run: bash .github/scripts/linux-full-build.sh fidelity
+
+      - name: Upload fidelity report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fidelity-report
+          path: .fidelity/out
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Pack installed office
         if: success()
