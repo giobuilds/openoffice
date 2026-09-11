@@ -142,6 +142,19 @@ jobs:
           path: work-linux-x86_64.tar.zst
           retention-days: 7
 
+      - name: Compress build log
+        if: always()
+        run: test -f build.log && zstd -q -T0 -19 build.log -o build.log.zst || true
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log.zst
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Upload smoke outputs
         if: always()
         uses: actions/upload-artifact@v4

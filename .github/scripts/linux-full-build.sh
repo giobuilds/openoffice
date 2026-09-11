@@ -127,10 +127,24 @@ source_env() {
 }
 
 build_all() {
-    echo "===== build --all from instsetoo_native ====="
-    ( cd instsetoo_native && perl "${SOLARENV}/bin/build.pl" --all -P"${MAXPROCESS}" )
+    # Keep the full output in a file: the GitHub log endpoints truncate or
+    # refuse multi-hour logs, so the workflow uploads this as an artifact
+    # and prints a short failure summary from it.
+    local log="${BUILD_LOG:-${ROOT}/build.log}"
+    echo "===== build --all from instsetoo_native (log: ${log}) ====="
+    set +e
+    ( cd instsetoo_native && perl "${SOLARENV}/bin/build.pl" --all -P"${MAXPROCESS}" ) 2>&1 | tee "${log}"
+    local rc=${PIPESTATUS[0]}
+    set -e
     ccache -s || true
     df -h . || true
+    if test "${rc}" -ne 0; then
+        echo "===== build failed (rc=${rc}); summary ====="
+        grep -n 'occurred while making\|resume the build' "${log}" | tail -n 20 || true
+        grep -nE ': error:|: fatal error:|undefined reference|BUILD FAILED|dmake:  Error|make: \*\*\*|ICU Error|No such file' "${log}" \
+            | grep -v 'zip warning' | tail -n 60 || true
+        return "${rc}"
+    fi
 }
 
 find_office() {

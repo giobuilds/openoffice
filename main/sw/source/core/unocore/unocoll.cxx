@@ -799,7 +799,7 @@ namespace
     }
 
     // runtime adapter for lcl_UnoWrapFrame
-    static uno::Any lcl_UnoWrapFrame(SwFrmFmt* pFmt, FlyCntType eType) throw(uno::RuntimeException())
+    static uno::Any lcl_UnoWrapFrame(SwFrmFmt* pFmt, FlyCntType eType)
     {
         switch(eType)
         {

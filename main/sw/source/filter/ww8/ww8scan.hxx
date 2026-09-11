@@ -158,6 +158,18 @@ inline bool ww8SprmFitsRemain(sal_uInt16 nSprm, long nRemain)
     return nSprm != 0 && nRemain > 0 && static_cast<long>(nSprm) <= nRemain;
 }
 
+// Callers keep the remaining length in short or int; without these the
+// call is ambiguous between the sal_uInt16 and long overloads.
+inline bool ww8SprmFitsRemain(sal_uInt16 nSprm, short nRemain)
+{
+    return ww8SprmFitsRemain(nSprm, static_cast<long>(nRemain));
+}
+
+inline bool ww8SprmFitsRemain(sal_uInt16 nSprm, int nRemain)
+{
+    return ww8SprmFitsRemain(nSprm, static_cast<long>(nRemain));
+}
+
 //--Line abovewhich the code has meaningful comments
 
 class  WW8Fib;

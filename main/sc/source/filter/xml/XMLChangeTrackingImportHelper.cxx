@@ -890,7 +890,7 @@ void ScXMLChangeTrackingImportHelper::CreateChangeTrack(ScDocument* pTempDoc)
 			{
 				DBG_ERROR("Dropping malformed change track entry");
 				if (pAction)
-					delete pAction;
+					ScChangeTrack::DeleteLoaded(pAction);
 				if (*aItr)
 					delete *aItr;
 				aItr = aActions.erase(aItr);
