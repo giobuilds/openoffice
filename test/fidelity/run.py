@@ -107,6 +107,16 @@ def text_similarity(a, b):
     return difflib.SequenceMatcher(None, a, b, autojunk=False).ratio()
 
 
+def bag_similarity(a, b):
+    """Order-free text comparison for spreadsheets: cell strings have no
+    reading order, and the package and the model enumerate cells differently."""
+    la = sorted(norm_text(x) for x in (a or "").split("\n") if norm_text(x))
+    lb = sorted(norm_text(x) for x in (b or "").split("\n") if norm_text(x))
+    if not la and not lb:
+        return 1.0
+    return difflib.SequenceMatcher(None, la, lb, autojunk=False).ratio()
+
+
 def count_score(expected, got):
     if expected is None or got is None:
         return None
@@ -324,8 +334,9 @@ def pdf_facts(pdf):
 # ----------------------------------------------------------------------
 # one document
 
-def run_document(desktop, path, out_dir):
-    name = os.path.basename(path)
+def run_document(desktop, path, out_dir, corpus_dir=None):
+    # report name relative to the corpus so subdirectories stay visible
+    name = os.path.relpath(path, corpus_dir) if corpus_dir else os.path.basename(path)
     ext = os.path.splitext(name)[1].lower()
     kind, odf_filter, pdf_filter, odf_ext = KINDS[ext]
     rec = {"file": name, "kind": kind, "features": {}, "notes": []}
@@ -350,20 +361,29 @@ def run_document(desktop, path, out_dir):
     try:
         got = FACTS[kind](doc)
         rec["model"] = {k: v for k, v in got.items() if k != "text"}
+        similarity = bag_similarity if kind == "calc" else text_similarity
         for key, expected in truth.items():
             if key == "text":
-                rec["features"]["text"] = round(text_similarity(expected, got.get("text", "")), 3)
+                rec["features"]["text"] = round(similarity(expected, got.get("text", "")), 3)
             else:
                 rec["features"][key] = round(count_score(expected, got.get(key)), 3)
 
         # PDF export
+        os.makedirs(os.path.dirname(os.path.join(out_dir, name)) or out_dir, exist_ok=True)
         pdf = os.path.join(out_dir, name + ".pdf")
         doc.storeToURL(file_url(pdf), props(FilterName=pdf_filter, Overwrite=True))
         pf = pdf_facts(pdf)
         rec["pdf"] = {"bytes": os.path.getsize(pdf), "pages": pf.get("pages")}
         if "text" in pf and truth.get("text"):
             expected_pdf = truth["text"] + ("\n" + chrome_text if chrome_text else "")
-            rec["features"]["pdf_text"] = round(text_similarity(expected_pdf, pf["text"]), 3)
+            if kind == "calc":
+                # the PDF also prints every number; check that the strings appear
+                pdf_norm = norm_text(pf["text"])
+                strings = [norm_text(x) for x in truth["text"].split("\n") if norm_text(x)]
+                found = sum(1 for x in strings if x in pdf_norm)
+                rec["features"]["pdf_text"] = round(found / len(strings), 3) if strings else 1.0
+            else:
+                rec["features"]["pdf_text"] = round(text_similarity(expected_pdf, pf["text"]), 3)
 
         # ODF round trip: store, close, reload, compare model facts
         odf = os.path.join(out_dir, name + odf_ext)
@@ -374,7 +394,7 @@ def run_document(desktop, path, out_dir):
         got2 = FACTS[kind](doc2)
         doc2.close(True)
         stable = [1.0 if got[k] == got2.get(k) else 0.0 for k in got if k != "text"]
-        stable.append(text_similarity(got["text"], got2.get("text", "")))
+        stable.append(similarity(got["text"], got2.get("text", "")))
         rec["features"]["odf_roundtrip"] = round(sum(stable) / len(stable), 3)
     except Exception as e:
         rec["notes"].append("%s: %s" % (type(e).__name__, str(e)[:200]))
@@ -436,8 +456,9 @@ def main(argv):
         print("pyuno is not importable; set PYTHONPATH/URE_BOOTSTRAP to the office", file=sys.stderr)
         return 2
     os.makedirs(out_dir, exist_ok=True)
-    files = sorted(os.path.join(corpus_dir, f) for f in os.listdir(corpus_dir)
-                   if os.path.splitext(f)[1].lower() in KINDS)
+    files = sorted(os.path.join(root, f)
+                   for root, _dirs, names in os.walk(corpus_dir)
+                   for f in names if os.path.splitext(f)[1].lower() in KINDS)
     if not files:
         print("no .docx/.xlsx/.pptx in %s" % corpus_dir, file=sys.stderr)
         return 2
@@ -451,7 +472,7 @@ def main(argv):
         desktop = ctx.ServiceManager.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
         for path in files:
             print("--", os.path.basename(path), flush=True)
-            docs.append(run_document(desktop, path, out_dir))
+            docs.append(run_document(desktop, path, out_dir, corpus_dir))
         try:
             desktop.terminate()
         except Exception:
