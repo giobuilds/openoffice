@@ -56,33 +56,42 @@ echo "office: ${office}"
 
 # Pre-flight: the CI office links some libraries from the build host
 # (Ubuntu 24.04); say which ones are missing here instead of failing later.
-missing="$(ldd "${office}/program/soffice.bin" 2>/dev/null | awk '/not found/ {print $1}' | sort -u | tr '\n' ' ')"
+# soffice's own libraries resolve through the launcher's LD_LIBRARY_PATH,
+# so give ldd the same directories; ldd exits non-zero on gaps, hence || true.
+missing="$(LD_LIBRARY_PATH="${office}/program:${office}/ure-link/lib" ldd "${office}/program/soffice.bin" 2>/dev/null \
+    | awk '/not found/ {print $1}' | grep -v '^libjawt' | sort -u | tr '\n' ' ' || true)"
 if test -n "${missing}"; then
     echo "soffice.bin needs shared libraries not installed on this machine: ${missing}" >&2
     echo "Install the distro packages providing them, or build the artifact with bundled libraries." >&2
     exit 3
 fi
 
-pyunoso="$(find "${office}" -name 'pyuno.so' | sed -n '1p')"
-unopy="$(find "${office}" -name uno.py | sed -n '1p')"
-pyunolib="$(find "${office}" -name 'libpyuno.so' | sed -n '1p')"
-test -n "${pyunoso}" -a -n "${unopy}" || { echo "pyuno.so / uno.py not found in ${office}" >&2; exit 2; }
-
-# pyuno.so is linked against one specific libpython; use that interpreter.
-pyver="$( (ldd "${pyunoso}" 2>/dev/null; strings "${pyunoso}" 2>/dev/null) | grep -oE 'libpython3\.[0-9]+' | sort -u | sed 's/libpython//' | sed -n '1p')"
-py="$(command -v "python${pyver:-3}" || true)"
-if test -z "${py}"; then
-    echo "pyuno.so needs python${pyver}, which is not installed here." >&2
-    echo "Fedora: sudo dnf install python${pyver}   Debian/Ubuntu: sudo apt install python${pyver}" >&2
-    exit 3
-fi
-echo "python: ${py} (pyuno built for ${pyver:-?})"
-
-export PYTHONPATH="$(dirname "${unopy}"):$(dirname "${pyunoso}"):${office}/program${PYTHONPATH:+:${PYTHONPATH}}"
-export URE_BOOTSTRAP="vnd.sun.star.pathname:${office}/program/fundamentalrc"
-export LD_LIBRARY_PATH="$(dirname "${pyunoso}"):$(dirname "${pyunolib:-${office}/program/x}"):${office}/program${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 export HOME="${OUT}/home"
 mkdir -p "${HOME}" "${OUT}/out"
+
+if test -x "${office}/program/python"; then
+    # Bundled Python: the wrapper sets PYTHONPATH, URE_BOOTSTRAP and the
+    # library path itself.
+    py="${office}/program/python"
+    echo "python: ${py} (bundled)"
+else
+    pyunoso="$(find "${office}" -name 'pyuno.so' | sed -n '1p')"
+    unopy="$(find "${office}" -name uno.py | sed -n '1p')"
+    pyunolib="$(find "${office}" -name 'libpyuno.so' | sed -n '1p')"
+    test -n "${pyunoso}" -a -n "${unopy}" || { echo "pyuno.so / uno.py not found in ${office}" >&2; exit 2; }
+    # pyuno.so is built for one specific Python; use that interpreter.
+    pyver="$( (ldd "${pyunoso}" 2>/dev/null; strings "${pyunoso}" 2>/dev/null) | grep -oE 'libpython3\.[0-9]+' | sort -u | sed 's/libpython//' | sed -n '1p' || true)"
+    py="$(command -v "python${pyver:-3}" || true)"
+    if test -z "${py}"; then
+        echo "pyuno.so needs python${pyver}, which is not installed here." >&2
+        echo "Fedora: sudo dnf install python${pyver}   Debian/Ubuntu: sudo apt install python${pyver}" >&2
+        exit 3
+    fi
+    echo "python: ${py} (system, pyuno built for ${pyver:-?})"
+    export PYTHONPATH="$(dirname "${unopy}"):$(dirname "${pyunoso}"):${office}/program${PYTHONPATH:+:${PYTHONPATH}}"
+    export URE_BOOTSTRAP="vnd.sun.star.pathname:${office}/program/fundamentalrc"
+    export LD_LIBRARY_PATH="$(dirname "${pyunoso}"):$(dirname "${pyunolib:-${office}/program/x}"):${office}/program${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+fi
 
 "${py}" -c 'import uno; print("pyuno import ok")'
 "${py}" "${ROOT}/test/fidelity/run.py" "${office}" "${CORPUS}" "${OUT}/out"
