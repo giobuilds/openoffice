@@ -232,8 +232,8 @@ uno::Reference< uno::XInterface > SAL_CALL create_EnhancedCustomShapeEngine( con
 namespace svx
 {
 extern OUString SAL_CALL ExtrusionDepthController_getImplementationName();
-extern uno::Reference< uno::XInterface > SAL_CALL ExtrusionDepthController_createInstance(const uno::Reference< lang::XMultiServiceFactory > &)  throw( uno::RuntimeException );
-extern uno::Sequence< OUString > SAL_CALL ExtrusionDepthController_getSupportedServiceNames() throw( uno::RuntimeException );
+extern uno::Reference< uno::XInterface > SAL_CALL ExtrusionDepthController_createInstance(const uno::Reference< lang::XMultiServiceFactory > &);
+extern uno::Sequence< OUString > SAL_CALL ExtrusionDepthController_getSupportedServiceNames();
 }
 */
 

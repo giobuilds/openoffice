@@ -72,8 +72,7 @@ public:
     /*
     virtual void OPTIONS( const ::rtl::OUString & inPath,
                           DAVCapabilities & outCapabilities,
-                          const DAVRequestEnvironment & rEnv )
-        throw( DAVException ) = 0;
+                          const DAVRequestEnvironment & rEnv ) = 0;
     */
 
     // allprop & named

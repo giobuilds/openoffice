@@ -62,6 +62,7 @@ $(MISC)/$(TARGET)/usr/share/applications/ :
 	$(RM) $*$/usr$/bin$/soffice
 
 %$/install$/doinst.sh : update-script
+	@$(MKDIRHIER) $(@:d)
 	@echo "( cd etc ; rm -rf $(UNIXFILENAME.$(*:b:s/-/ /:1:s/5.1//)) )" > $@
 	@echo "( cd etc ; ln -snf /opt/$(UNIXFILENAME.$(*:b:s/-/ /:1:s/5.1//):s/-//) $(UNIXFILENAME.$(*:b:s/-/ /:1:s/5.1//)) )" >> $@
 	@echo "( cd usr/bin ; rm -rf soffice )" >> $@

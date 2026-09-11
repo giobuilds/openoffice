@@ -76,13 +76,17 @@ Every hardening commit in the log ends with "Not verified by a full office build
 and no developer machine builds the office. Nothing below can be developed or shipped until that
 changes. This phase is small and unblocks everything.
 
-- **Full Linux build in CI.** Extend `.github/scripts/linux-*.sh` into a job that runs
-  `build --all` from `main/instsetoo_native` with `--with-package-format=installed` and archives
-  the result. Expect multi-hour runtimes; use ccache and the existing tarball cache.
+- **Full Linux build in CI.** `linux-full-build` (`.github/scripts/linux-full-build.sh`) runs
+  `build --all` from `main/instsetoo_native` with `--with-package-format=installed` and uploads
+  the installed tree and the build log as artifacts. About 80 minutes cold; nightly and on
+  demand, with ccache and the tarball cache. **Done 2026-09-11 (PR #57).** Getting there took
+  the C++17 migration, the ICU 78 adaptation of i18npool and its rule files, and fixes to two
+  hardening changes that had never been compiled.
 - **Nightly installers** (`.deb`, `.rpm`, archive) published as workflow artifacts so features can
   be tried without a local build.
-- **Smoke run.** Start the installed office headless, load and re-save one document per
-  application, exit cleanly. This catches the crash class that the bounds work protects against.
+- **Smoke run.** The same job starts the installed office headless, drives it over a UNO pipe
+  with pyuno, and round-trips a text file to ODT, a CSV to ODS, a layout template to ODP, and
+  the new ODT to PDF, then checks the ODF containers. **Done 2026-09-11.**
 - **Fidelity harness skeleton** (see §4) so measurement starts before any filter work.
 - **Windows and macOS** builds follow, using `win10-msvc/README.md` as the starting point.
 

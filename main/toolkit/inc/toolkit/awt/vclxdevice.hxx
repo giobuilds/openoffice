@@ -99,8 +99,8 @@ public:
 	::com::sun::star::uno::Reference< ::com::sun::star::awt::XDisplayBitmap > SAL_CALL createDisplayBitmap( const ::com::sun::star::uno::Reference< ::com::sun::star::awt::XBitmap >& Bitmap );
 
     // ::com::sun::star::awt::XTextConstraints
-    // ::sal_Int32 SAL_CALL getTextWidth( const ::rtl::OUString& Text ) throw (::com::sun::star::uno::RuntimeException);
-    // ::sal_Int32 SAL_CALL getTextHeight(  ) throw (::com::sun::star::uno::RuntimeException);
+    // ::sal_Int32 SAL_CALL getTextWidth( const ::rtl::OUString& Text );
+    // ::sal_Int32 SAL_CALL getTextHeight(  );
 
     // ::com::sun::star::awt::XUnitConversion
     ::com::sun::star::awt::Point SAL_CALL convertPointToLogic( const ::com::sun::star::awt::Point& aPoint, ::sal_Int16 TargetUnit );

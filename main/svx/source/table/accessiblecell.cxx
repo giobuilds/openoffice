@@ -667,7 +667,7 @@ void AccessibleCell::UpdateChildren()
 /* MT: Above getAccessibleName was introduced with IA2 CWS, while below was introduce in 3.3 meanwhile. Check which one is correct
 If this is correct, we also don't need 	sdr::table::CellRef getCellRef(), UpdateChildren(), getCellName( sal_Int32 nCol, sal_Int32 nRow ) above
 
-::rtl::OUString SAL_CALL AccessibleCell::getAccessibleName (void) throw (::com::sun::star::uno::RuntimeException)
+::rtl::OUString SAL_CALL AccessibleCell::getAccessibleName (void)
 {
     ThrowIfDisposed ();
     ::vos::OGuard aSolarGuard (::Application::GetSolarMutex());

@@ -453,7 +453,7 @@ public:
     virtual ::com::sun::star::uno::Sequence< ::com::sun::star::beans::PropertyValue > SAL_CALL
     						getImportDescriptor();
 // implemented for the XRefreshable Interface
-//    virtual void SAL_CALL	refresh() throw(::com::sun::star::uno::RuntimeException);
+//    virtual void SAL_CALL	refresh();
 
 							// XRefreshable
 	virtual void SAL_CALL	refresh();

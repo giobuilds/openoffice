@@ -554,7 +554,6 @@ void SvxPixelCtlAccessible::ensureIsValidIndex( sal_Int32 nChildIndex )
 // XAccessibleTable -----------------------------------------------------------
 /*
 sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleRowCount()
-    throw ( uno::RuntimeException )
 {
    ::osl::MutexGuard	aGuard( m_aMutex );
    ensureIsAlive();
@@ -562,7 +561,6 @@ sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleRowCount()
 }
 
 sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleColumnCount()
-    throw ( uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -571,7 +569,6 @@ sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleColumnCount()
 
 sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleRowExtentAt(
         sal_Int32 nRow, sal_Int32 nColumn )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -580,7 +577,6 @@ sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleRowExtentAt(
 
 sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleColumnExtentAt(
         sal_Int32 nRow, sal_Int32 nColumn )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -588,7 +584,6 @@ sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleColumnExtentAt(
 }
 
 uno::Reference< XAccessible > SAL_CALL SvxPixelCtlAccessible::getAccessibleCaption()
-    throw ( uno::RuntimeException )
 {
 	uno::Reference< XAccessible > xAccessble;
     ensureIsAlive();
@@ -596,7 +591,6 @@ uno::Reference< XAccessible > SAL_CALL SvxPixelCtlAccessible::getAccessibleCapti
 }
 
 uno::Reference< XAccessible > SAL_CALL SvxPixelCtlAccessible::getAccessibleSummary()
-    throw ( uno::RuntimeException )
 {
 	uno::Reference< XAccessible > xAccessble;
     ensureIsAlive();
@@ -605,7 +599,6 @@ uno::Reference< XAccessible > SAL_CALL SvxPixelCtlAccessible::getAccessibleSumma
 
 sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleIndex(
         sal_Int32 nRow, sal_Int32 nColumn )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -614,7 +607,6 @@ sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleIndex(
 }
 
 sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleRow( sal_Int32 nChildIndex )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -623,7 +615,6 @@ sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleRow( sal_Int32 nChildInde
 }
 
 sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleColumn( sal_Int32 nChildIndex )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -632,7 +623,6 @@ sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleColumn( sal_Int32 nChildI
 }
 
 ::rtl::OUString SAL_CALL SvxPixelCtlAccessible::getAccessibleRowDescription( sal_Int32 nRow )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -641,7 +631,6 @@ sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleColumn( sal_Int32 nChildI
 }
 
 ::rtl::OUString SAL_CALL SvxPixelCtlAccessible::getAccessibleColumnDescription( sal_Int32 nColumn )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -650,7 +639,6 @@ sal_Int32 SAL_CALL SvxPixelCtlAccessible::getAccessibleColumn( sal_Int32 nChildI
 }
 
 uno::Reference< XAccessibleTable > SAL_CALL SvxPixelCtlAccessible::getAccessibleRowHeaders()
-    throw ( uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     uno::Reference< XAccessibleTable > xAccessble;
@@ -659,7 +647,6 @@ uno::Reference< XAccessibleTable > SAL_CALL SvxPixelCtlAccessible::getAccessible
 }
 
 uno::Reference< XAccessibleTable > SAL_CALL SvxPixelCtlAccessible::getAccessibleColumnHeaders()
-    throw ( uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     uno::Reference< XAccessibleTable > xAccessble;
@@ -668,7 +655,6 @@ uno::Reference< XAccessibleTable > SAL_CALL SvxPixelCtlAccessible::getAccessible
 }
 
 Sequence< sal_Int32 > SAL_CALL SvxPixelCtlAccessible::getSelectedAccessibleRows()
-    throw ( uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     Sequence< sal_Int32 > accRows;
@@ -678,7 +664,6 @@ Sequence< sal_Int32 > SAL_CALL SvxPixelCtlAccessible::getSelectedAccessibleRows(
 }
 
 Sequence< sal_Int32 > SAL_CALL SvxPixelCtlAccessible::getSelectedAccessibleColumns()
-    throw ( uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     Sequence< sal_Int32 > accColumns;
@@ -688,7 +673,6 @@ Sequence< sal_Int32 > SAL_CALL SvxPixelCtlAccessible::getSelectedAccessibleColum
 }
 
 sal_Bool SAL_CALL SvxPixelCtlAccessible::isAccessibleRowSelected( sal_Int32 nRow )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -697,7 +681,6 @@ sal_Bool SAL_CALL SvxPixelCtlAccessible::isAccessibleRowSelected( sal_Int32 nRow
 }
 
 sal_Bool SAL_CALL SvxPixelCtlAccessible::isAccessibleColumnSelected( sal_Int32 nColumn )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -707,7 +690,6 @@ sal_Bool SAL_CALL SvxPixelCtlAccessible::isAccessibleColumnSelected( sal_Int32 n
 
 uno::Reference< XAccessible > SAL_CALL SvxPixelCtlAccessible::getAccessibleCellAt(
         sal_Int32 nRow, sal_Int32 nColumn )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();
@@ -717,7 +699,6 @@ uno::Reference< XAccessible > SAL_CALL SvxPixelCtlAccessible::getAccessibleCellA
 
 sal_Bool SAL_CALL SvxPixelCtlAccessible::isAccessibleSelected(
         sal_Int32 nRow, sal_Int32 nColumn )
-    throw ( lang::IndexOutOfBoundsException, uno::RuntimeException )
 {
     ::osl::MutexGuard	aGuard( m_aMutex );
     ensureIsAlive();

@@ -42,7 +42,7 @@ namespace connectivity
 
 			// XInterface
 			static ::rtl::OUString getImplementationName_Static(  );
-			//	static ::com::sun::star::uno::Sequence< ::rtl::OUString > getSupportedServiceNames_Static(  ) throw (::com::sun::star::uno::RuntimeException);
+			//	static ::com::sun::star::uno::Sequence< ::rtl::OUString > getSupportedServiceNames_Static(  );
 
 			::rtl::OUString SAL_CALL getImplementationName(  );
 			// XDriver

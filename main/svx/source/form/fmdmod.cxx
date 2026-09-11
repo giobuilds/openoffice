@@ -96,7 +96,7 @@ using namespace ::svxform;
 /*
 // XServiceManager
 ::com::sun::star::uno::Reference< ::com::sun::star::uno::XInterface >  SvxFmDrawModel::createInstance(const ::rtl::OUString& ServiceName)
-			const throw( ::com::sun::star::lang::ServiceNotRegisteredException, ::com::sun::star::lang::WrappedTargetException, ::com::sun::star::uno::RuntimeException )
+			const
 {
 	::com::sun::star::uno::Reference< ::com::sun::star::uno::XInterface >  xRet;
 	sal_uInt16 nTokenCount = ServiceName.getTokenCount('.');

@@ -93,12 +93,9 @@ public:
     virtual void SAL_CALL closeInput(  );
 	// XSeekable
 	/*
-    virtual void SAL_CALL seek( sal_Int64 location )
-		throw(::com::sun::star::lang::IllegalArgumentException, ::com::sun::star::io::IOException, ::com::sun::star::uno::RuntimeException);
-    virtual sal_Int64 SAL_CALL getPosition(  )
-		throw(::com::sun::star::io::IOException, ::com::sun::star::uno::RuntimeException);
-    virtual sal_Int64 SAL_CALL getLength(  )
-		throw(::com::sun::star::io::IOException, ::com::sun::star::uno::RuntimeException);
+    virtual void SAL_CALL seek( sal_Int64 location );
+    virtual sal_Int64 SAL_CALL getPosition(  );
+    virtual sal_Int64 SAL_CALL getLength(  );
 	*/
 };
 #endif

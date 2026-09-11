@@ -192,7 +192,6 @@ Sequence< com::sun::star::lang::Locale > SAL_CALL LangGuess_Impl::guessLanguages
         const rtl::OUString   &rText,
         sal_Int32       nStartPos,
         sal_Int32       nLen )
-    throw (RuntimeException)
 {
     Sequence< com::sun::star::lang::Locale > aRes;
 

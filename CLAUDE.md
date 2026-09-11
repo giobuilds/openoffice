@@ -56,6 +56,22 @@ Two generations coexist and `build.pl` drives both:
   `allandcheck` (compile + run GoogleTests); other goals: `all`, `check`, `subsequentcheck`, `clean`.
   Output: `OUTDIR=$SOLARVERSION/$INPATH`, `WORKDIR=$OUTDIR/workdir`.
 
+**Toolchain facts learned from the full build** (all on `trunk` since PR #57):
+
+- Linux and FreeBSD compile as `-std=gnu++17` (needed by the bundled ICU 78 headers). Dynamic
+  exception specifications were removed tree-wide; do not add `throw( X )` specs (`throw()` is fine).
+  `SAL_THROW` is empty on GCC and cppumaker emits only `throw ()`.
+- A JDK is a hard build dependency even with `--without-java` (gbuild defines `SOLAR_JAVA`
+  unconditionally). Use JDK 8: `set_soenv.in` and `libs.mk` expect the `jre/lib/amd64` layout.
+- ICU: `U_USING_ICU_NAMESPACE=1` is defined globally; ICU no longer defines `TRUE`/`FALSE`
+  (use `sal_True`); break-iterator and collation rule files must use current ICU syntax, and Han
+  entries in collation rules must be literal characters, not `\uXXXX` (quadratic parse time).
+- GCC 13 devirtualizes `acquire()` on a freshly constructed UNO object into a call to the inline
+  `WeakImplHelper` thunk, which other libraries cannot see. Exported classes constructed across
+  library boundaries declare their own `acquire()`/`release()` (see `unotools/streamwrap.hxx`);
+  `-fno-devirtualize -fno-devirtualize-speculatively` are set and `-fvisibility-inlines-hidden`
+  is off, pending cleanup.
+
 Module ordering and dependencies come only from `prj/build.lst`. Starting `build.pl` inside a
 subdirectory does not pull module-level prerequisites, so build `soltools` (makedepend) and friends
 first (see the CI scripts).
@@ -90,8 +106,9 @@ build --from sfx2              # sfx2 and everything depending on it, up to here
 deliver                        # dmake modules: copy outputs into main/solver
 ```
 
-A full office build takes hours and needs the full dependency set; nothing in this tree is
-prebuilt (no `main/solver`, no `*.Set.sh` present). Prefer the slim per-module path used by CI.
+A full office build takes about 80 minutes cold on the CI runner and needs the full dependency
+set; nothing in this tree is prebuilt (no `main/solver`, no `*.Set.sh` present). Locally prefer
+the slim per-module path used by CI; for a full build, use the `linux-full-build` job.
 
 ### Tests
 
@@ -104,6 +121,11 @@ prebuilt (no `main/solver`, no `*.Set.sh` present). Prefer the slim per-module p
   full build: `linux-sal-gtest` (soltools, xml2cmp, stlport, gtest, sal, o3tl, salhelper),
   `linux-icu`, `linux-libxml2`, `linux-xmlsec`, `linux-harfbuzz`, `pre-commit`. Run a script
   locally with `bash .github/scripts/linux-sal-gtest.sh` to reproduce CI exactly.
+- **Full build** – `linux-full-build` (nightly, on demand, and on PRs that touch it) runs
+  `.github/scripts/linux-full-build.sh`: configure with `--with-package-format=installed`,
+  `build --all` from `instsetoo_native`, a headless one-document-per-app smoke, and uploads the
+  installed tree (`work-linux-x86_64-installed`) and `build.log` as artifacts. Stages: `build`,
+  `smoke`, `all`. GitHub's log endpoints cannot serve this job's output; use the artifact.
 
 ### Lint
 

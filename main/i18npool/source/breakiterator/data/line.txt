@@ -14,7 +14,7 @@
 #
 
 !!chain;
-!!LBCMNoChain;
+# !!LBCMNoChain was removed from the rule syntax in ICU 60.
 
 
 !!lookAheadHardBreak;

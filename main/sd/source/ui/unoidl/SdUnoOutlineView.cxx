@@ -148,7 +148,6 @@ sal_Bool SdUnoOutlineView::convertFastPropertyValue (
 	Any & rOldValue,
 	sal_Int32 nHandle,
 	const Any& rValue)
-    throw ( com::sun::star::lang::IllegalArgumentException)
 {
     sal_Bool bResult = sal_False;
 

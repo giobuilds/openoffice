@@ -102,8 +102,7 @@ public:
 
     virtual ::com::sun::star::uno::Reference< ::com::sun::star::sheet::XRangeSelection > SAL_CALL getRangeSelection();
 
-/*    virtual ::com::sun::star::uno::Reference< ::com::sun::star::util::XNumberFormatsSupplier > SAL_CALL getNumberFormatsSupplier()
-        throw (::com::sun::star::uno::RuntimeException);*/
+/*    virtual ::com::sun::star::uno::Reference< ::com::sun::star::util::XNumberFormatsSupplier > SAL_CALL getNumberFormatsSupplier();*/
 
     // XRangeXMLConversion ---------------------------------------------------
 

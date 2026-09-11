@@ -37,7 +37,7 @@ namespace ooo
 	{
     namespace word
     {
-		//css::uno::Reference< css::frame::XModel > getCurrentDocument() throw (css::uno::RuntimeException);
+		//css::uno::Reference< css::frame::XModel > getCurrentDocument();
         SwDocShell* getDocShell( const css::uno::Reference< css::frame::XModel>& xModel );
         SwView* getView( const css::uno::Reference< css::frame::XModel>& xModel );
         css::uno::Reference< css::text::XTextViewCursor > getXTextViewCursor( const css::uno::Reference< css::frame::XModel >& xModel );

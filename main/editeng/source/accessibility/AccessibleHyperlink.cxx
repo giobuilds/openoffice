@@ -165,40 +165,26 @@ public:
 	virtual ~SvxAccessibleHyperlink();
 	//void setImageMap(ImageMap* pMap);
 	//void setXAccessibleImage(::com::sun::star::uno::Reference< ::com::sun::star::accessibility::XAccessible > parent);
-	::rtl::OUString GetHyperlinkURL(sal_Int32 nIndex) throw (::com::sun::star::lang::IndexOutOfBoundsException);
+	::rtl::OUString GetHyperlinkURL(sal_Int32 nIndex);
 	sal_Bool IsValidHyperlink();
 
 	// XAccessibleAction
-    virtual sal_Int32 SAL_CALL getAccessibleActionCount()
-		throw (::com::sun::star::uno::RuntimeException);
-    virtual sal_Bool SAL_CALL doAccessibleAction( sal_Int32 nIndex )
-		throw (::com::sun::star::lang::IndexOutOfBoundsException,
-				::com::sun::star::uno::RuntimeException);
+    virtual sal_Int32 SAL_CALL getAccessibleActionCount();
+    virtual sal_Bool SAL_CALL doAccessibleAction( sal_Int32 nIndex );
     virtual ::rtl::OUString SAL_CALL getAccessibleActionDescription(
-				sal_Int32 nIndex )
-		throw (::com::sun::star::lang::IndexOutOfBoundsException,
-				::com::sun::star::uno::RuntimeException);
+				sal_Int32 nIndex );
     virtual ::com::sun::star::uno::Reference<
 			::com::sun::star::accessibility::XAccessibleKeyBinding > SAL_CALL
-		   	getAccessibleActionKeyBinding( sal_Int32 nIndex )
-		throw (::com::sun::star::lang::IndexOutOfBoundsException,
-				::com::sun::star::uno::RuntimeException);
+		   	getAccessibleActionKeyBinding( sal_Int32 nIndex );
 
 	// XAccessibleHyperlink
     virtual ::com::sun::star::uno::Any SAL_CALL getAccessibleActionAnchor(
-				sal_Int32 nIndex )
-		throw (::com::sun::star::lang::IndexOutOfBoundsException,
-				::com::sun::star::uno::RuntimeException);
+				sal_Int32 nIndex );
     virtual ::com::sun::star::uno::Any SAL_CALL getAccessibleActionObject(
-			sal_Int32 nIndex )
-		throw (::com::sun::star::lang::IndexOutOfBoundsException,
-				::com::sun::star::uno::RuntimeException);
-    virtual sal_Int32 SAL_CALL getStartIndex()
-		throw (::com::sun::star::uno::RuntimeException);
-    virtual sal_Int32 SAL_CALL getEndIndex()
-		throw (::com::sun::star::uno::RuntimeException);
-    virtual sal_Bool SAL_CALL isValid(  )
-		throw (::com::sun::star::uno::RuntimeException);
+			sal_Int32 nIndex );
+    virtual sal_Int32 SAL_CALL getStartIndex();
+    virtual sal_Int32 SAL_CALL getEndIndex();
+    virtual sal_Bool SAL_CALL isValid(  );
 };
 
 
@@ -232,7 +218,7 @@ SvxAccessibleHyperlink::~SvxAccessibleHyperlink()
 		delete mpField;
 }
 
-::rtl::OUString SvxAccessibleHyperlink::GetHyperlinkURL(sal_Int32 nIndex) throw (::com::sun::star::lang::IndexOutOfBoundsException)
+::rtl::OUString SvxAccessibleHyperlink::GetHyperlinkURL(sal_Int32 nIndex)
 {
 	if( mpField )
 	{
@@ -302,7 +288,6 @@ sal_Bool SvxAccessibleHyperlink::IsValidHyperlink()
 }
 // XAccessibleAction
 sal_Int32 SAL_CALL SvxAccessibleHyperlink::getAccessibleActionCount()
-		throw (RuntimeException)
 {
 	if (mpImageMap)
 		return mpImageMap->GetIMapObjectCount();
@@ -313,7 +298,6 @@ sal_Int32 SAL_CALL SvxAccessibleHyperlink::getAccessibleActionCount()
 }
 
 sal_Bool SAL_CALL SvxAccessibleHyperlink::doAccessibleAction( sal_Int32 nIndex )
-		throw (IndexOutOfBoundsException, RuntimeException)
 {
 	vos::OGuard aGuard(Application::GetSolarMutex());
 
@@ -348,14 +332,12 @@ sal_Bool SAL_CALL SvxAccessibleHyperlink::doAccessibleAction( sal_Int32 nIndex )
 
 OUString SAL_CALL SvxAccessibleHyperlink::getAccessibleActionDescription(
 		sal_Int32 nIndex )
-		throw (IndexOutOfBoundsException, RuntimeException)
 {
 	return GetHyperlinkURL(nIndex);
 }
 
 ::com::sun::star::uno::Reference< XAccessibleKeyBinding > SAL_CALL
 	SvxAccessibleHyperlink::getAccessibleActionKeyBinding( sal_Int32 )
-	throw (IndexOutOfBoundsException, RuntimeException)
 {
 	::com::sun::star::uno::Reference< XAccessibleKeyBinding > xKeyBinding;
 
@@ -379,7 +361,6 @@ OUString SAL_CALL SvxAccessibleHyperlink::getAccessibleActionDescription(
 // XAccessibleHyperlink
 Any SAL_CALL SvxAccessibleHyperlink::getAccessibleActionAnchor(
 		sal_Int32 nIndex )
-		throw (IndexOutOfBoundsException, RuntimeException)
 {
 	Any aRet;
 
@@ -407,7 +388,6 @@ Any SAL_CALL SvxAccessibleHyperlink::getAccessibleActionAnchor(
 
 Any SAL_CALL SvxAccessibleHyperlink::getAccessibleActionObject(
 			sal_Int32 nIndex )
-	throw (IndexOutOfBoundsException, RuntimeException)
 {
 	::rtl::OUString retText = GetHyperlinkURL(nIndex);
 	Any aRet;
@@ -416,19 +396,16 @@ Any SAL_CALL SvxAccessibleHyperlink::getAccessibleActionObject(
 }
 
 sal_Int32 SAL_CALL SvxAccessibleHyperlink::getStartIndex()
-		throw (RuntimeException)
 {
 	return nStartIdx;
 }
 
 sal_Int32 SAL_CALL SvxAccessibleHyperlink::getEndIndex()
-		throw (RuntimeException)
 {
 	return nEndIdx;
 }
 
 sal_Bool SAL_CALL SvxAccessibleHyperlink::isValid(  )
-		throw (RuntimeException)
 {
 	vos::OGuard aGuard(Application::GetSolarMutex());
 	//return mpField ? sal_True: ( mpImageMap ? sal_True : sal_False );

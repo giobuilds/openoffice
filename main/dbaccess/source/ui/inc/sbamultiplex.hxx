@@ -270,7 +270,7 @@ namespace dbaui
 		/* ::com::sun::star::lang::XEventListener */										\
 		virtual void SAL_CALL disposing(const ::com::sun::star::lang::EventObject& Source);	\
 																							\
-		virtual void SAL_CALL methodname(const eventtype& e)  throw exceptions;				\
+		virtual void SAL_CALL methodname(const eventtype& e);				\
 																							\
 	public:																					\
 		void addInterface(const ::rtl::OUString& rName, const ::com::sun::star::uno::Reference< ::com::sun::star::uno::XInterface >& rListener);	\
@@ -316,7 +316,7 @@ namespace dbaui
 	{																						\
 	}																						\
 																							\
-	void SAL_CALL classname::methodname(const eventtype& e) throw exceptions				\
+	void SAL_CALL classname::methodname(const eventtype& e)				\
 	{																						\
 		::cppu::OInterfaceContainerHelper* pListeners = m_aListeners.getContainer(e.PropertyName);	\
 		if (pListeners)																		\

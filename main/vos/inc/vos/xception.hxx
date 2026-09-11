@@ -47,7 +47,7 @@ namespace vos
 
 /*
  * declaration of the exceptions that may be thrown by a function
- * (e.g.) void myfunction(sal_Int32 a) throw ( std::bad_alloc );
+ * (e.g.) void myfunction(sal_Int32 a);
  * is not fully supported by all compilers
  */
 

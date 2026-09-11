@@ -119,7 +119,7 @@ class XMLSecurityContext_MSCryptImpl : public ::cppu::WeakImplHelper3<
 #endif
 
 		//Native methods
-		//virtual xmlSecKeysMngrPtr keysManager() throw( ::com::sun::star::uno::Exception , ::com::sun::star::uno::RuntimeException ) ;
+		//virtual xmlSecKeysMngrPtr keysManager() ;
 } ;
 
 #endif	// _XMLSIGNATURECONTEXT_MSCRYPTIMPL_HXX_

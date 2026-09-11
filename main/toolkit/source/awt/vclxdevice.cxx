@@ -256,7 +256,7 @@ VCLXVirtualDevice::~VCLXVirtualDevice()
 // -----------------------------------------------------------------------------
 // ::com::sun::star::awt::XTextConstraints
 // -----------------------------------------------------------------------------
-// ::sal_Int32 SAL_CALL VCLXDevice::getTextWidth( const ::rtl::OUString& Text ) throw (::com::sun::star::uno::RuntimeException)
+// ::sal_Int32 SAL_CALL VCLXDevice::getTextWidth( const ::rtl::OUString& Text )
 // {
 // 	::vos::OGuard aGuard( GetMutex() );
 //     if (Text.getLength() == 0)
@@ -267,7 +267,7 @@ VCLXVirtualDevice::~VCLXVirtualDevice()
 //     return 1;
 // }
 //
-// ::sal_Int32 SAL_CALL VCLXDevice::getTextHeight(  ) throw (::com::sun::star::uno::RuntimeException)
+// ::sal_Int32 SAL_CALL VCLXDevice::getTextHeight(  )
 // {
 // 	::vos::OGuard aGuard( GetMutex() );
 //     return 1;

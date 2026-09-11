@@ -285,13 +285,13 @@ sal_Bool SAL_CALL ScIndexEnumeration::supportsService( const ::rtl::OUString& Se
 //UNUSED2008-05      return new ScEmptyEnumeration;
 //UNUSED2008-05  }
 //UNUSED2008-05
-//UNUSED2008-05  uno::Type SAL_CALL ScEmptyEnumerationAccess::getElementType() throw(uno::RuntimeException)
+//UNUSED2008-05  uno::Type SAL_CALL ScEmptyEnumerationAccess::getElementType()
 //UNUSED2008-05  {
 //UNUSED2008-05      ScUnoGuard aGuard;
 //UNUSED2008-05      return getCppuType((uno::Reference<uno::XInterface>*)0);    // or what?
 //UNUSED2008-05  }
 //UNUSED2008-05
-//UNUSED2008-05  sal_Bool SAL_CALL ScEmptyEnumerationAccess::hasElements() throw(uno::RuntimeException)
+//UNUSED2008-05  sal_Bool SAL_CALL ScEmptyEnumerationAccess::hasElements()
 //UNUSED2008-05  {
 //UNUSED2008-05      return sal_False;
 //UNUSED2008-05  }
@@ -308,14 +308,13 @@ sal_Bool SAL_CALL ScIndexEnumeration::supportsService( const ::rtl::OUString& Se
 //UNUSED2008-05
 //UNUSED2008-05  // XEnumeration
 //UNUSED2008-05
-//UNUSED2008-05  sal_Bool SAL_CALL ScEmptyEnumeration::hasMoreElements() throw(uno::RuntimeException)
+//UNUSED2008-05  sal_Bool SAL_CALL ScEmptyEnumeration::hasMoreElements()
 //UNUSED2008-05  {
 //UNUSED2008-05      ScUnoGuard aGuard;
 //UNUSED2008-05      return sal_False;
 //UNUSED2008-05  }
 //UNUSED2008-05
-//UNUSED2008-05  uno::Any SAL_CALL ScEmptyEnumeration::nextElement() throw(container::NoSuchElementException,
-//UNUSED2008-05                                          lang::WrappedTargetException, uno::RuntimeException)
+//UNUSED2008-05  uno::Any SAL_CALL ScEmptyEnumeration::nextElement()
 //UNUSED2008-05  {
 //UNUSED2008-05      ScUnoGuard aGuard;
 //UNUSED2008-05      return uno::Any();

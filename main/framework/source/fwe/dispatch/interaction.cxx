@@ -220,8 +220,8 @@ public:
     sal_Bool        isAbort  () const;
     ::rtl::OUString getFilter() const;
 
-    virtual ::com::sun::star::uno::Any SAL_CALL getRequest () throw( ::com::sun::star::uno::RuntimeException );
-    virtual ::com::sun::star::uno::Sequence< ::com::sun::star::uno::Reference< ::com::sun::star::task::XInteractionContinuation > > SAL_CALL getContinuations() throw( ::com::sun::star::uno::RuntimeException );
+    virtual ::com::sun::star::uno::Any SAL_CALL getRequest ();
+    virtual ::com::sun::star::uno::Sequence< ::com::sun::star::uno::Reference< ::com::sun::star::task::XInteractionContinuation > > SAL_CALL getContinuations();
 
     ::com::sun::star::uno::Any                                                                                                 m_aRequest      ;
     ::com::sun::star::uno::Sequence< ::com::sun::star::uno::Reference< ::com::sun::star::task::XInteractionContinuation > >    m_lContinuations;
@@ -307,7 +307,7 @@ sal_Bool RequestAmbigousFilter_Impl::isAbort() const
 // handler call it to get type of request
 // Is hard coded to "please select filter" here. see ctor for further informations.
 //---------------------------------------------------------------------------------------------------------
-css::uno::Any SAL_CALL RequestAmbigousFilter_Impl::getRequest() throw( css::uno::RuntimeException )
+css::uno::Any SAL_CALL RequestAmbigousFilter_Impl::getRequest()
 {
     return m_aRequest;
 }
@@ -318,7 +318,7 @@ css::uno::Any SAL_CALL RequestAmbigousFilter_Impl::getRequest() throw( css::uno:
 // After interaction we support read access on these continuations on our c++ interface to
 // return user decision.
 //---------------------------------------------------------------------------------------------------------
-css::uno::Sequence< css::uno::Reference< css::task::XInteractionContinuation > > SAL_CALL RequestAmbigousFilter_Impl::getContinuations() throw( css::uno::RuntimeException )
+css::uno::Sequence< css::uno::Reference< css::task::XInteractionContinuation > > SAL_CALL RequestAmbigousFilter_Impl::getContinuations()
 {
     return m_lContinuations;
 }

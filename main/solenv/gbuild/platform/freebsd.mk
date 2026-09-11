@@ -90,9 +90,10 @@ gb_CXXFLAGS := \
 	-fno-common \
 	-fno-strict-aliasing \
 	-fno-use-cxa-atexit \
-	-fvisibility-inlines-hidden \
 	-fvisibility=hidden \
-	-std=gnu++11 \
+	-std=gnu++17 \
+	-fno-devirtualize \
+	-fno-devirtualize-speculatively \
 	-pipe
 ifeq ($(COM),CLANG)
 gb_CXXFLAGS += -DHAVE_STL_INCLUDE_PATH

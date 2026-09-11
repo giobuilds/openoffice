@@ -148,7 +148,7 @@ protected:
 
 	void checkCellPosition( sal_Int32 nCol, sal_Int32 nRow );
 	//IAccessibility2 Implementation 2009, move to public
-	//void getColumnAndRow( sal_Int32 nChildIndex, sal_Int32& rnColumn, sal_Int32& rnRow ) throw (::com::sun::star::lang::IndexOutOfBoundsException );
+	//void getColumnAndRow( sal_Int32 nChildIndex, sal_Int32& rnColumn, sal_Int32& rnRow );
 
 private:
 	rtl::Reference< AccessibleTableShapeImpl > mxImpl;

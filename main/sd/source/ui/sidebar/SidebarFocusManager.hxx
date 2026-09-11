@@ -36,7 +36,7 @@ namespace sd { namespace toolpanel {
 
 /** On certain key presses the focus is moved from one window to another.
     For this to work every window that wants its focus managed has to
-    register or be registered and tell where to put the focus on what key
+    or be registered and tell where to put the focus on what key
     press.
 */
 class FocusManager

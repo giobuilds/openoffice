@@ -387,8 +387,8 @@ namespace pcr
         {
             ...
         public:
-            static ::rtl::OUString SAL_CALL getImplementationName_static(  ) throw (::com::sun::star::uno::RuntimeException);
-            static ::com::sun::star::uno::Sequence< ::rtl::OUString > SAL_CALL getSupportedServiceNames_static(  ) throw (::com::sun::star::uno::RuntimeException);
+            static ::rtl::OUString SAL_CALL getImplementationName_static(  );
+            static ::com::sun::star::uno::Sequence< ::rtl::OUString > SAL_CALL getSupportedServiceNames_static(  );
         };
         </pre>
     */

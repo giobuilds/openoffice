@@ -390,21 +390,17 @@ class LoadEnv : private ThreadHelpBase
 
         //_______________________________________
         // frame.XLoadEventListener
-        virtual void SAL_CALL loadFinished(const css::uno::Reference< css::frame::XFrameLoader >& xLoader)
-            throw(css::uno::RuntimeException);
+        virtual void SAL_CALL loadFinished(const css::uno::Reference< css::frame::XFrameLoader >& xLoader);
 
-        virtual void SAL_CALL loadCancelled(const css::uno::Reference< css::frame::XFrameLoader >& xLoader)
-            throw(css::uno::RuntimeException);
+        virtual void SAL_CALL loadCancelled(const css::uno::Reference< css::frame::XFrameLoader >& xLoader);
 
         //_______________________________________
         // frame.XDispatchResultListener
-        virtual void SAL_CALL dispatchFinished(const css::frame::DispatchResultEvent& aEvent)
-            throw(css::uno::RuntimeException);
+        virtual void SAL_CALL dispatchFinished(const css::frame::DispatchResultEvent& aEvent);
 
         //_______________________________________
         // lang.XEventListener
-        virtual void SAL_CALL disposing(const css::lang::EventObject& aEvent)
-            throw(css::uno::RuntimeException);
+        virtual void SAL_CALL disposing(const css::lang::EventObject& aEvent);
 */
 
     //___________________________________________

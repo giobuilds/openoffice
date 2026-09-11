@@ -2098,7 +2098,6 @@ uno::Reference< sheet::XRangeSelection > SAL_CALL ScChart2DataProvider::getRange
 }
 
 /*uno::Reference< util::XNumberFormatsSupplier > SAL_CALL ScChart2DataProvider::getNumberFormatsSupplier()
-    throw (uno::RuntimeException)
 {
     return uno::Reference< util::XNumberFormatsSupplier >( lcl_GetXModel( m_pDocument ), uno::UNO_QUERY );
 }*/
@@ -3475,7 +3474,7 @@ void ScChart2DataSequence::setDataChangedHint(bool b)
 // XUnoTunnel
 
 // sal_Int64 SAL_CALL ScChart2DataSequence::getSomething(
-// 				const uno::Sequence<sal_Int8 >& rId ) throw(uno::RuntimeException)
+// 				const uno::Sequence<sal_Int8 >& rId )
 // {
 // 	if ( rId.getLength() == 16 &&
 //           0 == rtl_compareMemory( getUnoTunnelId().getConstArray(),
@@ -3771,7 +3770,7 @@ void SAL_CALL ScChart2EmptyDataSequence::removeVetoableChangeListener(
 // XUnoTunnel
 
 // sal_Int64 SAL_CALL ScChart2EmptyDataSequence::getSomething(
-// 				const uno::Sequence<sal_Int8 >& rId ) throw(uno::RuntimeException)
+// 				const uno::Sequence<sal_Int8 >& rId )
 // {
 // 	if ( rId.getLength() == 16 &&
 //           0 == rtl_compareMemory( getUnoTunnelId().getConstArray(),

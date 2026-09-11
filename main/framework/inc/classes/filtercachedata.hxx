@@ -831,8 +831,8 @@ class FilterCFGListener : public  css::util::XChangesListener
         void startListening();
         void stopListening ();
 
-        virtual void SAL_CALL changesOccurred( const css::util::ChangesEvent& aEvent ) throw(css::uno::RuntimeException);
-        virtual void SAL_CALL disposing      ( const css::lang::EventObject&  aEvent ) throw(css::uno::RuntimeException);
+        virtual void SAL_CALL changesOccurred( const css::util::ChangesEvent& aEvent );
+        virtual void SAL_CALL disposing      ( const css::lang::EventObject&  aEvent );
 
     private:
 

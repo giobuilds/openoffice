@@ -1350,6 +1350,9 @@ public:
 												const ScBigRange& aBigRange, const String& sNewValue ); // only to use in the XML import
 			// returns sal_False if the action number is already in use, in which case the new duplicate is dropped
 			sal_Bool				AppendLoaded( ScChangeAction* pAppend ); // this is only for the XML import public, it should be protected
+			// XML import only: dispose of an action that AppendLoaded refused.
+			// ~ScChangeAction is protected and ScChangeTrack is its friend.
+			static void			DeleteLoaded( ScChangeAction* pAction ) { delete pAction; }
 			void				SetActionMax(sal_uLong nTempActionMax)
 									{ nActionMax = nTempActionMax; } // only to use in the XML import
 

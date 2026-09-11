@@ -68,7 +68,6 @@ OUString SAL_CALL
 
 /*
 uno::Sequence< OUString > SAL_CALL ThesaurusMeaning::querySynonyms()
-		throw(RuntimeException)
 {
 }
 */

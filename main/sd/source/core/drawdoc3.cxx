@@ -94,10 +94,10 @@ public:
                 : xStor( rStor )
             {}
 
-    void disposing ( const lang::EventObject& aEvent ) throw ( uno::RuntimeException );
+    void disposing ( const lang::EventObject& aEvent );
 };
 
-void SdStorageListener::disposing( const lang::EventObject& aEvent ) throw ( uno::RuntimeException )
+void SdStorageListener::disposing( const lang::EventObject& aEvent )
 {
     xStor = NULL;
 }*/

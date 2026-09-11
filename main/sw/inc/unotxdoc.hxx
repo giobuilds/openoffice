@@ -336,7 +336,7 @@ public:
 	virtual css::uno::Reference< css::container::XNameAccess >  SAL_CALL getEmbeddedObjects(void);
 
 //	// css::text::XTextShapesSupplier
-//    virtual css::uno::Reference< css::container::XIndexAccess >  getShapes(void) throw( css::uno::RuntimeException );
+//    virtual css::uno::Reference< css::container::XIndexAccess >  getShapes(void);
 
 	// css::text::XBookmarksSupplier
 	virtual css::uno::Reference< css::container::XNameAccess >  SAL_CALL getBookmarks(void);
