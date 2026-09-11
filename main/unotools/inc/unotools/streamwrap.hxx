@@ -63,6 +63,14 @@ public:
 	OInputStreamWrapper(SvStream* pStream, sal_Bool bOwner=sal_False);
 	virtual ~OInputStreamWrapper();
 
+// XInterface: explicit, out-of-line overrides so that the final overrider
+// is an exported function of this library. Otherwise it is the inline
+// template member, whose this-adjusting thunk GCC references directly from
+// other libraries after devirtualizing "new OInputStreamWrapper" and never
+// finds (undefined reference to non-virtual thunk ... acquire() in sot).
+	virtual void SAL_CALL acquire() throw();
+	virtual void SAL_CALL release() throw();
+
 // stario::XInputStream
 	virtual sal_Int32	SAL_CALL	readBytes(staruno::Sequence< sal_Int8 >& aData, sal_Int32 nBytesToRead);
 	virtual sal_Int32	SAL_CALL	readSomeBytes(staruno::Sequence< sal_Int8 >& aData, sal_Int32 nMaxBytesToRead);
@@ -93,6 +101,10 @@ public:
 	OSeekableInputStreamWrapper(SvStream& _rStream);
 	OSeekableInputStreamWrapper(SvStream* _pStream, sal_Bool _bOwner = sal_False);
 
+	// XInterface, see OInputStreamWrapper
+	virtual void SAL_CALL acquire() throw();
+	virtual void SAL_CALL release() throw();
+
 	// XSeekable
     virtual void SAL_CALL seek( sal_Int64 _nLocation );
     virtual sal_Int64 SAL_CALL getPosition(  );
@@ -112,6 +124,10 @@ protected:
 
 public:
 	OOutputStreamWrapper(SvStream& _rStream) :rStream(_rStream) { }
+
+// XInterface, see OInputStreamWrapper (filtertracer hit this one)
+	virtual void SAL_CALL acquire() throw();
+	virtual void SAL_CALL release() throw();
 
 // stario::XOutputStream
 	virtual void SAL_CALL writeBytes(const staruno::Sequence< sal_Int8 >& aData);
@@ -153,6 +169,10 @@ class UNOTOOLS_DLLPUBLIC OStreamWrapper : public ::cppu::ImplInheritanceHelper3 
 {
 public:
     OStreamWrapper(SvStream& _rStream);
+
+// XInterface, see OInputStreamWrapper
+	virtual void SAL_CALL acquire() throw();
+	virtual void SAL_CALL release() throw();
 
 // stario::XStream
     virtual ::com::sun::star::uno::Reference< ::com::sun::star::io::XInputStream > SAL_CALL getInputStream(  );

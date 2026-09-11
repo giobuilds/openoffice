@@ -284,6 +284,48 @@ void SAL_CALL OSeekableOutputStreamWrapper::acquire(  ) throw ()
 	OOutputStreamWrapper::acquire();
 }
 
+//------------------------------------------------------------------
+// explicit XInterface overrides, see streamwrap.hxx
+void SAL_CALL OInputStreamWrapper::acquire() throw()
+{
+	InputStreamWrapper_Base::acquire();
+}
+
+void SAL_CALL OInputStreamWrapper::release() throw()
+{
+	InputStreamWrapper_Base::release();
+}
+
+void SAL_CALL OSeekableInputStreamWrapper::acquire() throw()
+{
+	OInputStreamWrapper::acquire();
+}
+
+void SAL_CALL OSeekableInputStreamWrapper::release() throw()
+{
+	OInputStreamWrapper::release();
+}
+
+void SAL_CALL OOutputStreamWrapper::acquire() throw()
+{
+	OutputStreamWrapper_Base::acquire();
+}
+
+void SAL_CALL OOutputStreamWrapper::release() throw()
+{
+	OutputStreamWrapper_Base::release();
+}
+
+void SAL_CALL OStreamWrapper::acquire() throw()
+{
+	OSeekableInputStreamWrapper::acquire();
+}
+
+void SAL_CALL OStreamWrapper::release() throw()
+{
+	OSeekableInputStreamWrapper::release();
+}
+
 //------------------------------------------------------------------------------
 void SAL_CALL OSeekableOutputStreamWrapper::release(  ) throw ()
 {
