@@ -79,7 +79,12 @@ configure_and_bootstrap() {
 
     autoconf
 
-    # Same system-library set as linux-sal-gtest.sh. Package formats:
+    # System libraries as in linux-sal-gtest.sh, except Python and jpeg,
+    # which are bundled: the installed tree and the installers must run on
+    # other distributions, and Ubuntu's libpython3.12 / libjpeg.so.8 do
+    # not exist elsewhere (Fedora ships libjpeg.so.62 and Python 3.14).
+    # Bundled Python also gives program/python, which the fidelity
+    # harness's run-local.sh uses on any machine. Package formats:
     # "installed" (the tree the smoke runs), "archive" (.tar.gz), "deb" and
     # "rpm". deb/rpm need EPM >= 5; Ubuntu ships 4.2, so bootstrap builds
     # the bundled one from --with-epm-url (instsetoo_native skips packaging
@@ -104,14 +109,12 @@ configure_and_bootstrap() {
         --with-package-format="installed archive deb rpm" \
         --with-epm-url=https://github.com/jimjag/epm/archive/v5.0.0/epm-5.0.0.tar.gz \
         --with-system-boost \
-        --with-system-python \
         --with-system-libxml \
         --with-system-libxslt \
         --with-system-expat \
         --with-system-zlib \
         --with-system-openssl \
         --with-system-curl \
-        --with-system-jpeg \
         --with-system-libpng \
         --with-dmake-url=https://github.com/jimjag/dmake/archive/v4.13.1/dmake-4.13.1.tar.gz
 
