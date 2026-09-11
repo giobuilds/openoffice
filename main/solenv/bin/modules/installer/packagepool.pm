@@ -861,6 +861,12 @@ sub determine_new_packagename
 	@installer::globals::installsetcontent = ();
 	foreach my $element ( @{$allcontent} ) { push(@installer::globals::installsetcontent, $element); }
 
+	# Only files are packages. rpm >= 4.14 creates BUILDROOT/ and SRPMS/
+	# inside the _topdir the spec points at this directory, and they were
+	# counted as "new packages".
+	my @newfiles = grep { -f $_ } @{$newcontent};
+	$newcontent = \@newfiles;
+
 	my $newentriesnumber = $#{$newcontent} + 1;
 	if ( $newentriesnumber > 1 )
 	{
