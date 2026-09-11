@@ -129,20 +129,37 @@ def _xml(z, name):
         return None
 
 
+def _paras_text(root):
+    return "\n".join("".join(t.text or "" for t in p.iter("{%s}t" % NS["w"]))
+                     for p in root.iter("{%s}p" % NS["w"]))
+
+
 def truth_docx(z):
     doc = _xml(z, "word/document.xml")
     body = doc.find("w:body", NS)
     paras = [c for c in body if c.tag == "{%s}p" % NS["w"]]
     tables = [c for c in body if c.tag == "{%s}tbl" % NS["w"]]
-    text = "\n".join("".join(t.text or "" for t in p.iter("{%s}t" % NS["w"])) for p in paras)
+    # All paragraphs in document order, table cells included: that is what
+    # the loaded document's getText().getString() returns.
+    text = _paras_text(body)
     images = [n for n in z.namelist() if n.startswith("word/media/")]
     footnotes = 0
+    chrome = []
+    for name in sorted(z.namelist()):
+        base = name.rsplit("/", 1)[-1]
+        if name.startswith("word/") and re.match(r"(header|footer)\d*\.xml$", base):
+            chrome.append(_paras_text(_xml(z, name)))
     fn = _xml(z, "word/footnotes.xml")
     if fn is not None:
-        footnotes = sum(1 for f in fn.findall("w:footnote", NS)
-                        if int(f.get("{%s}id" % NS["w"], "0")) > 0)
+        real = [f for f in fn.findall("w:footnote", NS)
+                if f.get("{%s}type" % NS["w"]) not in ("separator", "continuationSeparator")]
+        footnotes = len(real)
+        chrome += [_paras_text(f) for f in real]
     return {"paragraphs": len(paras), "tables": len(tables), "images": len(images),
-            "footnotes": footnotes, "text": text}
+            "footnotes": footnotes, "text": text,
+            # headers, footers and footnote bodies: rendered into the PDF,
+            # not part of the body text; used only for the PDF comparison
+            "chrome_text": "\n".join(c for c in chrome if c)}
 
 
 def truth_xlsx(z):
@@ -211,15 +228,23 @@ def facts_writer(doc):
             "text": doc.getText().getString()}
 
 
+def _count_cells(ranges):
+    n = 0
+    e = ranges.getCells().createEnumeration()
+    while e.hasMoreElements():
+        e.nextElement()
+        n += 1
+    return n
+
+
 def facts_calc(doc):
     sheets = doc.getSheets()
     cells = formulas = 0
     strings = []
     for i in range(sheets.getCount()):
         sheet = sheets.getByIndex(i)
-        content = sheet.queryContentCells(CF_VALUE | CF_DATETIME | CF_STRING | CF_FORMULA)
-        cells += content.getCells().getCount()
-        formulas += sheet.queryContentCells(CF_FORMULA).getCells().getCount()
+        cells += _count_cells(sheet.queryContentCells(CF_VALUE | CF_DATETIME | CF_STRING | CF_FORMULA))
+        formulas += _count_cells(sheet.queryContentCells(CF_FORMULA))
         e = sheet.queryContentCells(CF_STRING).getCells().createEnumeration()
         while e.hasMoreElements():
             strings.append(e.nextElement().getString())
@@ -307,6 +332,7 @@ def run_document(desktop, path, out_dir):
     t0 = time.time()
 
     truth = ground_truth(path, kind)
+    chrome_text = truth.pop("chrome_text", "")
     rec["truth"] = {k: v for k, v in truth.items() if k != "text"}
 
     doc = None
@@ -336,7 +362,8 @@ def run_document(desktop, path, out_dir):
         pf = pdf_facts(pdf)
         rec["pdf"] = {"bytes": os.path.getsize(pdf), "pages": pf.get("pages")}
         if "text" in pf and truth.get("text"):
-            rec["features"]["pdf_text"] = round(text_similarity(truth["text"], pf["text"]), 3)
+            expected_pdf = truth["text"] + ("\n" + chrome_text if chrome_text else "")
+            rec["features"]["pdf_text"] = round(text_similarity(expected_pdf, pf["text"]), 3)
 
         # ODF round trip: store, close, reload, compare model facts
         odf = os.path.join(out_dir, name + odf_ext)
