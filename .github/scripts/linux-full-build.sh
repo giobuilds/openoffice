@@ -79,9 +79,11 @@ configure_and_bootstrap() {
 
     autoconf
 
-    # Same system-library set as linux-sal-gtest.sh. EPM stays enabled:
-    # instsetoo_native skips packaging entirely when EPM=NO, and configure
-    # does not need an epm binary for the "installed" format.
+    # Same system-library set as linux-sal-gtest.sh. Package formats:
+    # "installed" (the tree the smoke runs), "archive" (.tar.gz), "deb" and
+    # "rpm". deb/rpm need EPM >= 5; Ubuntu ships 4.2, so bootstrap builds
+    # the bundled one from --with-epm-url (instsetoo_native skips packaging
+    # entirely when EPM=NO, so --disable-epm must not be used).
     ./configure \
         --with-jdk-home="${jdk}" \
         --with-ant-home="${ant}" \
@@ -99,7 +101,8 @@ configure_and_bootstrap() {
         --enable-unit-tests \
         --enable-harfbuzz \
         --with-system-harfbuzz \
-        --with-package-format=installed \
+        --with-package-format="installed archive deb rpm" \
+        --with-epm-url=https://github.com/jimjag/epm/archive/v5.0.0/epm-5.0.0.tar.gz \
         --with-system-boost \
         --with-system-python \
         --with-system-libxml \
