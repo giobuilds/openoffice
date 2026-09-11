@@ -29,6 +29,7 @@
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "${ROOT}"   # gh needs the repository context
 CORPUS="${1:-${ROOT}/test_files}"
 OUT="${2:-${ROOT}/.fidelity-local}"
 CACHE="${ROOT}/.local-office"
