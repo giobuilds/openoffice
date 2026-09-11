@@ -99,10 +99,9 @@ CFLAGS_NO_EXCEPTIONS=-fno-exceptions
 # specifications were removed from the sources for it; std::auto_ptr and the
 # other C++11 deprecations are kept non-fatal via -Wno-error= below.  The
 # compiler floor is GCC 7 (first release with C++17 support).
-CFLAGSCXX= -pipe $(ARCH_FLAGS) -std=gnu++17 -fno-devirtualize -fno-devirtualize-speculatively -fstack-protector-strong
+CFLAGSCXX= -pipe $(ARCH_FLAGS) -std=gnu++17 -fstack-protector-strong
 .IF "$(HAVE_GCC_VISIBILITY_FEATURE)" == "TRUE"
-# No -fvisibility-inlines-hidden, and no devirtualization: see
-# solenv/gbuild/platform/linux.mk.
+CFLAGSCXX += -fvisibility-inlines-hidden
 .ENDIF # "$(HAVE_GCC_VISIBILITY_FEATURE)" == "TRUE"
 
 CFLAGS_CREATE_PCH=-x c++-header -I$(INCPCH) -DPRECOMPILED_HEADERS

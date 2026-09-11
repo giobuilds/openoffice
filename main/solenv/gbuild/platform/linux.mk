@@ -96,19 +96,16 @@ gb_CXXFLAGS := \
 	-fstack-protector-strong \
 	-fuse-cxa-atexit \
 	-fvisibility=hidden \
+	-fvisibility-inlines-hidden \
 	-std=gnu++17 \
-	-fno-devirtualize \
-	-fno-devirtualize-speculatively \
 	-pipe \
 
 ifneq ($(EXTERNAL_WARNINGS_NOT_ERRORS),TRUE)
-# -fno-devirtualize -fno-devirtualize-speculatively: after inlining
-# Reference<I>::Reference(I*), GCC 13 knows the dynamic type of a freshly
-# constructed utl::OInputStreamWrapper and turns acquire() into a direct call
-# to the non-virtual thunk of the inline cppu::WeakImplHelper1<...>::acquire().
-# No library exports that thunk, so sot and filtertracer fail to link.
-# -fno-devirtualize alone was enough at -Os (gbuild) but not at -O2 (dmake),
-# hence both flags. -fvisibility-inlines-hidden is left off as well.
+# GCC 13 devirtualizes acquire() on a freshly constructed UNO object into a
+# call to the inline cppu::WeakImplHelper thunk, which is hidden in the library
+# that emits it. Exported classes constructed across library boundaries declare
+# their own acquire()/release() (see unotools/streamwrap.hxx) instead of the
+# build turning devirtualization off.
 # gnu++17 is required by the bundled ICU 78 headers. Deprecation/narrowing
 # warnings (std::auto_ptr, throw(), braced-init narrowing) must not be fatal.
 # Mirrors macosx.mk.
