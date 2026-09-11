@@ -65,6 +65,7 @@ jobs:
             bison \
             ca-certificates \
             ccache \
+            fakeroot \
             flex \
             fonts-dejavu-core \
             fonts-liberation \
@@ -99,6 +100,7 @@ jobs:
             patch \
             pkg-config \
             python3-dev \
+            rpm \
             unzip \
             wget \
             xsltproc \
@@ -146,6 +148,30 @@ jobs:
           name: work-linux-x86_64-installed
           path: work-linux-x86_64.tar.zst
           retention-days: 7
+
+      - name: Collect installers
+        if: success()
+        run: |
+          set -e
+          base="$(ls -d main/instsetoo_native/*/Apache_OpenOffice | sed -n '1p')"
+          echo "base=${base}"
+          ls "${base}"
+          mkdir -p installers
+          for fmt in archive deb rpm; do
+            src="${base}/${fmt}/install/en-US"
+            test -d "${src}" || { echo "missing ${src}"; exit 1; }
+            find "${src}" -type f | sed 's#^#  #'
+            tar -C "${src}" -cf "installers/work-linux-x86_64-${fmt}.tar" .
+          done
+          ls -lh installers
+
+      - name: Upload installers
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: work-linux-x86_64-installers
+          path: installers/*.tar
+          retention-days: 14
 
       - name: Save ccache
         if: always()
