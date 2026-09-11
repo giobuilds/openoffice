@@ -61,13 +61,27 @@ also written to the job summary), and the exported PDF and ODF files.
   `.xlsx` or `.pptx` at all and the office cannot write them. Regenerate with
   `python3 make_synthetic.py corpus` when the generator changes; the output is reproducible.
 
-Add real-world documents (charity accounts, grant reports, board packs, funder templates) as
-they become available; the roadmap's triage-by-frequency depends on them. Keep files small and
-free of personal data.
+Add real-world documents (charity accounts, grant reports, board packs, funder templates) only
+when they may be published: keep files small, strip author metadata (`docProps/core.xml`), and
+use feature-based names. Everything else stays in the local `test_files/` directory and is
+measured with `run-local.sh`.
 
-## Running locally
+## Running locally, and private documents
 
-Needs an installed office. Set the environment the way `office_pyenv` in
+Real documents often cannot be published. Keep them in `test_files/` at the repository root,
+which is git-ignored, and measure them with the office CI just built:
+
+```sh
+test/fidelity/run-local.sh              # test_files/ -> .fidelity-local/out/report.md
+test/fidelity/run-local.sh some/dir out # any directory
+```
+
+The script downloads the newest green `work-linux-x86_64-installed` artifact with `gh` (cached
+under `.local-office/`), finds the Python version its pyuno was built for, and runs `run.py`.
+Anything with `.docx`/`.xlsx`/`.pptx` in the directory is measured; nothing is copied into the
+repository.
+
+With an office already installed, set the environment the way `office_pyenv` in
 `.github/scripts/linux-full-build.sh` does, then:
 
 ```sh

@@ -109,3 +109,10 @@ bazel-*
 user.bazelrc
 *.lock
 
+
+# Local OOXML test documents, never committed (see test/fidelity/README.md)
+/test_files/
+
+# Local harness runs (see test/fidelity/README.md)
+/.local-office/
+/.fidelity-local/
