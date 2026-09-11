@@ -106,8 +106,11 @@ jobs:
             zlib1g-dev \
             zstd
 
-      - name: Cache ccache
-        uses: actions/cache@v5
+      # restore/save split so the cache is saved even when the job fails:
+      # actions/cache's post step only runs on success, which kept every
+      # iteration of this job a cold build.
+      - name: Restore ccache
+        uses: actions/cache/restore@v5
         with:
           path: ~/.ccache
           key: ccache-full-${{ runner.os }}-${{ github.run_id }}
@@ -131,7 +134,7 @@ jobs:
       - name: Pack installed office
         if: success()
         run: |
-          office="$(ls -d main/instsetoo_native/*/Apache_OpenOffice/installed/install/en-US/*/ | head -n 1)"
+          office="$(ls -d main/instsetoo_native/*/Apache_OpenOffice/installed/install/en-US/*/ | sed -n '1p')"
           echo "office=${office}"
           tar -C "$(dirname "${office}")" -I 'zstd -T0 -3' -cf work-linux-x86_64.tar.zst "$(basename "${office}")"
           ls -lh work-linux-x86_64.tar.zst
@@ -143,6 +146,13 @@ jobs:
           name: work-linux-x86_64-installed
           path: work-linux-x86_64.tar.zst
           retention-days: 7
+
+      - name: Save ccache
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.ccache
+          key: ccache-full-${{ runner.os }}-${{ github.run_id }}
 
       - name: Compress build log
         if: always()

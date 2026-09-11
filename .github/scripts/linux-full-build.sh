@@ -149,7 +149,7 @@ build_all() {
 
 find_office() {
     local office
-    office="$(ls -d "${ROOT}"/main/instsetoo_native/*/Apache_OpenOffice/installed/install/en-US/*/ 2>/dev/null | head -n 1 || true)"
+    office="$(ls -d "${ROOT}"/main/instsetoo_native/*/Apache_OpenOffice/installed/install/en-US/*/ 2>/dev/null | sed -n '1p' || true)"
     if test -z "${office}" -o ! -x "${office}program/soffice"; then
         echo "no installed office found under instsetoo_native/*/Apache_OpenOffice/installed" >&2
         ls -R "${ROOT}"/main/instsetoo_native/*/Apache_OpenOffice 2>/dev/null | head -n 40 >&2 || true
@@ -175,7 +175,8 @@ smoke() {
     printf 'Work smoke document.\n\nOne paragraph is enough to prove Write loads and saves.\n' > "${work}/in/write.txt"
     printf 'Item,Jan,Feb\nWholesale,18400,19250\nMarket stall,6120,5880\n' > "${work}/in/accounts.csv"
     local otp
-    otp="$(find "${ROOT}/main/extras/source/templates/layout" -name '*.otp' | sort | head -n 1)"
+    # sed instead of head: under pipefail, head closing the pipe fails sort.
+    otp="$(find "${ROOT}/main/extras/source/templates/layout" -name '*.otp' | sort | sed -n '1p')"
     test -n "${otp}"
     cp "${otp}" "${work}/in/show.otp"
 
