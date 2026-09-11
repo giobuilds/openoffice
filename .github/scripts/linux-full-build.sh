@@ -159,14 +159,17 @@ find_office() {
     echo "${office%/}"
 }
 
-# Print the Python interpreter to use for pyuno scripts and export the
-# environment it needs. With --with-system-python there is no
-# program/python wrapper, so locate uno.py, pyuno.so and libpyuno.so in
-# the installed tree and mirror what pyuno/zipcore/python.sh sets up.
+# Set OFFICE_PY to the Python interpreter for pyuno scripts and export
+# the environment it needs. Must be called as a plain command, not in a
+# $(...) substitution, or the exports stay in a subshell (which is what
+# broke the smoke on the first run of the fidelity branch). With
+# --with-system-python there is no program/python wrapper, so locate
+# uno.py, pyuno.so and libpyuno.so in the installed tree and mirror what
+# pyuno/zipcore/python.sh sets up.
 office_pyenv() {
     local office="$1" unopy pyunoso pyunolib
     if test -x "${office}/program/python"; then
-        echo "${office}/program/python"
+        OFFICE_PY="${office}/program/python"
         return 0
     fi
     unopy="$(find "${office}" -name uno.py | sed -n '1p')"
@@ -177,21 +180,21 @@ office_pyenv() {
     export PYTHONPATH="$(dirname "${unopy}"):$(dirname "${pyunoso}"):${office}/program${PYTHONPATH:+:${PYTHONPATH}}"
     export URE_BOOTSTRAP="vnd.sun.star.pathname:${office}/program/fundamentalrc"
     export LD_LIBRARY_PATH="$(dirname "${pyunoso}"):$(dirname "${pyunolib:-${office}/program/x}"):${office}/program${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-    python3 -c 'import uno, sys; print("pyuno import ok, python", sys.version.split()[0])' >&2
-    echo python3
+    python3 -c 'import uno, sys; print("pyuno import ok, python", sys.version.split()[0])'
+    OFFICE_PY=python3
 }
 
 fidelity() {
-    local office py out
+    local office out
     office="$(find_office)"
     out="${ROOT}/.fidelity"
     rm -rf "${out}"
     mkdir -p "${out}"
     export HOME="${out}/home"
     mkdir -p "${HOME}"
-    py="$(office_pyenv "${office}")"
+    office_pyenv "${office}"
     echo "===== fidelity harness: ${office} ====="
-    timeout 1800 "${py}" "${ROOT}/test/fidelity/run.py" \
+    timeout 1800 "${OFFICE_PY}" "${ROOT}/test/fidelity/run.py" \
         "${office}" "${ROOT}/test/fidelity/corpus" "${out}/out"
     echo "linux-full-build fidelity: ok"
 }
@@ -219,9 +222,8 @@ smoke() {
     cp "${otp}" "${work}/in/show.otp"
 
     # The office has no -convert-to switch; drive it over a UNO pipe.
-    local py
-    py="$(office_pyenv "${office}")"
-    timeout 1200 "${py}" "${ROOT}/.github/scripts/smoke_roundtrip.py" \
+    office_pyenv "${office}"
+    timeout 1200 "${OFFICE_PY}" "${ROOT}/.github/scripts/smoke_roundtrip.py" \
         "${office}" "${work}/in" "${work}/out"
 
     ls -l "${work}/out"
