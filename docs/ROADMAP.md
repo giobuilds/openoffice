@@ -83,18 +83,27 @@ changes. This phase is small and unblocks everything.
   the C++17 migration, the ICU 78 adaptation of i18npool and its rule files, and fixes to two
   hardening changes that had never been compiled.
 - **Nightly installers** (`.deb`, `.rpm`, archive) published as workflow artifacts so features can
-  be tried without a local build.
+  be tried without a local build. **Done 2026-09-11 (PR #58):** `work-linux-x86_64-installers`
+  holds all three; PR #61 bundles Python and jpeg so the packages and the installed tree run on
+  distributions other than the Ubuntu build host.
 - **Smoke run.** The same job starts the installed office headless, drives it over a UNO pipe
   with pyuno, and round-trips a text file to ODT, a CSV to ODS, a layout template to ODP, and
   the new ODT to PDF, then checks the ODF containers. **Done 2026-09-11.**
 - **Fidelity harness skeleton** (see §4) so measurement starts before any filter work.
-  *Skeleton in `test/fidelity/`, runs after the smoke in `linux-full-build` (PR pending).*
+  **Done 2026-09-11 (PRs #60, #61):** `test/fidelity/` runs after the smoke in `linux-full-build`
+  and reports per document and feature; `run-local.sh` measures a private, git-ignored
+  `test_files/` directory against the newest build without publishing anything. First private
+  corpus of 25 real Word, Excel and PowerPoint files: every file loads, score 0.976; the
+  measurable losses are pivot-table cells, grouped shapes in one deck, and a surviving deleted
+  paragraph mark in tracked-changes documents.
 - **Windows and macOS** builds follow, using `win10-msvc/README.md` as the starting point.
   Decision 2026-09-11: Linux first. Windows runs on GitHub's hosted runners as a background track
   once Phase 1 has something worth trying on a desktop (tracked in the "Windows build on hosted
   runners" issue); macOS when a release or a self-hosted Mac runner is in reach.
 
 Exit criterion: a green nightly that produces an installable Work, and a `test/` BVT run against it.
+Status 2026-09-12: the nightly is green and produces installers; the BVT run and the Windows and
+macOS builds remain.
 
 ## 4. OOXML fidelity programme (continuous)
 
